@@ -24,5 +24,5 @@ More documentation can be found in `resources/docs`
 
 ## acknowledgements
 
-Big thank you to the [bdk](bitcoindevkit.org) & [cyphernode](cyphernode.io) teams for all the support and feedback that made this possible.
+Big thank you to the [bdk](https://bitcoindevkit.org) & [cyphernode](http://cyphernode.io) teams for all the support and feedback that made this possible.
 
