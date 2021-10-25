@@ -21,3 +21,8 @@ Binaries are zipped into `resources/builds.zip`.
 ## docs
 
 More documentation can be found in `resources/docs`
+
+## acknowledgements
+
+Big thank you to the [bdk](bitcoindevkit.org) & [cyphernode](cyphernode.io) teams for all the support and feedback that made this possible.
+

@@ -237,7 +237,6 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
   })
 }
 
-
 pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new_offline(
     &config.deposit_desc,
