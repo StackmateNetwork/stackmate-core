@@ -73,7 +73,7 @@ mod tests {
   use crate::wallet::address;
   use crate::config::{WalletConfig, DEFAULT_MAINNET_NODE}; 
 
-  #[test]
+  #[test] #[ignore]
   fn test_coldcard_watcher() {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("resources/cc.json");
