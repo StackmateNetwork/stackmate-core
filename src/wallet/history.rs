@@ -41,7 +41,7 @@ pub struct WalletHistory {
 
 impl WalletHistory {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
@@ -70,10 +70,7 @@ impl Transaction {
       txid: txdetail.txid.to_string(),
       received: txdetail.received,
       sent: txdetail.sent,
-      fee: match txdetail.fee {
-        Some(fee) => fee,
-        None => 0,
-      },
+      fee: txdetail.fee.unwrap_or(0),
     }
   }
 }
@@ -101,15 +98,14 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
 
   match wallet.list_transactions(false) {
     Ok(history) => {
-      return Ok(
-        WalletHistory{
+      Ok(WalletHistory{
           history: history
           .iter()
           .map(|txdetail| Transaction::from_txdetail(txdetail.clone()))
           .collect(),
-        })
+      })
     }
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+    Err(e) => Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
   }
 }
 
@@ -119,7 +115,7 @@ pub struct WalletBalance {
 }
 impl WalletBalance {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
@@ -153,8 +149,8 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
   };
 
   match wallet.get_balance() {
-    Ok(balance) => return Ok(WalletBalance { balance: balance }),
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+    Ok(balance) => Ok(WalletBalance { balance }),
+    Err(e) => Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
   }
 }
 

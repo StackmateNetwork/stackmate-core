@@ -32,7 +32,7 @@ pub struct WalletPSBT {
 // }
 impl WalletPSBT {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(&self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
@@ -175,7 +175,7 @@ pub struct DecodedTx {
 
 impl DecodedTx {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(&self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
@@ -233,7 +233,7 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
 
   Ok(DecodedTx {
     outputs: decoded_outputs,
-    size: size,
+    size,
   })
 }
 
@@ -271,7 +271,7 @@ pub struct Txid {
 }
 impl Txid {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(&self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")

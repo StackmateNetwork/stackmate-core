@@ -16,7 +16,7 @@ pub struct WalletAddress {
 }
 impl WalletAddress{
   pub fn c_stringify(&self)->*mut c_char{
-    let stringified = match serde_json::to_string(self.clone()){
+    let stringified = match serde_json::to_string(self){
         Ok(result)=>result,
         Err(_)=>return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.").unwrap().into_raw()
     };
@@ -42,10 +42,10 @@ pub fn generate(
   };
 
   match wallet.get_address(Peek(index)){
-    Ok(address) => return Ok(WalletAddress{
+    Ok(address) => Ok(WalletAddress{
       address:address.to_string()
     }),
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
+    Err(e) => Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
   }
 
 }

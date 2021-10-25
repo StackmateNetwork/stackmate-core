@@ -18,7 +18,7 @@ pub struct WalletPolicy {
 }
 impl WalletPolicy {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(self.clone()) {
+    let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
@@ -52,7 +52,7 @@ pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error>
     };
 
   let descriptor = match script_type {
-    "wpkh" => policy.replace("pk", "wpkh").to_string(),
+    "wpkh" => policy.replace("pk", "wpkh"),
     "sh" => Descriptor::new_sh(legacy_policy).unwrap().to_string(),
     "wsh" => Descriptor::new_wsh(segwit_policy).unwrap().to_string(),
     "sh-wsh" => Descriptor::new_sh_wsh(segwit_policy).unwrap().to_string(),
@@ -61,7 +61,7 @@ pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error>
 
   Ok(WalletPolicy {
     policy: policy.to_string(),
-    descriptor: descriptor.split("#").collect::<Vec<&str>>()[0].to_string(),
+    descriptor: descriptor.split('#').collect::<Vec<&str>>()[0].to_string(),
   })
 }
 

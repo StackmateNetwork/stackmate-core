@@ -2,8 +2,7 @@
 Developed by Stackmate India in 2021.
 */
 
-/// A set of composite functions that uses [rust-bitcoin](https://docs.rs/crate/bitcoin/0.27.1) & [bdk](bitcoindevkit.com) and exposes a simpligied C interface to build descriptor based wallet applications.
-#[allow(dead_code)]
+//! A set of composite functions that uses [rust-bitcoin](https://docs.rs/crate/bitcoin/0.27.1) & [bdk](bitcoindevkit.com) and exposes a simpligied C interface to build descriptor based wallet applications.
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
@@ -31,6 +30,9 @@ use crate::network::fees;
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn generate_master(
     network: *const c_char,
@@ -70,12 +72,15 @@ pub unsafe extern "C" fn generate_master(
     };
 
     match master::generate(length, passphrase, network) {
-        Ok(master_key) => return master_key.c_stringify(),
-        Err(e) => return e.c_stringify(),
+        Ok(master_key) => master_key.c_stringify(),
+        Err(e) => e.c_stringify(),
     }
 }
 
 /// Creates a master xprv given a mnemonic and passphrase.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn import_master(
     network: *const c_char,
@@ -106,8 +111,8 @@ pub unsafe extern "C" fn import_master(
         };
 
         match master::import(mnemonic, passphrase, network) {
-            Ok(master_key) => return master_key.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(master_key) => master_key.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
     
 }
@@ -115,6 +120,9 @@ pub unsafe extern "C" fn import_master(
 /// Derives hardened child keys from a master xprv.
 /// Follows the BIP32 standard of m/purpose'/network'/account'.
 /// Network path is inferred from the master xprv.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn derive_hardened(
     master_xprv: *const c_char,
@@ -153,14 +161,17 @@ pub unsafe extern "C" fn derive_hardened(
         };
 
         match child::derive(master_xprv, purpose, account) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
-        };
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
+        }
 }
 
 /// Compiles a policy into a descriptor of the specified script type.
 /// Use wpkh for a single signature segwit native wallet (default).
 /// Use wsh for a scripted segwit native wallet.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_char) -> *mut c_char {
     
@@ -183,12 +194,15 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
         };
 
         match policy::compile(policy_str, script_type_str) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
-        };
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
+        }
 }
 
 /// Syncs to a remote node and fetches balance of a descriptor wallet.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_balance(
     deposit_desc: *const c_char,
@@ -220,12 +234,15 @@ pub unsafe extern "C" fn sync_balance(
             Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
         };
         match history::sync_balance(config) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) =>  result.c_stringify(),
+            Err(e) =>  e.c_stringify(),
         }
 }
 
 /// Syncs to a remote node and fetches history of a descriptor wallet.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_history(
     deposit_desc: *const c_char,
@@ -257,13 +274,16 @@ pub unsafe extern "C" fn sync_history(
             Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
         };
         match history::sync_history(config) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Gets a new address for a descriptor wallet at a given index.
 /// Client must keep track of address indexes and ensure prevention of address reuse.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_address(
     deposit_desc: *const c_char,
@@ -310,12 +330,15 @@ pub unsafe extern "C" fn get_address(
         };
 
         match address::generate(config, address_index) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Gets the current network fee (in sats/vbyte) for a given confirmation target.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_fees(
     network: *const c_char,
@@ -325,10 +348,7 @@ pub unsafe extern "C" fn get_fees(
     
         let conf_target_cstr = CStr::from_ptr(conf_target);
         let conf_target_int: usize = match conf_target_cstr.to_str() {
-            Ok(string) => match string.parse::<usize>() {
-                Ok(i) => i,
-                Err(_) => 6,
-            },
+            Ok(string) => string.parse::<usize>().unwrap_or(6),
             Err(_) => 6,
         };
 
@@ -364,14 +384,17 @@ pub unsafe extern "C" fn get_fees(
             Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
         };
         match fees::estimate_sats_per_byte(config, conf_target_int) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Builds a transaction for a given descriptor wallet.
 /// If sweep is set to true, amount value is ignored and will default to None.
-/// It is recommened to set amount to 0 for sweep.
+/// Set amount to 0 for sweep.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn build_tx(
     deposit_desc: *const c_char,
@@ -416,11 +439,7 @@ pub unsafe extern "C" fn build_tx(
         let sweep_cstr = CStr::from_ptr(sweep);
         let sweep: bool = match sweep_cstr.to_str() {
             Ok(string) => {
-                if string == "true" {
-                    true
-                } else {
-                    false
-                }
+                string == "true"
             }
             Err(_) => false,
         };
@@ -429,7 +448,7 @@ pub unsafe extern "C" fn build_tx(
         let amount: Option<u64> = match amount_cstr.to_str() {
             Ok(string) => match string.parse::<u64>() {
                 Ok(i) => {
-                    if i == 0 || sweep == true {
+                    if sweep {
                         None
                     } else {
                         Some(i)
@@ -452,13 +471,16 @@ pub unsafe extern "C" fn build_tx(
         };
 
         match psbt::build(config, to_address, amount, fee_rate, sweep) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char) -> *mut c_char {
     
@@ -480,13 +502,16 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
         };
 
         match psbt::decode(network, psbt) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Signs a PSBT with a descriptor.
 /// Can only be used with descriptors containing private key(s).
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn sign_tx(
     deposit_desc: *const c_char,
@@ -528,12 +553,15 @@ pub unsafe extern "C" fn sign_tx(
         };
 
         match psbt::sign(config, unsigned_psbt) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Broadcasts a signed transaction to a remote node.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn broadcast_tx(
     deposit_desc: *const c_char,
@@ -575,13 +603,16 @@ pub unsafe extern "C" fn broadcast_tx(
         };
 
         match psbt::broadcast(config, signed_psbt) {
-            Ok(result) => return result.c_stringify(),
-            Err(e) => return e.c_stringify(),
+            Ok(result) => result.c_stringify(),
+            Err(e) => e.c_stringify(),
         }
 }
 
 /// Checks if an extended public key is valid.
 /// Do not use the key source while checking an xpub i.e. remove [fingerprint/derivation/path/values] and only provide the xpub/tpub.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - Ensure that result is passed into cstring_free after use.
 #[no_mangle]
 pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
     
@@ -592,13 +623,15 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
         };
 
         match child::check_xpub(xpub) {
-            true => return CString::new("true").unwrap().into_raw(),
-            false => return CString::new("false").unwrap().into_raw(),
+            true => CString::new("true").unwrap().into_raw(),
+            false => CString::new("false").unwrap().into_raw(),
         }
 }
 
 /// After using any other function, pass the output pointer into cstring_free to clear memory.
 /// Failure to do so can lead to memory bugs.
+/// # Safety
+/// - This function is unsafe because it deferences a raw pointer.
 #[no_mangle]
 pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
     if ptr.is_null() {

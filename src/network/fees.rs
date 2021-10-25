@@ -5,7 +5,7 @@ use std::os::raw::c_char;
 
 use serde::{Serialize,Deserialize};
 
-use bdk::blockchain::{Blockchain,AnyBlockchain};
+use bdk::blockchain::{Blockchain};
 
 
 #[derive(Serialize,Deserialize,Debug)]
@@ -14,7 +14,7 @@ pub struct NetworkFee {
 }
 impl NetworkFee{
   pub fn c_stringify(&self)->*mut c_char{
-    let stringified = match serde_json::to_string(self.clone()){
+    let stringified = match serde_json::to_string(self){
         Ok(result)=>result,
         Err(_)=>return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.").unwrap().into_raw()
     };
@@ -25,9 +25,7 @@ impl NetworkFee{
 
 pub fn estimate_sats_per_byte(config: WalletConfig, target: usize)->Result<NetworkFee, S5Error>{
 
-  let blockchain:AnyBlockchain = AnyBlockchain::from(config.client);
-
-  let fee = match blockchain.estimate_fee(target){
+  let fee = match config.client.estimate_fee(target){
     Ok(result)=>result,
     Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
   };

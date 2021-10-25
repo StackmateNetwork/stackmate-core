@@ -24,7 +24,7 @@ pub struct ChildKeys {
 
 impl ChildKeys{
   pub fn c_stringify(&self)->*mut c_char{
-    let stringified = match serde_json::to_string(self.clone()){
+    let stringified = match serde_json::to_string(self){
         Ok(result)=>result,
         Err(_)=>return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.").unwrap().into_raw()
     };
@@ -63,17 +63,14 @@ pub fn derive(master_xprv: &str, purpose: &str, account: &str) -> Result<ChildKe
 
   Ok(ChildKeys{
     fingerprint: fingerprint.to_string(),
-    hardened_path: hardened_path.to_string(),
+    hardened_path,
     xprv: child_xprv.to_string(),
     xpub: child_xpub.to_string()
   })
 }
 
 pub fn check_xpub(xpub: &str)->bool{
-  match ExtendedPubKey::from_str(xpub){
-    Ok(_)=>true,
-    Err(_)=>false
-  }
+  ExtendedPubKey::from_str(xpub).is_ok()
 }
 
 #[cfg(test)]

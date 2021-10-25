@@ -30,18 +30,17 @@ impl WalletConfig {
   ) -> Result<Self, S5Error> {
 
     let change_desc: &str = &deposit_desc.replace("/0/*", "/1/*");
-    let network = if deposit_desc.clone().contains("xpub") || deposit_desc.clone().contains("xprv") {
+    let network = if <&str>::clone(&deposit_desc).contains("xpub") || <&str>::clone(&deposit_desc).contains("xprv") {
       Network::Bitcoin
     } else {
       Network::Testnet
     };
     
     let node_address = if node_address.contains(DEFAULT){
-      let address = match network{
+      match network{
         Network::Bitcoin=>DEFAULT_MAINNET_NODE,
         _=>DEFAULT_TESTNET_NODE
-      };
-      address
+      }
     }
     else{
       node_address
@@ -63,17 +62,17 @@ impl WalletConfig {
       Ok(WalletConfig {
         deposit_desc: deposit_desc.to_string(),
         change_desc: change_desc.to_string(),
-        network: network,
-        client: client,
+        network,
+        client,
       })
     } else if node_address.contains("http") {
       let parts: Vec<&str> = node_address.split("?auth=").collect();
-      let auth = if parts[1] == "" {
+      let auth = if parts[1].is_empty() {
         Auth::None
       } else {
         Auth::UserPass {
-          username: parts[1].split(":").collect::<Vec<&str>>()[0].to_string(),
-          password: parts[1].split(":").collect::<Vec<&str>>()[1].to_string(),
+          username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),
+          password: parts[1].split(':').collect::<Vec<&str>>()[1].to_string(),
         }
       };
       let wallet_name = match wallet_name_from_descriptor(
@@ -88,9 +87,9 @@ impl WalletConfig {
      
       let config = RpcConfig {
         url: parts[0].to_string(),
-        auth: auth,
-        network: network,
-        wallet_name: wallet_name,
+        auth,
+        network,
+        wallet_name,
         skip_blocks: None,
       };
       let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)){
@@ -101,8 +100,8 @@ impl WalletConfig {
       Ok(WalletConfig {
         deposit_desc: deposit_desc.to_string(),
         change_desc: change_desc.to_string(),
-        network: network,
-        client:client
+        network,
+        client
       })
     }
     else{
@@ -160,36 +159,34 @@ pub fn _check_client(network: Network, node_address: &str)->Result<bool,S5Error>
       timeout: Some(5),
       stop_gap: 1000,
     };
-    let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
+    match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
       Ok(client)=>client,
       Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
-    };
-    client
+    }
 
   } else if node_address.contains("http") {
     let parts: Vec<&str> = node_address.split("?auth=").collect();
-    let auth = if parts[1] == "" {
+    let auth = if parts[1].is_empty() {
       Auth::None
     } else {
       Auth::UserPass {
-        username: parts[1].split(":").collect::<Vec<&str>>()[0].to_string(),
-        password: parts[1].split(":").collect::<Vec<&str>>()[1].to_string(),
+        username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),
+        password: parts[1].split(':').collect::<Vec<&str>>()[1].to_string(),
       }
     };
     
     let config = RpcConfig {
       url: parts[0].to_string(),
-      auth: auth,
-      network: network,
+      auth,
+      network,
       wallet_name: "ping".to_string(),
       skip_blocks: None,
     };
-    let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)){
+    
+    match create_blockchain_client(AnyBlockchainConfig::Rpc(config)){
       Ok(client)=>client,
       Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
-    };
-
-    client
+    }
   }
   else{
     return Err(S5Error::new(ErrorKind::OpError, "Invalid Node Address."))
