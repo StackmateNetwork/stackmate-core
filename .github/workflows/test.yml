@@ -14,15 +14,6 @@ jobs:
               DO_COV: true
               AS_DEPENDENCY: true
               DO_NO_STD: true
-          - rust: beta
-            env:
-              AS_DEPENDENCY: true
-              DO_NO_STD: true
-          - rust: nightly
-            env:
-              DO_BENCH: true
-              AS_DEPENDENCY: true
-              DO_NO_STD: true
     steps:
       - name: Checkout Crate
         uses: actions/checkout@v2
