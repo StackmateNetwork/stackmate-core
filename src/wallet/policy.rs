@@ -36,19 +36,19 @@ pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error>
 
   let x_policy = match Concrete::<String>::from_str(policy) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::InputError, "Invalid Policy")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Policy")),
   };
   // println!("{:#?}",x_policy);
 
   let legacy_policy: Miniscript<String, Legacy> = match x_policy.compile() {
     Ok(result) => result,
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
   // .map_err(|e| Error::Generic(e.to_string())).unwrap();
   let segwit_policy: Miniscript<String, Segwitv0> = match x_policy
     .compile(){
       Ok(result) => result,
-      Err(e) => return Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
     };
 
   let descriptor = match script_type {
@@ -56,7 +56,7 @@ pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error>
     "sh" => Descriptor::new_sh(legacy_policy).unwrap().to_string(),
     "wsh" => Descriptor::new_wsh(segwit_policy).unwrap().to_string(),
     "sh-wsh" => Descriptor::new_sh_wsh(segwit_policy).unwrap().to_string(),
-    _ => return Err(S5Error::new(ErrorKind::OpError, "Invalid-Script-Type")),
+    _ => return Err(S5Error::new(ErrorKind::Internal, "Invalid-Script-Type")),
   };
 
   Ok(WalletPolicy {

@@ -62,17 +62,17 @@ pub fn build(
     config.client,
   ) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Initialization")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
 
   match wallet.sync(noop_progress(), None) {
     Ok(_) => (),
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Sync")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
 
   let send_to = match Address::from_str(to) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Address-Parse")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Address-Parse")),
   };
 
   let (psbt, details) = {
@@ -94,7 +94,7 @@ pub fn build(
       Ok(result) => result,
       Err(e) => {
         println!("{:?}", e);
-        return Err(S5Error::new(ErrorKind::OpError, "Transaction-Build"));
+        return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
       }
     }
     
@@ -122,17 +122,17 @@ pub fn build(
 //     config.client,
 //   ) {
 //     Ok(result) => result,
-//     Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Initialization")),
+//     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
 //   };
 
 //   match wallet.sync(noop_progress(), None) {
 //     Ok(_) => (),
-//     Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Sync")),
+//     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
 //   };
 
 //   let send_to = match Address::from_str(to) {
 //     Ok(result) => result,
-//     Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Address-Parse")),
+//     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Address-Parse")),
 //   };
 
 //   let (psbt, details) = {
@@ -147,7 +147,7 @@ pub fn build(
 //       Ok(result) => result,
 //       Err(e) => {
 //         println!("{:?}", e);
-//         return Err(S5Error::new(ErrorKind::OpError, "Transaction-Build"));
+//         return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
 //       }
 //     }
     
@@ -191,12 +191,12 @@ impl DecodedTx {
 pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
   let decoded_psbt = match base64::decode(psbt) {
     Ok(psbt) => psbt,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Basae64-Decode")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Basae64-Decode")),
   };
 
   let psbt_struct: PartiallySignedTransaction = match deserialize(&decoded_psbt) {
     Ok(psbt) => psbt,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Deserialize-Error")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Error")),
   };
 
   println!("{:#?}", &psbt_struct);
@@ -245,17 +245,17 @@ pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
     MemoryDatabase::default(),
   ) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Initialization")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
 
   let mut final_psbt = match deserialize(&base64::decode(psbt).unwrap()) {
     Ok(psbt) => psbt,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Deserialize-Psbt-Error")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Psbt-Error")),
   };
 
   let finalized = match wallet.sign(&mut final_psbt, SignOptions::default()) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Sign-Error")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Sign-Error")),
   };
 
   Ok(WalletPSBT {
@@ -292,26 +292,26 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
     config.client,
   ) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Initialization")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
 
   match wallet.sync(noop_progress(), None) {
     Ok(_) => (),
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Sync")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
 
   let decoded_psbt = match base64::decode(&psbt) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "PSBT-Decode")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Decode")),
   };
   let psbt_struct: PartiallySignedTransaction = match deserialize(&decoded_psbt) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "PSBT-Deserialize")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Deserialize")),
   };
   let tx = psbt_struct.extract_tx();
   let txid = match wallet.broadcast(tx){
     Ok(result) => result,
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError,&e.to_string())),
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal,&e.to_string())),
   };
   
 

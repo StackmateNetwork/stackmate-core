@@ -16,7 +16,7 @@ pub fn _generate()->Result<SchnorrPair,S5Error>{
 
   let mut rng = match OsRng::new() {
     Ok(r) => r,
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError,"OS-RNG")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Key,"OS-RNG")),
   };
   let secp = Secp256k1::new();
 

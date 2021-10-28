@@ -56,7 +56,7 @@ impl WalletConfig {
       };
       let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
         Ok(client)=>client,
-        Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
+        Err(e)=>return Err(S5Error::new(ErrorKind::Internal,&e.message))
       };
 
       Ok(WalletConfig {
@@ -82,7 +82,7 @@ impl WalletConfig {
         &Secp256k1::new(),
       ) {
         Ok(name) => name,
-        Err(e) => return Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
       };
      
       let config = RpcConfig {
@@ -94,7 +94,7 @@ impl WalletConfig {
       };
       let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)){
         Ok(client)=>client,
-        Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
+        Err(e)=>return Err(S5Error::new(ErrorKind::Internal,&e.message))
       };
 
       Ok(WalletConfig {
@@ -105,7 +105,7 @@ impl WalletConfig {
       })
     }
     else{
-      Err(S5Error::new(ErrorKind::OpError, "Invalid Node Address."))
+      Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."))
     }
   }
 }
@@ -118,11 +118,11 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig)->Result<AnyBlockcha
         Err(bdk_error) => {
           match bdk_error {
             bdk::Error::Electrum(electrum_error)=>match electrum_error{
-              ElectrumError::IOError(c_error)=> return Err(S5Error::new(ErrorKind::NetworkError, &c_error.to_string())),
-              e_error=> return Err(S5Error::new(ErrorKind::OpError,&e_error.to_string()))
+              ElectrumError::IOError(c_error)=> return Err(S5Error::new(ErrorKind::Network, &c_error.to_string())),
+              e_error=> return Err(S5Error::new(ErrorKind::Internal,&e_error.to_string()))
             }
             e_error=>{
-              return Err(S5Error::new(ErrorKind::OpError, &e_error.to_string()))
+              return Err(S5Error::new(ErrorKind::Internal, &e_error.to_string()))
             }
           }
         },
@@ -136,11 +136,11 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig)->Result<AnyBlockcha
         Err(bdk_error) => {
           match bdk_error {
             bdk::Error::Rpc(rpc_error)=>match rpc_error{
-              RpcError::Io(c_error)=> return Err(S5Error::new(ErrorKind::NetworkError, &c_error.to_string())),
-              r_error=> return Err(S5Error::new(ErrorKind::OpError, &r_error.to_string()))
+              RpcError::Io(c_error)=> return Err(S5Error::new(ErrorKind::Network, &c_error.to_string())),
+              r_error=> return Err(S5Error::new(ErrorKind::Internal, &r_error.to_string()))
             }
             r_error=>{
-              return Err(S5Error::new(ErrorKind::OpError, &r_error.to_string()))
+              return Err(S5Error::new(ErrorKind::Internal, &r_error.to_string()))
             }
           }
         },
@@ -161,7 +161,7 @@ pub fn _check_client(network: Network, node_address: &str)->Result<bool,S5Error>
     };
     match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
       Ok(client)=>client,
-      Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
+      Err(e)=>return Err(S5Error::new(ErrorKind::Internal,&e.message))
     }
 
   } else if node_address.contains("http") {
@@ -185,16 +185,16 @@ pub fn _check_client(network: Network, node_address: &str)->Result<bool,S5Error>
     
     match create_blockchain_client(AnyBlockchainConfig::Rpc(config)){
       Ok(client)=>client,
-      Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.message))
+      Err(e)=>return Err(S5Error::new(ErrorKind::Internal,&e.message))
     }
   }
   else{
-    return Err(S5Error::new(ErrorKind::OpError, "Invalid Node Address."))
+    return Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."))
   };
 
   match client.estimate_fee(1){
     Ok(_)=>Ok(true),
-    Err(e)=>Err(S5Error::new(ErrorKind::NetworkError,&e.to_string()))
+    Err(e)=>Err(S5Error::new(ErrorKind::Network,&e.to_string()))
   }
 }
 

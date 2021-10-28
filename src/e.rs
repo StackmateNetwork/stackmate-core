@@ -7,21 +7,21 @@ use serde::{Serialize,Deserialize};
 
 #[derive(Serialize,Deserialize,Debug,Copy,Clone)]
 pub enum ErrorKind {
-  KeyError,
-  WalletError,
-  NetworkError,
-  InputError,
-  OpError,
+  Key,
+  Wallet,
+  Network,
+  Input,
+  Internal,
 }
 
 impl Display for ErrorKind {
   fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
     match self {
-      ErrorKind::InputError => write!(f, "InputError"),
-      ErrorKind::OpError => write!(f, "OpError"),
-      ErrorKind::KeyError => write!(f, "KeyError"),
-      ErrorKind::WalletError => write!(f, "WalletError"),
-      ErrorKind::NetworkError => write!(f, "NetworkError"),
+      ErrorKind::Input => write!(f, "Input"),
+      ErrorKind::Internal => write!(f, "OpError"),
+      ErrorKind::Key => write!(f, "KeyError"),
+      ErrorKind::Wallet => write!(f, "WalletError"),
+      ErrorKind::Network => write!(f, "NetworkError"),
 
     }
   }

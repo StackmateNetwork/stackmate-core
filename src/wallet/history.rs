@@ -87,13 +87,13 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
     Ok(result) => result,
     Err(e) => {
       println!("{:#?}",e);
-      return Err(S5Error::new(ErrorKind::OpError, &e.to_string()));
+      return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
     }
   };
 
   match wallet.sync(noop_progress(), None) {
     Ok(_) => (),
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Sync")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
 
   match wallet.list_transactions(false) {
@@ -105,7 +105,7 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
           .collect(),
       })
     }
-    Err(e) => Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+    Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   }
 }
 
@@ -139,18 +139,18 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
     Ok(result) => result,
     Err(e) => {
       println!("{:#?}",e);
-      return Err(S5Error::new(ErrorKind::OpError, &e.to_string()))
+      return Err(S5Error::new(ErrorKind::Internal, &e.to_string()))
     },
   };
 
   match wallet.sync(noop_progress(), None) {
     Ok(_) => (),
-    Err(_) => return Err(S5Error::new(ErrorKind::OpError, "Wallet-Sync")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
 
   match wallet.get_balance() {
     Ok(balance) => Ok(WalletBalance { balance }),
-    Err(e) => Err(S5Error::new(ErrorKind::OpError, &e.to_string())),
+    Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   }
 }
 

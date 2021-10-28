@@ -44,24 +44,24 @@ pub fn generate(
   
     let mut rng = match OsRng::new() {
       Ok(r) => r,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
   
     let mnemonic = match Mnemonic::generate_in_with(&mut rng, Language::English, length) {
       Ok(mne) => mne,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
 
     let mnemonic_struct = match Mnemonic::parse_in(Language::English, &mnemonic.to_string()) {
       Ok(mne) => mne,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
   
     let seed = mnemonic_struct.to_seed(passphrase);
   
     let master_xprv = match ExtendedPrivKey::new_master(network, &seed) {
       Ok(xprv) => xprv,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
   
     let fingerprint = master_xprv.fingerprint(&secp);
@@ -81,14 +81,14 @@ pub fn import(
   
     let mnemonic_struct = match Mnemonic::parse_in(Language::English, mnemonic.to_string()) {
       Ok(mne) => mne,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
   
     let seed = mnemonic_struct.to_seed(passphrase);
   
     let master_xprv = match ExtendedPrivKey::new_master(network, &seed) {
       Ok(xprv) => xprv,
-      Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string())),
+      Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string())),
     };
   
     let fingerprint = master_xprv.fingerprint(&secp);

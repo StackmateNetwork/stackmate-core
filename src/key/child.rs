@@ -37,7 +37,7 @@ pub fn derive(master_xprv: &str, purpose: &str, account: &str) -> Result<ChildKe
   let secp = Secp256k1::new();
   let root = match ExtendedPrivKey::from_str(master_xprv) {
     Ok(xprv) => xprv,
-    Err(_) => return Err(S5Error::new(ErrorKind::KeyError,"Invalid Master Key."))
+    Err(_) => return Err(S5Error::new(ErrorKind::Key,"Invalid Master Key."))
   };
 
   let fingerprint = root.fingerprint(&secp);
@@ -52,11 +52,11 @@ pub fn derive(master_xprv: &str, purpose: &str, account: &str) -> Result<ChildKe
   let hardened_path = format!("m/{}h/{}h/{}h", purpose, coin, account);
   let path = match DerivationPath::from_str(&hardened_path) {
     Ok(hdpath) => hdpath,
-    Err(_) => return Err(S5Error::new(ErrorKind::KeyError,"Invalid purpose or account in derivation path."))
+    Err(_) => return Err(S5Error::new(ErrorKind::Key,"Invalid purpose or account in derivation path."))
   };
   let child_xprv = match root.derive_priv(&secp, &path) {
     Ok(xprv) => xprv,
-    Err(e) => return Err(S5Error::new(ErrorKind::KeyError,&e.to_string()))
+    Err(e) => return Err(S5Error::new(ErrorKind::Key,&e.to_string()))
   };
 
   let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);

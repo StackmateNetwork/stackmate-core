@@ -56,13 +56,13 @@ pub unsafe extern "C" fn generate_master(
 
     let passphrase_cstr = CStr::from_ptr(passphrase);
     let passphrase: &str = match passphrase_cstr.to_str() {
-        Ok(string) => &string,
+        Ok(string) => string,
         Err(_) => "",
     };
 
     let network_cstr = CStr::from_ptr(network);
     let network_str: &str = match network_cstr.to_str() {
-        Ok(string) => &string,
+        Ok(string) => string,
         Err(_) => "test",
     };
     let network = match network_str {
@@ -89,19 +89,19 @@ pub unsafe extern "C" fn import_master(
 ) -> *mut c_char {
         let input_cstr = CStr::from_ptr(mnemonic);
         let mnemonic: &str = match input_cstr.to_str() {
-            Ok(string) => &string,
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Mnemonic").c_stringify(),
+            Ok(string) => string,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Mnemonic").c_stringify(),
         };
 
         let passphrase_cstr = CStr::from_ptr(passphrase);
         let passphrase: &str = match passphrase_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => "",
         };
 
         let network_cstr = CStr::from_ptr(network);
         let network_str: &str = match network_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => "test",
         };
         let network = match network_str {
@@ -132,8 +132,8 @@ pub unsafe extern "C" fn derive_hardened(
     
         let master_xprv_cstr = CStr::from_ptr(master_xprv);
         let master_xprv: &str = match master_xprv_cstr.to_str() {
-            Ok(string) => &string,
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Master-Xprv").c_stringify(),
+            Ok(string) => string,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
         };
 
         let purpose_cstr = CStr::from_ptr(purpose);
@@ -177,8 +177,8 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
     
         let policy_cstr = CStr::from_ptr(policy);
         let policy_str: &str = match policy_cstr.to_str() {
-            Ok(string) => &string,
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Policy").c_stringify(),
+            Ok(string) => string,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Policy").c_stringify(),
         };
 
         let script_type_cstr = CStr::from_ptr(script_type);
@@ -211,9 +211,9 @@ pub unsafe extern "C" fn sync_balance(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -231,7 +231,7 @@ pub unsafe extern "C" fn sync_balance(
 
         let config = match WalletConfig::default(deposit_desc, node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
         match history::sync_balance(config) {
             Ok(result) =>  result.c_stringify(),
@@ -251,9 +251,9 @@ pub unsafe extern "C" fn sync_history(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -271,7 +271,7 @@ pub unsafe extern "C" fn sync_history(
 
         let config = match WalletConfig::default(deposit_desc, node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
         match history::sync_history(config) {
             Ok(result) => result.c_stringify(),
@@ -293,9 +293,9 @@ pub unsafe extern "C" fn get_address(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -313,7 +313,7 @@ pub unsafe extern "C" fn get_address(
 
         let config = match WalletConfig::default(deposit_desc, node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
 
         let index_cstr = CStr::from_ptr(index);
@@ -326,7 +326,7 @@ pub unsafe extern "C" fn get_address(
                         .into_raw()
                 }
             },
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Address-Index").c_stringify(),
+            Err(_) => return S5Error::new(ErrorKind::Input, "Address-Index").c_stringify(),
         };
 
         match address::generate(config, address_index) {
@@ -354,7 +354,7 @@ pub unsafe extern "C" fn get_fees(
 
         let network_cstr = CStr::from_ptr(network);
         let network: &str = match network_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => "test",
         };
         let network_enum = match network {
@@ -381,7 +381,7 @@ pub unsafe extern "C" fn get_fees(
 
         let config = match WalletConfig::default("/0/*", node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
         match fees::estimate_sats_per_byte(config, conf_target_int) {
             Ok(result) => result.c_stringify(),
@@ -407,9 +407,9 @@ pub unsafe extern "C" fn build_tx(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -427,13 +427,13 @@ pub unsafe extern "C" fn build_tx(
 
         let config = match WalletConfig::default(deposit_desc, node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
 
         let to_address_cstr = CStr::from_ptr(to_address);
         let to_address: &str = match to_address_cstr.to_str() {
-            Ok(string) => &string,
-            Err(_) => return S5Error::new(ErrorKind::InputError, "To-Address").c_stringify(),
+            Ok(string) => string,
+            Err(_) => return S5Error::new(ErrorKind::Input, "To-Address").c_stringify(),
         };
 
         let sweep_cstr = CStr::from_ptr(sweep);
@@ -455,19 +455,19 @@ pub unsafe extern "C" fn build_tx(
                     }
                 }
                 Err(_) => {
-                    return S5Error::new(ErrorKind::InputError, "Invalid Amount.").c_stringify()
+                    return S5Error::new(ErrorKind::Input, "Invalid Amount.").c_stringify()
                 }
             },
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Amount").c_stringify(),
+            Err(_) => return S5Error::new(ErrorKind::Input, "Amount").c_stringify(),
         };
 
         let fee_rate_cstr = CStr::from_ptr(fee_rate);
         let fee_rate: f32 = match fee_rate_cstr.to_str() {
             Ok(string) => match string.parse::<f32>() {
                 Ok(i) => i,
-                Err(_) => return S5Error::new(ErrorKind::InputError, "Fee Rate").c_stringify(),
+                Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
             },
-            Err(_) => return S5Error::new(ErrorKind::InputError, "Fee Rate").c_stringify(),
+            Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
         };
 
         match psbt::build(config, to_address, amount, fee_rate, sweep) {
@@ -486,7 +486,7 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
     
         let network_cstr = CStr::from_ptr(network);
         let network_str: &str = match network_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => "test",
         };
         let network = match network_str {
@@ -497,8 +497,8 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
 
         let psbt_cstr = CStr::from_ptr(psbt);
         let psbt: &str = match psbt_cstr.to_str() {
-            Ok(string) => &string,
-            Err(_) => return S5Error::new(ErrorKind::InputError, "PSBT-Input").c_stringify(),
+            Ok(string) => string,
+            Err(_) => return S5Error::new(ErrorKind::Input, "PSBT-Input").c_stringify(),
         };
 
         match psbt::decode(network, psbt) {
@@ -521,9 +521,9 @@ pub unsafe extern "C" fn sign_tx(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -541,14 +541,14 @@ pub unsafe extern "C" fn sign_tx(
 
         let config = match WalletConfig::default(deposit_desc, node_address) {
             Ok(conf) => conf,
-            Err(e) => return S5Error::new(ErrorKind::OpError, &e.message).c_stringify(),
+            Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
         };
 
         let unsigned_psbt_cstr = CStr::from_ptr(unsigned_psbt);
         let unsigned_psbt: &str = match unsigned_psbt_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -571,9 +571,9 @@ pub unsafe extern "C" fn broadcast_tx(
     
         let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
         let deposit_desc: &str = match deposit_desc_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -596,9 +596,9 @@ pub unsafe extern "C" fn broadcast_tx(
 
         let psbt_cstr = CStr::from_ptr(signed_psbt);
         let signed_psbt: &str = match psbt_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => {
-                return S5Error::new(ErrorKind::InputError, "Deposit-Descriptor").c_stringify()
+                return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify()
             }
         };
 
@@ -618,7 +618,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
     
         let xpub_cstr = CStr::from_ptr(xpub);
         let xpub: &str = match xpub_cstr.to_str() {
-            Ok(string) => &string,
+            Ok(string) => string,
             Err(_) => return CString::new("false").unwrap().into_raw(),
         };
 

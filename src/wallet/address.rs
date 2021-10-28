@@ -38,14 +38,14 @@ pub fn generate(
     config.client,
   ){
     Ok(result) => result,
-    Err(e) => return Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal,&e.to_string()))
   };
 
   match wallet.get_address(Peek(index)){
     Ok(address) => Ok(WalletAddress{
       address:address.to_string()
     }),
-    Err(e) => Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
+    Err(e) => Err(S5Error::new(ErrorKind::Internal,&e.to_string()))
   }
 
 }

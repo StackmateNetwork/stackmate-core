@@ -52,12 +52,12 @@ impl ColdCardKeys{
   pub fn _from_json_file(path: &str)->Result<ColdCardKeys,S5Error>{
     let file = match File::open(path){
       Ok(file)=>file,
-      Err(_)=> return Err(S5Error::new(ErrorKind::OpError,"File-Open-Cold-Card-Json."))
+      Err(_)=> return Err(S5Error::new(ErrorKind::Internal,"File-Open-Cold-Card-Json."))
     };
     
     match serde_json::from_reader(file){
       Ok(result)=>Ok(result),
-      Err(_)=>Err(S5Error::new(ErrorKind::OpError,"JSON-File-To-Struct"))
+      Err(_)=>Err(S5Error::new(ErrorKind::Internal,"JSON-File-To-Struct"))
     }
 
     

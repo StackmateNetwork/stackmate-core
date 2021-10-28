@@ -27,7 +27,7 @@ pub fn estimate_sats_per_byte(config: WalletConfig, target: usize)->Result<Netwo
 
   let fee = match config.client.estimate_fee(target){
     Ok(result)=>result,
-    Err(e)=>return Err(S5Error::new(ErrorKind::OpError,&e.to_string()))
+    Err(e)=>return Err(S5Error::new(ErrorKind::Internal,&e.to_string()))
   };
     Ok(NetworkFee{
       fee: fee.as_sat_vb()
