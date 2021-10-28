@@ -2,7 +2,7 @@
 
 A Rust-C FFI library exposing composite functionality from [rust-bitcoin](https://github.com/rust-bitcoin/rust-bitcoin/) & [bdk](https://github.com/bitcoindevkit/bdk); to create cross-platform descriptor wallets.
 
-Currently used by [Stackmate mobile wallet](https://github.com/mocodesmo/stackmate).
+Currently used by [Stackmate Wallet](https://github.com/mocodesmo/stackmate).
 
 ## Table of Contents
 - [Acknowledgements](#acknowledgements)

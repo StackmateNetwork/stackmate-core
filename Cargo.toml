@@ -1,8 +1,10 @@
 [package]
 name = "stackmate"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["VM <vishalmenon.92@gmail.com>, MJ <jmorteza@hotmail.com>"]
 edition = "2018"
+description = "Rust-C FFI exposing composite functionality to build bitcoin descriptor wallets."
+keywords = ["bitcoin","rust-c-ffi"]
 
 [lib]
 name = "stackmate"
