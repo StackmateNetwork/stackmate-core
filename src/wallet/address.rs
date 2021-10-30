@@ -1,6 +1,3 @@
-use crate::e::{S5Error,ErrorKind};
-use crate::config::{WalletConfig};
-
 use std::ffi::{CString};
 use std::os::raw::c_char;
 
@@ -9,6 +6,9 @@ use serde::{Serialize,Deserialize};
 use bdk::Wallet;
 use bdk::database::MemoryDatabase;
 use bdk::wallet::AddressIndex::Peek;
+
+use crate::e::{S5Error,ErrorKind};
+use crate::config::{WalletConfig};
 
 #[derive(Serialize,Deserialize,Debug)]
 pub struct WalletAddress {
@@ -49,7 +49,6 @@ pub fn generate(
   }
 
 }
-
 
 #[cfg(test)]
 mod tests {

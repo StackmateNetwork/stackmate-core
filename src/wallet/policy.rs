@@ -1,15 +1,14 @@
-use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::os::raw::c_char;
-
-use crate::e::{ErrorKind, S5Error};
-
 use std::str::FromStr;
+
+use serde::{Deserialize, Serialize};
 
 use bdk::descriptor::Segwitv0;
 use bdk::descriptor::{Descriptor, Legacy, Miniscript};
 use bdk::miniscript::policy::Concrete;
 // use bdk::Error;
+use crate::e::{ErrorKind, S5Error};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletPolicy {
@@ -31,25 +30,24 @@ impl WalletPolicy {
   }
 }
 
-pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error> {
-  // println!("{:#?}",policy);
-
+pub fn compile(
+  policy: &str, 
+  script_type: &str
+) -> Result<WalletPolicy, S5Error> {
   let x_policy = match Concrete::<String>::from_str(policy) {
     Ok(result) => result,
     Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Policy")),
   };
-  // println!("{:#?}",x_policy);
 
   let legacy_policy: Miniscript<String, Legacy> = match x_policy.compile() {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
   // .map_err(|e| Error::Generic(e.to_string())).unwrap();
-  let segwit_policy: Miniscript<String, Segwitv0> = match x_policy
-    .compile(){
-      Ok(result) => result,
-      Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
-    };
+  let segwit_policy: Miniscript<String, Segwitv0> = match x_policy.compile() {
+    Ok(result) => result,
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+  };
 
   let descriptor = match script_type {
     "wpkh" => policy.replace("pk", "wpkh"),

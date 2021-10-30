@@ -1,5 +1,7 @@
-use serde_derive::{Serialize,Deserialize};
 use std::fs::File;
+
+use serde_derive::{Serialize,Deserialize};
+
 use crate::e::{S5Error,ErrorKind};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize,Deserialize)]
@@ -63,7 +65,6 @@ impl ColdCardKeys{
     
   }
 }
-
 
 #[cfg(test)]
 

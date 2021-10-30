@@ -24,7 +24,10 @@ impl NetworkFee{
   }
 }
 
-pub fn estimate_sats_per_byte(config: WalletConfig, target: usize)->Result<NetworkFee, S5Error>{
+pub fn estimate_sats_per_byte(
+  config: WalletConfig, 
+  target: usize
+)->Result<NetworkFee, S5Error>{
 
   let fee = match config.client.estimate_fee(target){
     Ok(result)=>result,

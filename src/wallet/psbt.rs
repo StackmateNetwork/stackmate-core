@@ -1,24 +1,23 @@
-use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::os::raw::c_char;
+use std::str::FromStr;
 
-use crate::config::{WalletConfig};
-use crate::e::{ErrorKind, S5Error};
-use bdk::FeeRate;
-use bdk::{SignOptions, Wallet};
-use bitcoin::util::address::Address;
-use bitcoin::base64;
+use serde::{Deserialize, Serialize};
 
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
+use bdk::FeeRate;
+use bdk::{SignOptions, Wallet};
+
+use bitcoin::base64;
+use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::consensus::deserialize;
 use bitcoin::network::constants::Network;
+use bitcoin::util::address::Address;
 use bitcoin::util::psbt::PartiallySignedTransaction;
-use bitcoin::blockdata::transaction::Transaction;
 
-use std::str::FromStr;
-
-// use bdk::Error;
+use crate::config::WalletConfig;
+use crate::e::{ErrorKind, S5Error};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletPSBT {
@@ -26,11 +25,6 @@ pub struct WalletPSBT {
   pub is_finalized: bool,
 }
 
-// impl Clone for WalletPSBT {
-//     fn clone(&self) -> WalletPSBT {
-//         self
-//     }
-// }
 impl WalletPSBT {
   pub fn c_stringify(&self) -> *mut c_char {
     let stringified = match serde_json::to_string(self) {
@@ -46,14 +40,13 @@ impl WalletPSBT {
   }
 }
 
-
 pub fn build(
   config: WalletConfig,
   to: &str,
   amount: Option<u64>,
   fee_rate: f32,
   // fee_absolute: Option<u32>,
-  sweep: bool
+  sweep: bool,
 ) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
@@ -76,17 +69,14 @@ pub fn build(
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Address-Parse")),
   };
 
-  let (psbt, details) = {
+  let (psbt, _) = {
     let mut builder = wallet.build_tx();
-    if sweep && amount.is_none(){
+    if sweep && amount.is_none() {
+      builder.drain_wallet().drain_to(send_to.script_pubkey());
+    } else {
       builder
-      .drain_wallet()
-      .drain_to(send_to.script_pubkey());
-    }
-    else{
-      builder
-      .enable_rbf()
-      .add_recipient(send_to.script_pubkey(),amount.unwrap());
+        .enable_rbf()
+        .add_recipient(send_to.script_pubkey(), amount.unwrap());
     }
 
     builder.fee_rate(FeeRate::from_sat_per_vb(fee_rate));
@@ -98,10 +88,7 @@ pub fn build(
         return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
       }
     }
-    
   };
-
-  println!("Transaction details: {:#?}", details);
 
   Ok(WalletPSBT {
     psbt: psbt.to_string(),
@@ -138,7 +125,6 @@ pub fn build(
 
 //   let (psbt, details) = {
 //     let mut builder = wallet.build_tx();
-   
 //     builder
 //     .enable_rbf()
 //     .add_recipient(send_to.script_pubkey(),amount)
@@ -151,7 +137,6 @@ pub fn build(
 //         return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
 //       }
 //     }
-    
 //   };
 
 //   println!("Transaction details: {:#?}", details);
@@ -189,7 +174,10 @@ impl DecodedTx {
   }
 }
 
-pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
+pub fn decode(
+  network: Network, 
+  psbt: &str
+) -> Result<DecodedTx, S5Error> {
   let decoded_psbt = match base64::decode(psbt) {
     Ok(psbt) => psbt,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Basae64-Decode")),
@@ -200,20 +188,18 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Error")),
   };
 
-  println!("{:#?}", &psbt_struct);
-
   let outputs = &psbt_struct.global.unsigned_tx.output;
-  // println!("{:#?}", &outputs);
   // println!("{:#?}", Address::from_script(&outputs[0].clone().script_pubkey,network_enum));
   let inputs = &psbt_struct.inputs;
+
+  let transaction: Transaction = psbt_struct.clone().extract_tx();
+
+  let size = transaction.get_size();
 
   let mut decoded_outputs: Vec<DecodedTxOutput> = vec![];
   let mut total_out_value = 0;
   let mut total_in_value = 0;
 
-  let transaction: Transaction = psbt_struct.clone().extract_tx(); 
-  let size = transaction.get_size();
-  
   for output in outputs {
     total_out_value += output.value;
     decoded_outputs.push(DecodedTxOutput {
@@ -224,9 +210,11 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
       },
     });
   }
+
   for input in inputs {
     total_in_value += input.witness_utxo.clone().unwrap().value;
   }
+
   decoded_outputs.push(DecodedTxOutput {
     value: total_in_value - total_out_value,
     to: "miner".to_string(),
@@ -238,7 +226,10 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
   })
 }
 
-pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
+pub fn sign(
+  config: WalletConfig, 
+  psbt: &str
+) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new_offline(
     &config.deposit_desc,
     Some(&config.change_desc),
@@ -284,7 +275,10 @@ impl Txid {
   }
 }
 
-pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
+pub fn broadcast(
+  config: WalletConfig, 
+  psbt: &str
+) -> Result<Txid, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
@@ -310,11 +304,10 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Deserialize")),
   };
   let tx = psbt_struct.extract_tx();
-  let txid = match wallet.broadcast(tx){
+  let txid = match wallet.broadcast(tx) {
     Ok(result) => result,
-    Err(e) => return Err(S5Error::new(ErrorKind::Internal,&e.to_string())),
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
-  
 
   Ok(Txid {
     txid: txid.to_string(),
@@ -342,7 +335,7 @@ mod tests {
     let amount = 5_000;
     let fee_rate = 2.1;
 
-    let psbt_origin = build(config, to, Some(amount), fee_rate,false);
+    let psbt_origin = build(config, to, Some(amount), fee_rate, false);
     println!("{:#?}", psbt_origin);
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
@@ -354,14 +347,15 @@ mod tests {
     // println!("{:#?}",broadcasted.clone().unwrap());
     // assert_eq!(broadcasted.clone().unwrap().txid.len(), 64);
   }
-  use bdk::electrum_client::{Client};
   use bdk::blockchain::{noop_progress, ElectrumBlockchain};
+  use bdk::electrum_client::Client;
 
-  #[test] #[ignore]
-  fn test_build_absolute_and_rate(){
+  #[test]
+  #[ignore]
+  fn test_build_absolute_and_rate() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
-    let change_desc = deposit_desc.replace("/0/*","/1/*");
+    let change_desc = deposit_desc.replace("/0/*", "/1/*");
     let to_address = Address::from_str("mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt").unwrap();
     let amount = 5_000;
     let fee_rate = FeeRate::from_sat_per_vb(21.1);
@@ -373,21 +367,21 @@ mod tests {
       Network::Testnet,
       MemoryDatabase::default(),
       ElectrumBlockchain::from(client),
-    ).unwrap();
+    )
+    .unwrap();
     wallet.sync(noop_progress(), None).unwrap();
-  
     let (psbt, details) = {
       let mut builder = wallet.build_tx();
       builder
-      .enable_rbf()
-      .add_recipient(to_address.script_pubkey(),amount)
-      .fee_rate(fee_rate);
+        .enable_rbf()
+        .add_recipient(to_address.script_pubkey(), amount)
+        .fee_rate(fee_rate);
       builder.finish().unwrap()
     };
 
-    let transaction:Transaction = psbt.extract_tx();
+    let transaction: Transaction = psbt.extract_tx();
     let size = transaction.get_size();
     let fee_absolute = fee_rate.fee_vb(size);
-    assert_eq!(fee_absolute,details.fee.unwrap());
+    assert_eq!(fee_absolute, details.fee.unwrap());
   }
 }
