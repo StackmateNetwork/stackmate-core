@@ -1,10 +1,10 @@
 // use serde::{Serialize,Deserialize};
-use crate::e::{ErrorKind,S5Error};
 
-use secp256k1::rand::rngs::OsRng;
-use secp256k1::Secp256k1;
-
+use bitcoin::secp256k1::rand::rngs::OsRng;
+use bitcoin::secp256k1::Secp256k1;
 use bitcoin::util::schnorr::{KeyPair,PublicKey};
+
+use crate::e::{ErrorKind,S5Error};
 
 #[derive(Debug,Clone)]
 pub struct SchnorrPair{

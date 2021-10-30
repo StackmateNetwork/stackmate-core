@@ -7,8 +7,7 @@ use bdk::blockchain::{ConfigurableBlockchain,ElectrumBlockchain, RpcBlockchain, 
 use bdk::electrum_client::{Error as ElectrumError};
 use bdk::core_rpc::{Error as RpcError};
 use bitcoin::network::constants::Network;
-
-use secp256k1::Secp256k1;
+use bitcoin::secp256k1::Secp256k1;
 
 
 pub struct WalletConfig {

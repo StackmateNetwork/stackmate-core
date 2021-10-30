@@ -1,18 +1,16 @@
-use crate::e::{ErrorKind,S5Error};
-
+use std::str::FromStr;
 use std::ffi::{CString};
 use std::os::raw::c_char;
 
 use serde::{Serialize,Deserialize};
-use std::str::FromStr;
 
-use secp256k1::Secp256k1;
-
+use bitcoin::secp256k1::Secp256k1;
 use bitcoin::network::constants::Network;
-
 use bitcoin::util::bip32::DerivationPath;
 use bitcoin::util::bip32::ExtendedPrivKey;
 use bitcoin::util::bip32::ExtendedPubKey;
+
+use crate::e::{ErrorKind,S5Error};
 
 #[derive(Serialize,Deserialize,Debug)]
 pub struct ChildKeys {

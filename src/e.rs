@@ -1,3 +1,5 @@
+// Implement bitcoin and bdk error type.
+
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::os::raw::c_char;

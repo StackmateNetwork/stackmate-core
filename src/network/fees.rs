@@ -1,11 +1,12 @@
-use crate::e::{S5Error,ErrorKind};
-use crate::config::{WalletConfig};
 use std::ffi::{CString};
 use std::os::raw::c_char;
 
 use serde::{Serialize,Deserialize};
 
 use bdk::blockchain::{Blockchain};
+
+use crate::config::{WalletConfig};
+use crate::e::{S5Error,ErrorKind};
 
 
 #[derive(Serialize,Deserialize,Debug)]

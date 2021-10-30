@@ -7,6 +7,7 @@ use crate::e::{ErrorKind, S5Error};
 use bdk::FeeRate;
 use bdk::{SignOptions, Wallet};
 use bitcoin::util::address::Address;
+use bitcoin::base64;
 
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;

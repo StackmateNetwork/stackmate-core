@@ -1,16 +1,16 @@
-use crate::e::{ErrorKind,S5Error};
-
 use std::ffi::{CString};
 use std::os::raw::c_char;
 
 use serde::{Serialize,Deserialize};
 
-use secp256k1::rand::rngs::OsRng;
-use secp256k1::Secp256k1;
-
 use bip39::{Language, Mnemonic};
+
+use bitcoin::secp256k1::Secp256k1;
+use bitcoin::secp256k1::rand::rngs::OsRng;
 use bitcoin::network::constants::Network;
 use bitcoin::util::bip32::ExtendedPrivKey;
+
+use crate::e::{ErrorKind,S5Error};
 
 #[derive(Serialize,Deserialize,Debug)]
 pub struct MasterKey {
@@ -23,10 +23,17 @@ impl MasterKey{
   pub fn c_stringify(&self)->*mut c_char{
     let stringified = match serde_json::to_string(self){
       Ok(result)=>result,
-      Err(_)=>return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.").unwrap().into_raw()
+      Err(e)=>{
+        eprint!("{:#?}", e.to_string());
+        return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
+        .unwrap()
+        .into_raw()
+      }
     };
 
-    CString::new(stringified).unwrap().into_raw()
+    CString::new(stringified)
+    .unwrap()
+    .into_raw()
   }
 }
 
@@ -114,10 +121,6 @@ mod tests {
     let imported_master_key = import(&master_key.mnemonic,"password",Network::Testnet).unwrap();
     assert_eq!(imported_master_key.xprv,master_key.xprv);
     assert_eq!(imported_master_key.fingerprint,master_key.fingerprint);
-
-
-
-
   }
 
   #[test]
@@ -131,6 +134,5 @@ mod tests {
     let imported_key = import(invalid_mnemonic,"password",Network::Testnet).err().unwrap();
     let expected_emessage = "mnemonic contains an unknown word (word 3)";
     assert_eq!(expected_emessage,imported_key.message);
-
   }
 }
