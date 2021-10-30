@@ -3,6 +3,8 @@ Developed by Stackmate India in 2021.
 */
 //! # Stackmate
 //! A set of composite functions that uses [rust-bitcoin](https://docs.rs/crate/bitcoin/0.27.1) & [bdk](bitcoindevkit.com) and exposes a simplified C interface to build descriptor based wallets.
+//! ## Workflow
+//! 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;

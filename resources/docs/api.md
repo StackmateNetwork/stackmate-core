@@ -166,14 +166,14 @@ Where conditions involve keys, the extended key format is
 [fingerprint/hardened_path]key/unhardened_path
 ```
 
-Making the format for a deposit descriptor as
+Making the extended key format in a deposit descriptor as
 
 ```
 [fingerprint/purpose'/network'/account']key/0/*
 ```
 
 
-And the format for a change descriptor as (done internally)
+And the format in a change descriptor as (done internally)
 
 ```
 [fingerprint/purpose'/network'/account']key/1/*
