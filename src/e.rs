@@ -27,6 +27,7 @@ impl Display for ErrorKind {
   }
 }
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct S5Error {
   pub kind: String,

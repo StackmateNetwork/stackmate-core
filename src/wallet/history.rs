@@ -21,6 +21,7 @@ use crate::e::{ErrorKind, S5Error};
    "txid"
 */
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Transaction {
   pub timestamp: u64,
@@ -32,6 +33,7 @@ pub struct Transaction {
   pub fee: u64,
 }
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletHistory {
   history: Vec<Transaction>,

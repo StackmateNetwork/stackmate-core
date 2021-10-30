@@ -4,14 +4,23 @@ Developed by Stackmate India in 2021.
 //! # Stackmate
 //! A set of composite functions that uses [rust-bitcoin](https://docs.rs/crate/bitcoin/0.27.1) & [bdk](bitcoindevkit.com) and exposes a simplified C interface to build descriptor based wallets.
 //! ## Workflow
-//! 
+//! 1. Use key functions generate_master/import_master and derive a parent key at a hardened path with a variable account number. Currently purpose is fixed at 84' for segwit-native only.
+//! 2. Use extended key format to create string policies. More on [policies](http://bitcoin.sipa.be/miniscript/).
+//! 3. Use the compile function to get a deposit_descriptor.
+//! 4. Use wallet functions by passing your deposit_descriptor and node_address as primary inputss.
+//! 5. Electrum over ssl is the recommended way to interact with the wallet with format of 'ssl://electrum.blockstream.info:60002'.
+//! 6. "default" can be used as a string for the node_address which will use Blockstream servers. Recommened client to use tor with this setting.
+//! 7. Bitcoin-core RPC is supported but not advised unless on desktop where a node is connected to locally.
+//! 8. Core RPC (currently) requies node_address to follow the format of 'https://address:port?auth=username:password'.
+//! 9. Outputs of each function are specified as 'FFI Outputs' in under module documentation.
+//! 10. *Use every function in combination with cstring_free to free their output pointers. This will keep things safe.*
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
 
 use bitcoin::network::constants::Network;
 
-mod e;
+pub mod e;
 use e::{ErrorKind, S5Error};
 
 mod config;
@@ -21,13 +30,13 @@ mod key;
 use crate::key::child;
 use crate::key::master;
 
-mod wallet;
+pub mod wallet;
 use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
 
-mod network;
+pub mod network;
 use crate::network::fees;
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.

@@ -10,6 +10,7 @@ use bdk::wallet::AddressIndex::Peek;
 use crate::e::{S5Error,ErrorKind};
 use crate::config::{WalletConfig};
 
+/// FFI Output
 #[derive(Serialize,Deserialize,Debug)]
 pub struct WalletAddress {
     pub address: String,
