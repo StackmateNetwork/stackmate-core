@@ -12,6 +12,7 @@ use bitcoin::util::bip32::ExtendedPubKey;
 
 use crate::e::{ErrorKind, S5Error};
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChildKeys {
   pub fingerprint: String,

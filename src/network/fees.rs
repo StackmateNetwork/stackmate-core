@@ -8,7 +8,7 @@ use bdk::blockchain::{Blockchain};
 use crate::config::{WalletConfig};
 use crate::e::{S5Error,ErrorKind};
 
-
+/// FFI Output
 #[derive(Serialize,Deserialize,Debug)]
 pub struct NetworkFee {
     pub fee: f32,

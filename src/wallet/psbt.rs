@@ -19,6 +19,7 @@ use bitcoin::util::psbt::PartiallySignedTransaction;
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletPSBT {
   pub psbt: String,
