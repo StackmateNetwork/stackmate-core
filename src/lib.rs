@@ -30,9 +30,10 @@ use crate::network::fees;
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
+/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that output is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn generate_master(
   network: *const c_char,
@@ -78,9 +79,10 @@ pub unsafe extern "C" fn generate_master(
 }
 
 /// Creates a master xprv given a mnemonic and passphrase.
+/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn import_master(
   network: *const c_char,
@@ -119,9 +121,10 @@ pub unsafe extern "C" fn import_master(
 /// Derives hardened child keys from a master xprv.
 /// Follows the BIP32 standard of m/purpose'/network'/account'.
 /// Network path is inferred from the master xprv.
+/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn derive_hardened(
   master_xprv: *const c_char,
@@ -167,9 +170,10 @@ pub unsafe extern "C" fn derive_hardened(
 /// Compiles a policy into a descriptor of the specified script type.
 /// Use wpkh for a single signature segwit native wallet (default).
 /// Use wsh for a scripted segwit native wallet.
+/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn compile(
   policy: *const c_char, 
@@ -202,7 +206,7 @@ pub unsafe extern "C" fn compile(
 /// Syncs to a remote node and fetches balance of a descriptor wallet.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_balance(
   deposit_desc: *const c_char,
@@ -239,7 +243,7 @@ pub unsafe extern "C" fn sync_balance(
 /// Syncs to a remote node and fetches history of a descriptor wallet.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_history(
   deposit_desc: *const c_char,
@@ -274,10 +278,10 @@ pub unsafe extern "C" fn sync_history(
 }
 
 /// Gets a new address for a descriptor wallet at a given index.
-/// Client must keep track of address indexes and ensure prevention of address reuse.
+/// Client must keep track of address indexes and ENSURE prevention of address reuse.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_address(
   deposit_desc: *const c_char,
@@ -329,7 +333,7 @@ pub unsafe extern "C" fn get_address(
 /// Gets the current network fee (in sats/vbyte) for a given confirmation target.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_fees(
   network: *const c_char,
@@ -384,7 +388,7 @@ pub unsafe extern "C" fn get_fees(
 /// Set amount to 0 for sweep.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn build_tx(
   deposit_desc: *const c_char,
@@ -463,7 +467,7 @@ pub unsafe extern "C" fn build_tx(
 /// "miner" is used in the 'to' field of an output to indicate fee.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char) -> *mut c_char {
   let network_cstr = CStr::from_ptr(network);
@@ -493,7 +497,7 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
 /// Can only be used with descriptors containing private key(s).
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sign_tx(
   deposit_desc: *const c_char,
@@ -538,7 +542,7 @@ pub unsafe extern "C" fn sign_tx(
 /// Broadcasts a signed transaction to a remote node.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn broadcast_tx(
   deposit_desc: *const c_char,
@@ -584,7 +588,7 @@ pub unsafe extern "C" fn broadcast_tx(
 /// Do not use the key source while checking an xpub i.e. remove [fingerprint/derivation/path/values] and only provide the xpub/tpub.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
-/// - Ensure that result is passed into cstring_free after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
   let xpub_cstr = CStr::from_ptr(xpub);
@@ -599,12 +603,13 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
   }
 }
 
-/// After using any other function, pass the output pointer into cstring_free to clear memory.
+/// After using any other function, pass the output pointer into cstring_free(ptr: *mut c_char) to clear memory.
+/// ALWAYS use this in combination with any other function.
 /// Failure to do so can lead to memory bugs.
 /// # Safety
 /// - This function is unsafe because it deferences a raw pointer.
 #[no_mangle]
-pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
+pub unsafe extern "C" fn cstring_free(ptr: *mut c_char){
   if ptr.is_null() {
     return;
   }
@@ -617,7 +622,7 @@ mod tests {
   use super::*;
 
   #[test]
-  /// Ensure that mnemonic does not error for bad input values.
+  /// ENSURE that mnemonic does not error for bad input values.
   /// Default to 24 words mnemonic.
   fn test_ffi_c_master_ops() {
     unsafe {
