@@ -12,8 +12,9 @@ Developed by Stackmate India in 2021.
 //! 6. "default" can be used as a string for the node_address which will use Blockstream servers. Recommened client to use tor with this setting.
 //! 7. Bitcoin-core RPC is supported but not advised unless on desktop where a node is connected to locally.
 //! 8. Core RPC (currently) requies node_address to follow the format of 'https://address:port?auth=username:password'.
-//! 9. Outputs of each function are specified as 'FFI Outputs' in under module documentation.
+//! 9. Outputs of each function are JSON stringified native structs specified as 'FFI Outputs' in under module documentation.
 //! 10. *Use every function in combination with cstring_free to free their output pointers. This will keep things safe.*
+//! 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
@@ -26,7 +27,7 @@ use e::{ErrorKind, S5Error};
 mod config;
 use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE};
 
-mod key;
+pub mod key;
 use crate::key::child;
 use crate::key::master;
 
