@@ -15,12 +15,27 @@ fn _start_tor()->JoinHandle<Result<u8,Error>>{
 #[cfg(test)]
 mod tests {
   use super::*;
-  // use crate::config::{DEFAULT_TESTNET_NODE};
-
-  #[test] #[ignore]
+  use std::thread::sleep;
+  use std::time;
+  use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE};
+  use crate::network::fees;
+  /// This test might require more than 10 seconds of sleep if tor takes more time to initialize.
+  /// Use more if required.
+  #[test]
   fn test_start_tor() {
     let tor_thread = _start_tor();
     println!("{:#?}", tor_thread);
-    let _log = tor_thread.join().unwrap();
+    // let _log = tor_thread.join().unwrap();
+    let duration = time::Duration::from_secs(10);
+    sleep(duration);
+    let deposit_desc = "/0/*";
+    let config = WalletConfig::new(
+      deposit_desc, 
+      DEFAULT_TESTNET_NODE, 
+      Some("127.0.0.1:19050".to_string())
+    ).unwrap();
+    let fees = fees::estimate_sats_per_byte(config,6).unwrap();
+    println!("{:#?}", fees);
+
   }
 }

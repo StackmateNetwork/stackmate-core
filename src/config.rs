@@ -42,12 +42,22 @@ impl WalletConfig {
     };
 
     if node_address.contains("electrum") {
-      let config = ElectrumBlockchainConfig {
+      let config = if socks5.is_none() {
+        ElectrumBlockchainConfig {
         url: node_address.to_string(),
-        socks5,
+        socks5: None,
         retry: 1,
         timeout: Some(5),
         stop_gap: 1000,
+        }
+      }else{
+        ElectrumBlockchainConfig{
+          url: node_address.to_string(),
+          socks5,
+          retry: 1,
+          timeout: None,
+          stop_gap: 1000,
+        }
       };
       let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
         Ok(client) => client,
