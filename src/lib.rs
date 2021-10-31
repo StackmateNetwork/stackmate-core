@@ -242,7 +242,7 @@ pub unsafe extern "C" fn sync_balance(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -279,7 +279,7 @@ pub unsafe extern "C" fn sync_history(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -318,7 +318,7 @@ pub unsafe extern "C" fn get_address(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -385,7 +385,7 @@ pub unsafe extern "C" fn get_fees(
     },
   };
 
-  let config = match WalletConfig::default("/0/*", node_address) {
+  let config = match WalletConfig::new("/0/*", node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -428,7 +428,7 @@ pub unsafe extern "C" fn build_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -534,7 +534,7 @@ pub unsafe extern "C" fn sign_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -579,7 +579,7 @@ pub unsafe extern "C" fn broadcast_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return e.c_stringify(),
   };

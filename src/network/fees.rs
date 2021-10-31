@@ -45,7 +45,7 @@ mod tests {
   #[test]
   fn test_estimate_fee() {
     let dummy_desc = "xprv/0/*";
-    let config = WalletConfig::default(&dummy_desc,DEFAULT_MAINNET_NODE).unwrap();
+    let config = WalletConfig::new(&dummy_desc,DEFAULT_MAINNET_NODE,None).unwrap();
     let network_fee = estimate_sats_per_byte(config,1).unwrap();
     println!("{:#?}",network_fee);
   }

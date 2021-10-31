@@ -22,7 +22,7 @@ pub const DEFAULT_TESTNET_NODE: &str = "ssl://electrum.blockstream.info:60002";
 pub const DEFAULT_MAINNET_NODE: &str = "ssl://electrum.blockstream.info:50002";
 
 impl WalletConfig {
-  pub fn default(deposit_desc: &str, node_address: &str) -> Result<Self, S5Error> {
+  pub fn new(deposit_desc: &str, node_address: &str, socks5: Option<String>) -> Result<Self, S5Error> {
     let change_desc: &str = &deposit_desc.replace("/0/*", "/1/*");
     let network = if <&str>::clone(&deposit_desc).contains("xpub")
       || <&str>::clone(&deposit_desc).contains("xprv")
@@ -44,7 +44,7 @@ impl WalletConfig {
     if node_address.contains("electrum") {
       let config = ElectrumBlockchainConfig {
         url: node_address.to_string(),
-        socks5: None,
+        socks5,
         retry: 1,
         timeout: Some(5),
         stop_gap: 1000,
@@ -195,7 +195,7 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let config = WalletConfig::default(&deposit_desc, DEFAULT_TESTNET_NODE).unwrap();
+    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
     match config.client {
       AnyBlockchain::Electrum(client) => {
         let height = client.get_height().unwrap();
@@ -217,7 +217,7 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
     let node_address = "http://172.18.0.2:18332?auth=satsbank:typercuz";
-    let config = WalletConfig::default(&deposit_desc, node_address).unwrap();
+    let config = WalletConfig::new(&deposit_desc, node_address,None).unwrap();
 
     match config.client {
       AnyBlockchain::Rpc(client) => {
@@ -240,7 +240,7 @@ mod tests {
   fn test_config_errors() {
     let dummy_desc = "xprv/0/*";
     let node_address = "ssl://electrum.blockstream.info:5002";
-    let config_error = WalletConfig::default(&dummy_desc, node_address)
+    let config_error = WalletConfig::new(&dummy_desc, node_address,None)
       .err()
       .unwrap();
     println!("{:#?}", config_error);
