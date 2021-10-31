@@ -61,14 +61,14 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let config = WalletConfig::default(&deposit_desc, DEFAULT_TESTNET_NODE).unwrap();
+    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
     
     let address0 = generate(config, 0).unwrap();
     assert_eq!(
       "tb1q093gl5yxww0hlvlkajdmf8wh3a6rlvsdk9e6d3".to_string(),
       address0.address
     );
-    let config = WalletConfig::default(&deposit_desc, DEFAULT_TESTNET_NODE).unwrap();
+    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
 
     let address1 = generate(config, 1).unwrap();
     assert_eq!(

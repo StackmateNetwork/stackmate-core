@@ -17,3 +17,4 @@ serde_derive = "1.0.0"
 bip39 = "1.0.1"
 bitcoin ={version = "0.27.1", features = ["rand", "base64"]}
 bdk = {version = "0.12.0", features = ["compiler", "rpc", "electrum"]}
+libtor = "46.6.1+0.4.6.6"

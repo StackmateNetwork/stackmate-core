@@ -327,11 +327,11 @@ mod tests {
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
     let node_address = "ssl://electrum.blockstream.info:60002";
 
-    let config = WalletConfig::default(&deposit_desc, node_address).unwrap();
+    let config = WalletConfig::new(&deposit_desc, node_address,None).unwrap();
     let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let sign_config = WalletConfig::default(&deposit_desc, node_address).unwrap();
+    let sign_config = WalletConfig::new(&deposit_desc, node_address, None).unwrap();
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;
     let fee_rate = 2.1;

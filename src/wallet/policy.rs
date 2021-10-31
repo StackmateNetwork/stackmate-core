@@ -112,11 +112,11 @@ mod tests {
     // let single_watchonly_result_legacy = compile(&single_watchonly_policy, "pk").unwrap();
 
     let raft_config: WalletConfig =
-      WalletConfig::default(expected_raft_wsh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_raft_wsh, DEFAULT_TESTNET_NODE,None).unwrap();
     let single_config: WalletConfig =
-      WalletConfig::default(expected_single_wpkh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_single_wpkh, DEFAULT_TESTNET_NODE,None).unwrap();
     let watchonly_config: WalletConfig =
-      WalletConfig::default(expected_single_watchonly_wpkh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_single_watchonly_wpkh, DEFAULT_TESTNET_NODE, None).unwrap();
 
     let raft_bech32_address = generate(raft_config, 0);
     let single_bech32_address = generate(single_config, 0);

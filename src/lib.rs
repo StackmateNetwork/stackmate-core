@@ -14,7 +14,6 @@ Developed by Stackmate India in 2021.
 //! 8. Core RPC (currently) requies node_address to follow the format of 'https://address:port?auth=username:password'.
 //! 9. Outputs of each function are JSON stringified native structs specified as 'FFI Outputs' in under module documentation.
 //! 10. *Use every function in combination with cstring_free to free their output pointers. This will keep things safe.*
-//! 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
@@ -242,7 +241,7 @@ pub unsafe extern "C" fn sync_balance(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -279,7 +278,7 @@ pub unsafe extern "C" fn sync_history(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -318,7 +317,7 @@ pub unsafe extern "C" fn get_address(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -385,7 +384,7 @@ pub unsafe extern "C" fn get_fees(
     },
   };
 
-  let config = match WalletConfig::default("/0/*", node_address) {
+  let config = match WalletConfig::new("/0/*", node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -428,7 +427,7 @@ pub unsafe extern "C" fn build_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -534,7 +533,7 @@ pub unsafe extern "C" fn sign_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
@@ -579,7 +578,7 @@ pub unsafe extern "C" fn broadcast_tx(
     Err(_) => DEFAULT,
   };
 
-  let config = match WalletConfig::default(deposit_desc, node_address) {
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
     Err(e) => return e.c_stringify(),
   };
