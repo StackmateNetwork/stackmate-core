@@ -19,12 +19,12 @@ mod tests {
   use std::time;
   use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE};
   use crate::network::fees;
-  /// This test might require more than 10 seconds of sleep if tor takes more time to initialize.
-  /// Use more if required.
-  #[test]
+  /// This test might require more than 10 seconds of sleep duration if running for the first time.
+  /// Use longer duration if required.
+  #[test] #[ignore]
   fn test_start_tor() {
     let tor_thread = _start_tor();
-    println!("{:#?}", tor_thread);
+    println!("{:#?}", tor_thread.thread().id());
     // let _log = tor_thread.join().unwrap();
     let duration = time::Duration::from_secs(10);
     sleep(duration);
