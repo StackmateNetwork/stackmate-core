@@ -669,6 +669,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
   }
 }
 
+ 
 /// After using any other function, pass the output pointer into cstring_free(ptr: *mut c_char) to clear memory.
 /// ALWAYS use this in combination with any other function.
 /// Failure to do so can lead to memory bugs.
