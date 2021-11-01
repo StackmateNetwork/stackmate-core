@@ -55,10 +55,29 @@ get_fees(
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   target_size: *const c_char, (Values that cannot be parsed to integer will default to "6")
 )->NetworkFee {
-  fee: f32
+  rate: f32,
+  absolute: Option<u64>
 }
 ```
 
+```
+get_weight(
+  deposit_desc: *const c_char,
+  psbt: *const c_char,
+) -> TransactionWeight {
+  weight: usize
+}
+```
+
+```
+get_absolute_fee(
+  fee_rate: *const c_char,
+  weight: *const c_char,
+) -> NetworkFee{
+  rate: f32,
+  absolute: Option<u64>
+}
+```
 ```
 sync_balance(
   deposit_desc: *const c_char,

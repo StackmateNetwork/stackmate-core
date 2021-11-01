@@ -4,8 +4,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use bdk::descriptor::Segwitv0;
-use bdk::descriptor::{Descriptor, Legacy, Miniscript};
+use bdk::descriptor::{Descriptor, Legacy, Miniscript,Segwitv0};
 use bdk::miniscript::policy::Concrete;
 // use bdk::Error;
 use crate::e::{ErrorKind, S5Error};

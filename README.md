@@ -7,6 +7,7 @@ Currently used by [Stackmate Wallet](https://github.com/mocodesmo/stackmate).
 ## Table of Contents
 - [Acknowledgements](#acknowledgements)
 - [Overview](#overview)
+- [Test](#test)
 - [Build](#build)
 - [Documentation](#docs)
 - [Contributions](#contributions)
@@ -33,6 +34,10 @@ The entire ffi uses a string interface; defined in `src/lib.rs`
 ## Test
 
 `tests/test.sh`
+
+Test individual units with printing.
+
+`cargo test -- --nocapture <test_name>`
 
 ## Build
 

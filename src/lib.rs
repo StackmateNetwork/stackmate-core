@@ -14,6 +14,12 @@ Developed by Stackmate India in 2021.
 //! 8. Core RPC (currently) requies node_address to follow the format of 'https://address:port?auth=username:password'.
 //! 9. Outputs of each function are JSON stringified native structs specified as 'FFI Outputs' in under module documentation.
 //! 10. *Use every function in combination with cstring_free to free their output pointers. This will keep things safe.*
+//!
+//! ## Building a transaction
+//! 1. Build a transaction with a default fixed fee of 1000 sats
+//! 2. Get weight of the transaction for a given descriptor
+//! 3. Use get absolute fee to get the fee needed to be paid for the transaction given variable fee rate and fixed weight. 
+//! 4. Build transaction with the absolute fee chosen, sign & broadcast.
 //! 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
@@ -187,10 +193,7 @@ pub unsafe extern "C" fn derive_hardened(
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn compile(
-  policy: *const c_char, 
-  script_type: *const c_char
-) -> *mut c_char {
+pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_char) -> *mut c_char {
   let policy_cstr = CStr::from_ptr(policy);
   let policy_str: &str = match policy_cstr.to_str() {
     Ok(string) => string,
@@ -347,7 +350,7 @@ pub unsafe extern "C" fn get_address(
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn get_fees(
+pub unsafe extern "C" fn estimate_fee(
   network: *const c_char,
   node_address: *const c_char,
   conf_target: *const c_char,
@@ -395,6 +398,57 @@ pub unsafe extern "C" fn get_fees(
   }
 }
 
+/// Converts a given fee_rate (in sats/vbyte) to absolute fee (in sats); given some transaction weight.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn get_absolute_fee(
+  fee_rate: *const c_char,
+  weight: *const c_char,
+) -> *mut c_char {
+  let weight_cstr = CStr::from_ptr(weight);
+  let weight_usize: usize = match weight_cstr.to_str() {
+    Ok(string) => string.parse::<usize>().unwrap_or(250),
+    Err(_) => 250,
+  };
+
+  let fee_rate_cstr = CStr::from_ptr(fee_rate);
+  let fee_rate_f32: f32 = match fee_rate_cstr.to_str() {
+    Ok(string) => string.parse::<f32>().unwrap_or(1.0),
+    Err(_) => 1.0,
+  };
+
+  fees::get_absolute(fee_rate_f32, weight_usize).c_stringify()
+}
+
+/// Gets the weight of a transaction built with a given deposit-descriptor.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn get_weight(
+  deposit_desc: *const c_char,
+  psbt: *const c_char,
+) -> *mut c_char {
+  let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
+  let deposit_desc: &str = match deposit_desc_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+  };
+
+  let psbt_cstr = CStr::from_ptr(psbt);
+  let psbt: &str = match psbt_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => return S5Error::new(ErrorKind::Input, "PSBT-Input").c_stringify(),
+  };
+
+  match psbt::get_weight(deposit_desc, psbt) {
+    Ok(result) => result.c_stringify(),
+    Err(e) => e.c_stringify(),
+  }
+}
+
 /// Builds a transaction for a given descriptor wallet.
 /// If sweep is set to true, amount value is ignored and will default to None.
 /// Set amount to 0 for sweep.
@@ -407,7 +461,7 @@ pub unsafe extern "C" fn build_tx(
   node_address: *const c_char,
   to_address: *const c_char,
   amount: *const c_char,
-  fee_rate: *const c_char,
+  fee_absolute: *const c_char,
   sweep: *const c_char,
 ) -> *mut c_char {
   let deposit_desc_cstr = CStr::from_ptr(deposit_desc);
@@ -460,16 +514,16 @@ pub unsafe extern "C" fn build_tx(
     Err(_) => return S5Error::new(ErrorKind::Input, "Amount").c_stringify(),
   };
 
-  let fee_rate_cstr = CStr::from_ptr(fee_rate);
-  let fee_rate: f32 = match fee_rate_cstr.to_str() {
-    Ok(string) => match string.parse::<f32>() {
+  let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
+  let fee_absolute: u64 = match fee_absolute_cstr.to_str() {
+    Ok(string) => match string.parse::<u64>() {
       Ok(i) => i,
       Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
     },
     Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
   };
 
-  match psbt::build(config, to_address, amount, fee_rate, sweep) {
+  match psbt::build(config, to_address, amount, fee_absolute, sweep) {
     Ok(result) => result.c_stringify(),
     Err(e) => e.c_stringify(),
   }
@@ -621,7 +675,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 /// # Safety
 /// - This function is unsafe because it deferences a raw pointer.
 #[no_mangle]
-pub unsafe extern "C" fn cstring_free(ptr: *mut c_char){
+pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
   if ptr.is_null() {
     return;
   }
@@ -731,11 +785,11 @@ mod tests {
       let network_cstr = CString::new("test").unwrap().into_raw();
 
       let conf_target = CString::new("1").unwrap().into_raw();
-      let fees = get_fees(network_cstr, node_address_cstr, conf_target);
+      let fees = estimate_fee(network_cstr, node_address_cstr, conf_target);
       let fees_str = CStr::from_ptr(fees).to_str().unwrap();
 
       let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();
-      assert!(fees_struct.fee >= 1.0);
+      assert!(fees_struct.rate >= 1.0);
     }
   }
   #[test]
