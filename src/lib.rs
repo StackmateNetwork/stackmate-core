@@ -350,7 +350,7 @@ pub unsafe extern "C" fn get_address(
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn estimate_fee(
+pub unsafe extern "C" fn estimate_fee_rate(
   network: *const c_char,
   node_address: *const c_char,
   conf_target: *const c_char,
@@ -392,7 +392,7 @@ pub unsafe extern "C" fn estimate_fee(
     Ok(conf) => conf,
     Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
   };
-  match fees::estimate_sats_per_byte(config, conf_target_int) {
+  match fees::estimate_rate(config, conf_target_int) {
     Ok(result) => result.c_stringify(),
     Err(e) => e.c_stringify(),
   }
@@ -785,7 +785,7 @@ mod tests {
       let network_cstr = CString::new("test").unwrap().into_raw();
 
       let conf_target = CString::new("1").unwrap().into_raw();
-      let fees = estimate_fee(network_cstr, node_address_cstr, conf_target);
+      let fees = estimate_fee_rate(network_cstr, node_address_cstr, conf_target);
       let fees_str = CStr::from_ptr(fees).to_str().unwrap();
 
       let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();

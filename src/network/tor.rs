@@ -34,7 +34,7 @@ mod tests {
       DEFAULT_TESTNET_NODE, 
       Some("127.0.0.1:19050".to_string())
     ).unwrap();
-    let fees = fees::estimate_sats_per_byte(config,6).unwrap();
+    let fees = fees::estimate_rate(config,6).unwrap();
     println!("{:#?}", fees);
 
   }

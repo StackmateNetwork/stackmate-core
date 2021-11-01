@@ -339,8 +339,20 @@ mod tests {
     println!("{:#?}", signed.clone().unwrap());
     assert_eq!(signed.clone().unwrap().is_finalized, true);
     // let broadcasted = broadcast(config, &signed.unwrap().psbt);
-    // println!("{:#?}",broadcasted.clone().unwrap());
+    println!("{:#?}",psbt_origin.clone().unwrap());
     // assert_eq!(broadcasted.clone().unwrap().txid.len(), 64);
+  }
+
+  #[test]
+
+  fn test_get_weight(){
+    let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+    let deposit_desc = format!("wpkh({}/0/*)", xkey);
+    let psbt = "cHNidP8BAHQBAAAAAf3cLERUN9+6X5+1yk3x9XzSCq1417WtB+gB5qNyj+xpAAAAAAD9////AnRxAQAAAAAAFgAUVyorkNVSCsiE4/7OspP52IwquzqIEwAAAAAAABl2qRQ0Sg9IyhUOwrkDgXZgubaLE6ZwJoisAAAAAAABAN4CAAAAAAEByvn9X3PvFqemGsrTv8ivAO07IOeRhBz7J0huqXJLfVgBAAAAAP7///8CoIYBAAAAAAAWABQTXAMs/1Qr5n6pDVK9O15ODZ/UCVZWjQAAAAAAFgAUIixaISTPlO8fwyT3hCL+An5+Km4CRzBEAiBFsQJfBur3eQgO5Vw+EvEgr2CagcVGXw9oYw3FOaMSSgIgch0CV+W3oRCKNBwxqiqIK0C5b1TsGk32HvNM+4Z7IksBIQNP/rsBHKbA98977TzmriFrOuO8hQjNg4ON3goI9/Uwjp0BIAABAR+ghgEAAAAAABYAFBNcAyz/VCvmfqkNUr07Xk4Nn9QJIgYD9WhlKKSeNh6567KTmyKrlitDWZOz/+mms7emVsWjGTsY230ltVQAAIABAACABgAAgAAAAAABAAAAACICAgHPrE7CShQkK90ApPF8xdr+8o7T/sHggOlZNOHIUft/GNt9JbVUAACAAQAAgAYAAIABAAAAAQAAAAAA";
+    let expected_weight = 576;
+    let tx_weight = get_weight(&deposit_desc, &psbt).unwrap();
+    assert_eq!(tx_weight.weight, expected_weight);
+
   }
 
 }

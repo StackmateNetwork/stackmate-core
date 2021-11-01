@@ -30,7 +30,7 @@ impl NetworkFee {
   }
 }
 
-pub fn estimate_sats_per_byte(config: WalletConfig, target: usize) -> Result<NetworkFee, S5Error> {
+pub fn estimate_rate(config: WalletConfig, target: usize) -> Result<NetworkFee, S5Error> {
   let fee = match config.client.estimate_fee(target) {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
@@ -56,7 +56,17 @@ mod tests {
   fn test_estimate_fee() {
     let dummy_desc = "xprv/0/*";
     let config = WalletConfig::new(&dummy_desc, DEFAULT_MAINNET_NODE, None).unwrap();
-    let network_fee = estimate_sats_per_byte(config, 1).unwrap();
+    let network_fee = estimate_rate(config, 1).unwrap();
     println!("{:#?}", network_fee);
+  }
+
+  #[test]
+  fn test_get_absolute() {
+    let weight = 250;
+    let fee_rate = 2.1;
+    let expected_fee = Some(133);
+    let fee_absolute = get_absolute(fee_rate, weight);
+    println!("{:#?}", fee_absolute);
+    assert_eq!(fee_absolute.absolute, expected_fee);
   }
 }
