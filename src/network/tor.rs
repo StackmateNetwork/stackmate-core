@@ -1,11 +1,8 @@
-use std::io::prelude::*;
-use std::io::{self, Read, Write};
-use std::io::{BufReader, BufWriter};
+use std::io::{ Write};
+use std::io::{BufReader, BufRead};
 use std::net::TcpStream;
 use std::str;
-use std::thread::sleep;
 use std::thread::JoinHandle;
-use std::time::Duration;
 
 use crate::e::{ErrorKind, S5Error};
 use libtor::{Error, HiddenServiceVersion, Tor, TorAddress, TorFlag};
@@ -37,19 +34,16 @@ fn _status() -> Result<bool, S5Error> {
   // stream
   //   .set_read_timeout(Some(Duration::from_millis(3000)))
   //   .unwrap();
-
   stream.write(b"AUTHENTICATE").unwrap();
   stream.write(b"\r\n").unwrap();
-
   stream.write(b"GETINFO status/circuit-established").unwrap();
   stream.write(b"\r\n").unwrap();
 
-  let mut reader = io::BufReader::new(&mut stream);
-
+  let mut reader = BufReader::new(&mut stream);
   let received: Vec<u8> = reader.fill_buf().unwrap().to_vec();
-
   // Mark the bytes read as consumed so the buffer will not return them in a subsequent read
   reader.consume(received.len());
+  
   let response_str = str::from_utf8(&received).unwrap();
   Ok(response_str.contains("circuit-established=1"))
 }
@@ -70,15 +64,14 @@ fn _off() -> Result<bool, S5Error> {
   stream.flush().unwrap();
   stream.write(b"SIGNAL SHUTDOWN").unwrap();
   stream.write(b"\r\n").unwrap();
-  let mut reader = io::BufReader::new(&mut stream);
 
+  let mut reader = BufReader::new(&mut stream);
   let received: Vec<u8> = reader.fill_buf().unwrap().to_vec();
-
   // Mark the bytes read as consumed so the buffer will not return them in a subsequent read
   reader.consume(received.len());
 
   let response_str = str::from_utf8(&received).unwrap();
-  println!("{}", response_str);
+  // println!("{}", response_str);
   Ok(response_str == "250 OK\r\n")
 }
 
