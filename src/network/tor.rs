@@ -34,16 +34,16 @@ fn _status() -> Result<bool, S5Error> {
   // stream
   //   .set_read_timeout(Some(Duration::from_millis(3000)))
   //   .unwrap();
-  stream.write(b"AUTHENTICATE").unwrap();
-  stream.write(b"\r\n").unwrap();
-  stream.write(b"GETINFO status/circuit-established").unwrap();
-  stream.write(b"\r\n").unwrap();
+  let _result = stream.write(b"AUTHENTICATE").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
+  let _result = stream.write(b"GETINFO status/circuit-established").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
 
   let mut reader = BufReader::new(&mut stream);
   let received: Vec<u8> = reader.fill_buf().unwrap().to_vec();
   // Mark the bytes read as consumed so the buffer will not return them in a subsequent read
   reader.consume(received.len());
-  
+
   let response_str = str::from_utf8(&received).unwrap();
   Ok(response_str.contains("circuit-established=1"))
 }
@@ -59,11 +59,11 @@ fn _off() -> Result<bool, S5Error> {
     }
   };
 
-  stream.write(b"AUTHENTICATE").unwrap();
-  stream.write(b"\r\n").unwrap();
-  stream.flush().unwrap();
-  stream.write(b"SIGNAL SHUTDOWN").unwrap();
-  stream.write(b"\r\n").unwrap();
+  let _result = stream.write(b"AUTHENTICATE").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
+  let _result = stream.flush().unwrap();
+  let _result = stream.write(b"SIGNAL SHUTDOWN").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
 
   let mut reader = BufReader::new(&mut stream);
   let received: Vec<u8> = reader.fill_buf().unwrap().to_vec();

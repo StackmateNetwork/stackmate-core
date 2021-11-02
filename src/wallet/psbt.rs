@@ -219,7 +219,7 @@ pub fn get_weight(
   };
 
   let transaction: Transaction = psbt_struct.clone().extract_tx();
-  let desc = Descriptor::<String>::from_str(&deposit_desc).unwrap();
+  let desc = Descriptor::<String>::from_str(deposit_desc).unwrap();
   let satisfaction_weight = desc.max_satisfaction_weight().unwrap();
   
   Ok(TransactionWeight{
