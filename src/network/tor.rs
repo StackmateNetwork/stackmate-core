@@ -4,9 +4,9 @@ use std::net::TcpStream;
 use std::str;
 use std::thread::JoinHandle;
 use crate::e::{ErrorKind, S5Error};
-use libtor::{Error, HiddenServiceVersion, Tor, TorAddress, TorFlag, log};
+use libtor::{Error, Tor, TorFlag,log};
 
-fn start() -> JoinHandle<Result<u8, Error>> {
+pub fn start() -> JoinHandle<Result<u8, Error>> {
   Tor::new()
     .flag(TorFlag::DataDirectory("/tmp/tor-rust".into()))
     .flag(TorFlag::SocksPort(19050))
@@ -22,7 +22,7 @@ fn start() -> JoinHandle<Result<u8, Error>> {
   
 }
 
-fn bootstrap_progress() -> Result<usize, S5Error> {
+pub fn bootstrap_progress() -> Result<usize, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {
@@ -57,7 +57,7 @@ fn bootstrap_progress() -> Result<usize, S5Error> {
   Ok(progress_value)
 }
 
-fn circuit_established() -> Result<bool, S5Error> {
+pub fn circuit_established() -> Result<bool, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {
@@ -84,7 +84,7 @@ fn circuit_established() -> Result<bool, S5Error> {
   Ok(response_str.contains("circuit-established=1"))
 }
 
-fn shutdown() -> Result<bool, S5Error> {
+pub fn shutdown() -> Result<bool, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {

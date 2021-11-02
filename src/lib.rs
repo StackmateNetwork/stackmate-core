@@ -45,6 +45,7 @@ use crate::wallet::psbt;
 
 pub mod network;
 use crate::network::fees;
+use crate::network::tor;
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
@@ -691,6 +692,47 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
     true => CString::new("true").unwrap().into_raw(),
     false => CString::new("false").unwrap().into_raw(),
   }
+}
+
+
+/// Switch on tor daemon
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn tor_start() -> *mut c_char {
+
+  let _handle = tor::start();
+  CString::new("true").unwrap().into_raw()
+  
+}
+
+/// Get bootstrap progress from tor daemon
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn tor_progress() -> *mut c_char {
+
+  match tor::bootstrap_progress(){
+    Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+    Err(e) => e.c_stringify()
+  }
+  
+}
+
+/// Shutdown tor daemon
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn tor_stop() -> *mut c_char {
+
+  match tor::shutdown(){
+    Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+    Err(e) => e.c_stringify()
+  }
+  
 }
 
  
