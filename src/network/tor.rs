@@ -3,25 +3,54 @@ use std::io::{BufReader, BufRead};
 use std::net::TcpStream;
 use std::str;
 use std::thread::JoinHandle;
-
 use crate::e::{ErrorKind, S5Error};
-use libtor::{Error, HiddenServiceVersion, Tor, TorAddress, TorFlag};
+use libtor::{Error, HiddenServiceVersion, Tor, TorAddress, TorFlag, log};
 
-fn _on() -> JoinHandle<Result<u8, Error>> {
+fn start() -> JoinHandle<Result<u8, Error>> {
   Tor::new()
     .flag(TorFlag::DataDirectory("/tmp/tor-rust".into()))
     .flag(TorFlag::SocksPort(19050))
     .flag(TorFlag::ControlPort(9000))
-    .flag(TorFlag::HiddenServiceDir("/tmp/tor-rust/hs-dir".into()))
-    .flag(TorFlag::HiddenServiceVersion(HiddenServiceVersion::V3))
-    .flag(TorFlag::HiddenServicePort(
-      TorAddress::Port(8000),
-      None.into(),
-    ))
+    .flag(TorFlag::LogTo(log::LogLevel::Err,log::LogDestination::Stderr))
+    // .flag(TorFlag::HiddenServiceDir("/tmp/tor-rust/hs-dir".into()))
+    // .flag(TorFlag::HiddenServiceVersion(HiddenServiceVersion::V3))
+    // .flag(TorFlag::HiddenServicePort(
+    //   TorAddress::Port(8000),
+    //   None.into(),
+    // ))
     .start_background()
+  
 }
 
-fn _status() -> Result<bool, S5Error> {
+fn bootstrap_progress() -> Result<String, S5Error> {
+  let mut stream = match TcpStream::connect("127.0.0.1:9000") {
+    Ok(result) => result,
+    Err(_) => {
+      return Err(S5Error::new(
+        ErrorKind::Network,
+        "Could not connect to tor daemon.",
+      ))
+    }
+  };
+  // stream
+  //   .set_read_timeout(Some(Duration::from_millis(3000)))
+  //   .unwrap();
+  let _result = stream.write(b"AUTHENTICATE").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
+  let _result = stream.write(b"GETINFO status/bootstrap-phase").unwrap();
+  let _result = stream.write(b"\r\n").unwrap();
+
+  let mut reader = BufReader::new(&mut stream);
+  let received: Vec<u8> = reader.fill_buf().unwrap().to_vec();
+  // Mark the bytes read as consumed so the buffer will not return them in a subsequent read
+  reader.consume(received.len());
+
+  let response_string = str::from_utf8(&received).unwrap().to_string();
+  stream.flush().unwrap();
+  Ok(response_string)
+}
+
+fn circuit_established() -> Result<bool, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {
@@ -48,7 +77,7 @@ fn _status() -> Result<bool, S5Error> {
   Ok(response_str.contains("circuit-established=1"))
 }
 
-fn _off() -> Result<bool, S5Error> {
+fn shutdown() -> Result<bool, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {
@@ -71,8 +100,8 @@ fn _off() -> Result<bool, S5Error> {
   reader.consume(received.len());
 
   let response_str = str::from_utf8(&received).unwrap();
-  // println!("{}", response_str);
-  Ok(response_str == "250 OK\r\n")
+  println!("{}", response_str);
+  Ok(response_str.contains("250 OK\r\n"))
 }
 
 #[cfg(test)]
@@ -84,21 +113,26 @@ mod tests {
   use std::time;
   /// This test might require more than 10 seconds of sleep duration if running for the first time.
   /// Default uses 4 sleep cycles in total for CI. Comment out the last 2 if you have run this before locally.
-  #[test] #[ignore]
+  #[test]
   fn test_tor() {
-    _on();
-    // println!("{:#?}", tor_thread.thread().id());
-    // let _log = tor_thread.join().unwrap();
-    assert!(_status().err().is_some());
-    let duration = time::Duration::from_secs(3);
+    let _handle = start();
+    // handle.join().unwrap();
+
+    let duration = time::Duration::from_secs(1);
     
+    sleep(duration);
     sleep(duration);
 
-    assert!(!_status().unwrap());
+    println!("{:#?}", bootstrap_progress().unwrap());
     
     sleep(duration);
+    println!("{:#?}", bootstrap_progress().unwrap());
+
     sleep(duration);
+    println!("{:#?}", bootstrap_progress().unwrap());
+
     sleep(duration);
+    println!("{:#?}", bootstrap_progress().unwrap());
 
     let deposit_desc = "/0/*";
     let config = WalletConfig::new(
@@ -110,9 +144,9 @@ mod tests {
     let fees = fees::estimate_rate(config, 6).unwrap();
     assert!(fees.rate > 0.1);
 
-    assert!( _status().unwrap());
-    assert!(_off().unwrap());
+    assert!( circuit_established().unwrap());
+    assert!(shutdown().unwrap());
 
-    sleep(time::Duration::from_secs(5))
+    // sleep(time::Duration::from_secs(5))
   }
 }
