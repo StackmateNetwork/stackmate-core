@@ -48,6 +48,13 @@ pub fn get_absolute(fee_rate: f32, weight: usize) -> NetworkFee {
   }
 }
 
+pub fn get_rate(fee_absolute: u64, weight: usize) -> NetworkFee {
+  NetworkFee {
+    rate: FeeRate::from_wu(fee_absolute,weight).as_sat_vb(),
+    absolute: Some(fee_absolute),
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

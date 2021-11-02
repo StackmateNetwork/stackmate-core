@@ -350,7 +350,7 @@ pub unsafe extern "C" fn get_address(
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn estimate_fee_rate(
+pub unsafe extern "C" fn estimate_network_fee(
   network: *const c_char,
   node_address: *const c_char,
   conf_target: *const c_char,
@@ -403,7 +403,7 @@ pub unsafe extern "C" fn estimate_fee_rate(
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn get_absolute_fee(
+pub unsafe extern "C" fn fee_rate_to_absolute(
   fee_rate: *const c_char,
   weight: *const c_char,
 ) -> *mut c_char {
@@ -420,6 +420,30 @@ pub unsafe extern "C" fn get_absolute_fee(
   };
 
   fees::get_absolute(fee_rate_f32, weight_usize).c_stringify()
+}
+
+/// Converts a given absolute_fee (in sats) to fee rate (in sats/vbyte); given some transaction weight.
+/// # Safety
+/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn fee_absolute_to_rate(
+  fee_absolute: *const c_char,
+  weight: *const c_char,
+) -> *mut c_char {
+  let weight_cstr = CStr::from_ptr(weight);
+  let weight_usize: usize = match weight_cstr.to_str() {
+    Ok(string) => string.parse::<usize>().unwrap_or(250),
+    Err(_) => 250,
+  };
+
+  let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
+  let fee_absolute_u64: u64 = match fee_absolute_cstr.to_str() {
+    Ok(string) => string.parse::<u64>().unwrap_or(1000),
+    Err(_) => 1000,
+  };
+
+  fees::get_rate(fee_absolute_u64, weight_usize).c_stringify()
 }
 
 /// Gets the weight of a transaction built with a given deposit-descriptor.
@@ -786,7 +810,7 @@ mod tests {
       let network_cstr = CString::new("test").unwrap().into_raw();
 
       let conf_target = CString::new("1").unwrap().into_raw();
-      let fees = estimate_fee_rate(network_cstr, node_address_cstr, conf_target);
+      let fees = estimate_network_fee(network_cstr, node_address_cstr, conf_target);
       let fees_str = CStr::from_ptr(fees).to_str().unwrap();
 
       let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();
