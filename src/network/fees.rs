@@ -68,11 +68,14 @@ mod tests {
   }
 
   #[test]
-  fn test_get_absolute() {
+  fn test_fee_conversion() {
     let weight = 250;
     let fee_rate = 2.1;
     let expected_fee = Some(133);
     let fee_absolute = get_absolute(fee_rate, weight);
+    let fee_rate_again = get_rate(fee_absolute.absolute.unwrap(), weight);
+    let formatted_fee_rate = format!("{:.1}", fee_rate_again.rate);
+    assert_eq!(fee_rate, formatted_fee_rate.parse::<f32>().unwrap());
     println!("{:#?}", fee_absolute);
     assert_eq!(fee_absolute.absolute, expected_fee);
   }
