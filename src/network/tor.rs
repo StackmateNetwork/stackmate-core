@@ -22,7 +22,7 @@ fn start() -> JoinHandle<Result<u8, Error>> {
   
 }
 
-fn bootstrap_progress() -> Result<String, S5Error> {
+fn bootstrap_progress() -> Result<usize, S5Error> {
   let mut stream = match TcpStream::connect("127.0.0.1:9000") {
     Ok(result) => result,
     Err(_) => {
@@ -47,7 +47,14 @@ fn bootstrap_progress() -> Result<String, S5Error> {
 
   let response_string = str::from_utf8(&received).unwrap().to_string();
   stream.flush().unwrap();
-  Ok(response_string)
+  let parts = response_string.split("\r\n").collect::<Vec<&str>>();
+  println!("{:?}", parts[1]);
+  let progress = parts[1].split(" ").collect::<Vec<&str>>()[2];
+  // let tag = parts[1].split(" ").collect::<Vec<&str>>()[3];
+  // let summary = parts[1].split(" ").collect::<Vec<&str>>()[4];
+  let progress_value = progress.split("=").collect::<Vec<&str>>()[1].parse::<usize>().unwrap_or(101);
+  // println!("{:?}", progress_value);
+  Ok(progress_value)
 }
 
 fn circuit_established() -> Result<bool, S5Error> {
