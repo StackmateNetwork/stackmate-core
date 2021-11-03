@@ -21,6 +21,8 @@ Developed by Stackmate India in 2021.
 //! 3. Use get absolute fee to get the fee needed to be paid for the transaction given variable fee rate and fixed weight. 
 //! 4. Build transaction with the absolute fee chosen, sign & broadcast.
 //! 
+//! 
+//! ### Tor controls are in BETA. Use with caution.
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
@@ -696,43 +698,40 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 
 
 /// Switch on tor daemon
+/// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn tor_start() -> *mut c_char {
-
   let _handle = tor::start();
   CString::new("true").unwrap().into_raw()
-  
 }
 
 /// Get bootstrap progress from tor daemon
+/// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn tor_progress() -> *mut c_char {
-
   match tor::bootstrap_progress(){
     Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
     Err(e) => e.c_stringify()
   }
-  
 }
 
 /// Shutdown tor daemon
+/// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn tor_stop() -> *mut c_char {
-
   match tor::shutdown(){
     Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
     Err(e) => e.c_stringify()
   }
-  
 }
 
  

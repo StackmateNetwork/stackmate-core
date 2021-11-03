@@ -2,11 +2,11 @@ use std::io::{ Write};
 use std::io::{BufReader, BufRead};
 use std::net::TcpStream;
 use std::str;
-use std::thread::JoinHandle;
+// use std::thread::JoinHandle;
 use crate::e::{ErrorKind, S5Error};
-use libtor::{Error, Tor, TorFlag,log};
+use libtor::{Tor,TorFlag,log};
 
-pub fn start() -> JoinHandle<Result<u8, Error>> {
+pub fn start() -> () {
   Tor::new()
     .flag(TorFlag::DataDirectory("/tmp/tor-rust".into()))
     .flag(TorFlag::SocksPort(19050))
@@ -18,8 +18,8 @@ pub fn start() -> JoinHandle<Result<u8, Error>> {
     //   TorAddress::Port(8000),
     //   None.into(),
     // ))
-    .start_background()
-  
+    .start_background();
+  ()
 }
 
 pub fn bootstrap_progress() -> Result<usize, S5Error> {
@@ -49,11 +49,11 @@ pub fn bootstrap_progress() -> Result<usize, S5Error> {
   stream.flush().unwrap();
   let parts = response_string.split("\r\n").collect::<Vec<&str>>();
   println!("{:?}", parts[1]);
-  let progress = parts[1].split(" ").collect::<Vec<&str>>()[2];
+  let progress = if parts[1] != "" {parts[1].split(" ").collect::<Vec<&str>>()[2]}else{"PROGRESS=101"};
   // let tag = parts[1].split(" ").collect::<Vec<&str>>()[3];
   // let summary = parts[1].split(" ").collect::<Vec<&str>>()[4];
   let progress_value = progress.split("=").collect::<Vec<&str>>()[1].parse::<usize>().unwrap_or(101);
-  // println!("{:?}", progress_value);
+  println!("PV:{:?}", progress_value);
   Ok(progress_value)
 }
 
@@ -107,7 +107,6 @@ pub fn shutdown() -> Result<bool, S5Error> {
   reader.consume(received.len());
 
   let response_str = str::from_utf8(&received).unwrap();
-  println!("{}", response_str);
   Ok(response_str.contains("250 OK\r\n"))
 }
 
@@ -141,6 +140,12 @@ mod tests {
     sleep(duration);
     println!("{:#?}", bootstrap_progress().unwrap());
 
+    sleep(duration);
+    println!("{:#?}", bootstrap_progress().unwrap());
+
+    sleep(duration);
+    println!("{:#?}", bootstrap_progress().unwrap());
+    
     let deposit_desc = "/0/*";
     let config = WalletConfig::new(
       deposit_desc,
