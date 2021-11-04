@@ -1,7 +1,7 @@
 [package]
 name = "stackmate"
-version = "0.7.7"
-authors = ["VM <vishalmenon.92@gmail.com>, MJ <jmorteza@hotmail.com>"]
+version = "0.7.8"
+authors = ["i5hi, mocodesmo"]
 edition = "2018"
 description = "Rust-C FFI exposing composite functionality to build bitcoin descriptor wallets."
 keywords = ["bitcoin","rust-c-ffi"]
@@ -18,6 +18,5 @@ serde_derive = "1.0.0"
 bip39 = "1.0.1"
 bitcoin ={version = "0.27.1", features = ["rand", "base64"]}
 bdk = {version = "0.12.0", features = ["compiler", "rpc", "electrum"]}
-libtor = "46.6.1+0.4.6.6"
 hex = "0.4.3"
 sha-1 = "0.9.8"
