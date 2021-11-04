@@ -713,7 +713,7 @@ pub unsafe extern "C" fn tor_start(tmp_path: *mut c_char) -> *mut c_char {
   };
 
   let control_key = tor::start(tmp_path);
-  CString::new(control_key.to_string()).unwrap().into_raw()
+  CString::new(control_key).unwrap().into_raw()
 }
 
 /// Get bootstrap progress from tor daemon. Wait ~1s after calling tor_start() before calling this.

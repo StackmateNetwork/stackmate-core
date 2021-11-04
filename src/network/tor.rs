@@ -88,10 +88,10 @@ pub fn bootstrap_progress(_control_key: &str) -> Result<usize, S5Error> {
   stream.flush().unwrap();
   let parts = response_string.split("\r\n").collect::<Vec<&str>>();
   println!("{:?}", parts[1]);
-  let progress = if parts[1] != "" {parts[1].split(" ").collect::<Vec<&str>>()[2]}else{"PROGRESS=101"};
+  let progress = if !parts[1].is_empty() {parts[1].split(' ').collect::<Vec<&str>>()[2]}else{"PROGRESS=101"};
   // let tag = parts[1].split(" ").collect::<Vec<&str>>()[3];
   // let summary = parts[1].split(" ").collect::<Vec<&str>>()[4];
-  let progress_value = progress.split("=").collect::<Vec<&str>>()[1].parse::<usize>().unwrap_or(101);
+  let progress_value = progress.split('=').collect::<Vec<&str>>()[1].parse::<usize>().unwrap_or(101);
   println!("PV:{:?}", progress_value);
   Ok(progress_value)
 }

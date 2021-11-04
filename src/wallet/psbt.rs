@@ -218,7 +218,7 @@ pub fn get_weight(
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Error")),
   };
 
-  let transaction: Transaction = psbt_struct.clone().extract_tx();
+  let transaction: Transaction = psbt_struct.extract_tx();
   let desc = Descriptor::<String>::from_str(deposit_desc).unwrap();
   let satisfaction_weight = desc.max_satisfaction_weight().unwrap();
   
