@@ -32,8 +32,6 @@ use bitcoin::network::constants::Network;
 pub mod e;
 use e::{ErrorKind, S5Error};
 
-pub mod util;
-
 mod config;
 use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE};
 

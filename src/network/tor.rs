@@ -6,7 +6,6 @@ use std::path::Path;
 
 // use std::thread::JoinHandle;
 use crate::e::{ErrorKind, S5Error};
-use crate::util::aes;
 
 use libtor::{Tor,TorFlag,log};
 
@@ -16,7 +15,7 @@ use bitcoin::secp256k1::rand::prelude::thread_rng;
 use bitcoin::secp256k1::rand::Rng;
 
 
-fn tor_salted_password_hash(password: &str)->String{{
+fn _tor_salted_password_hash(password: &str)->String{{
   let salt = thread_rng().gen::<[u8; 8]>().to_vec();
   let salt_hex = hex::encode(salt);
   let to_hash = salt_hex.clone() + password;
@@ -41,8 +40,8 @@ pub fn start(tmp_path: &str) -> String {
     Path::new("/tmp/tor-rust").to_path_buf()
   };
     
-  let control_key = aes::keygen();
-  let _hash = tor_salted_password_hash(&control_key);
+  // let control_key = aes::keygen();
+  // let _hash = tor_salted_password_hash(&control_key);
 
   Tor::new()
     .flag(TorFlag::DataDirectory(tmp_path.to_string_lossy().to_string()))
