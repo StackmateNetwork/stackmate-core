@@ -159,6 +159,28 @@ cstring_free(ptr: *mut c_char)
 
 ```
 
+### TOR
+
+Provide a temp working directory for tor. Defaults to /tmp.
+
+Returns control_key required to use tor_progress and tor_shutdown.
+
+```
+tor_start(tmp_path: *mut c_char) -> *mut c_char
+```
+
+Returns a stringidied usize between 0-100, indicating bootstrap progress.
+Returns 101 incase of error. In such cases, try again (it could be too soon).
+
+```
+tor_progress(control_key: *mut c_char) -> *mut c_char 
+```
+
+Returns true or false stringified indicating successful shutdown.
+```
+tor_stop(control_key: *mut c_char) -> *mut c_char 
+```
+
 ```
 Error Format:
 

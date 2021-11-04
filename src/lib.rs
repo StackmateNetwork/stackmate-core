@@ -32,6 +32,8 @@ use bitcoin::network::constants::Network;
 pub mod e;
 use e::{ErrorKind, S5Error};
 
+pub mod util;
+
 mod config;
 use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE};
 
@@ -697,38 +699,55 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 }
 
 
-/// Switch on tor daemon
+/// Switch on tor daemon. 
 /// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_start() -> *mut c_char {
-  let _handle = tor::start();
-  CString::new("true").unwrap().into_raw()
+pub unsafe extern "C" fn tor_start(tmp_path: *mut c_char) -> *mut c_char {
+  let tmp_path_cstr = CStr::from_ptr(tmp_path);
+  let tmp_path: &str = match tmp_path_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => "/tmp",
+  };
+
+  let control_key = tor::start(tmp_path);
+  CString::new(control_key.to_string()).unwrap().into_raw()
 }
 
-/// Get bootstrap progress from tor daemon
+/// Get bootstrap progress from tor daemon. Wait ~1s after calling tor_start() before calling this.
 /// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_progress() -> *mut c_char {
-  match tor::bootstrap_progress(){
+pub unsafe extern "C" fn tor_progress(control_key: *mut c_char) -> *mut c_char {
+  let control_key_cstr = CStr::from_ptr(control_key);
+  let control_key: &str = match control_key_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
+  };
+  match tor::bootstrap_progress(control_key){
     Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
     Err(e) => e.c_stringify()
   }
 }
 
-/// Shutdown tor daemon
+/// Shutdown tor daemon.
 /// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_stop() -> *mut c_char {
-  match tor::shutdown(){
+pub unsafe extern "C" fn tor_stop(control_key: *mut c_char) -> *mut c_char {
+  let control_key_cstr = CStr::from_ptr(control_key);
+  let control_key: &str = match control_key_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
+  };
+
+  match tor::shutdown(control_key){
     Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
     Err(e) => e.c_stringify()
   }
