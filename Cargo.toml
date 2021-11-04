@@ -5,6 +5,7 @@ authors = ["VM <vishalmenon.92@gmail.com>, MJ <jmorteza@hotmail.com>"]
 edition = "2018"
 description = "Rust-C FFI exposing composite functionality to build bitcoin descriptor wallets."
 keywords = ["bitcoin","rust-c-ffi"]
+license = "MIT"
 
 [lib]
 name = "stackmate"
