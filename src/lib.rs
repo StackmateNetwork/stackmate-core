@@ -296,17 +296,17 @@ pub unsafe extern "C" fn sync_balance(
 /// Syncs to a remote node and fetches history of a descriptor wallet.
 /// - *OUTPUT*
 /// ```
-//  WalletHistory{
-//    history: Vec<Transaction {
-//      timestamp: u64,
-//      height: u32,
-//      verified: bool,
-//      txid: String,
-//      received: u64,
-//      sent: u64,
-//      fee: u64,
-//    }>;
-//  }
+///  WalletHistory{
+///    history: Vec<Transaction {
+///      timestamp: u64,
+///      height: u32,
+///      verified: bool,
+///      txid: String,
+///     received: u64,
+///      sent: u64,
+///      fee: u64,
+///    }>;
+///  }
 /// ```
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -407,8 +407,8 @@ pub unsafe extern "C" fn get_address(
 /// - *OUTPUT*
 /// ```  
 ///  NetworkFee {
-///   rate: f32,
-///   absolute: Option<u64>,
+///    rate: f32,
+///    absolute: Option<u64>,
 ///  }
 /// ```
 /// # Safety
@@ -467,8 +467,8 @@ pub unsafe extern "C" fn estimate_network_fee(
 /// - *OUTPUT*
 /// ```  
 ///  NetworkFee {
-///   rate: f32,
-///   absolute: Option<u64>,
+///    rate: f32,
+///    absolute: Option<u64>,
 ///  }
 /// ```
 /// # Safety
@@ -498,8 +498,8 @@ pub unsafe extern "C" fn fee_rate_to_absolute(
 /// - *OUTPUT*
 /// ```  
 ///  NetworkFee {
-///   rate: f32,
-///   absolute: Option<u64>,
+///    rate: f32,
+///    absolute: Option<u64>,
 ///  }
 /// ```
 /// # Safety
@@ -529,7 +529,7 @@ pub unsafe extern "C" fn fee_absolute_to_rate(
 /// - *OUTPUT*
 /// ```  
 ///  TransactionWeight {
-///   weight: usize,
+///     weight: usize,
 ///  }
 /// ```
 /// # Safety
@@ -647,6 +647,15 @@ pub unsafe extern "C" fn build_tx(
 
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
+/// - *OUTPUT*
+/// ```
+///   DecodedTx{
+///     outputs: Vec<DecodedTxIO {
+///       value: u64,
+///       to: String,
+///     }>
+///   }
+/// ```
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
