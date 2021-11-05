@@ -49,11 +49,19 @@ pub mod network;
 use crate::network::fees;
 // use crate::network::tor;
 
+
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
-/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
+/// - *OUTPUT*
+/// ```
+/// MasterKey {
+///   fingerprint: String,
+///   mnemonic: String,
+///   xprv: String,
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that output is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn generate_master(
@@ -100,9 +108,16 @@ pub unsafe extern "C" fn generate_master(
 }
 
 /// Creates a master xprv given a mnemonic and passphrase.
-/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
+/// - *OUTPUT*
+/// ```
+/// MasterKey {
+///   fingerprint: String,
+///   mnemonic: String,
+///   xprv: String,
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn import_master(
@@ -142,9 +157,17 @@ pub unsafe extern "C" fn import_master(
 /// Derives hardened child keys from a master xprv.
 /// Follows the BIP32 standard of m/purpose'/network'/account'.
 /// Network path is inferred from the master xprv.
-/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
+/// - *OUTPUT*
+/// ```
+/// ChildKeys {
+///   fingerprint: String,
+///   hardened_path: String,
+///   xprv: String,
+///   xpub: String,
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn derive_hardened(
@@ -191,9 +214,15 @@ pub unsafe extern "C" fn derive_hardened(
 /// Compiles a policy into a descriptor of the specified script type.
 /// Use wpkh for a single signature segwit native wallet (default).
 /// Use wsh for a scripted segwit native wallet.
-/// - *OUTPUT CONTAINS PRIVATE KEY DATA*
+/// - *OUTPUT*
+/// ```
+/// WalletPolicy {
+///   policy: String,
+///   descriptor: String,
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_char) -> *mut c_char {
@@ -222,8 +251,14 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
 }
 
 /// Syncs to a remote node and fetches balance of a descriptor wallet.
+/// - *OUTPUT*
+/// ```
+/// WalletBalance {
+///   balance: u64
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_balance(
@@ -259,8 +294,22 @@ pub unsafe extern "C" fn sync_balance(
 }
 
 /// Syncs to a remote node and fetches history of a descriptor wallet.
+/// - *OUTPUT*
+/// ```
+//  WalletHistory{
+//    history: Vec<Transaction {
+//      timestamp: u64,
+//      height: u32,
+//      verified: bool,
+//      txid: String,
+//      received: u64,
+//      sent: u64,
+//      fee: u64,
+//    }>;
+//  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sync_history(
@@ -297,8 +346,14 @@ pub unsafe extern "C" fn sync_history(
 
 /// Gets a new address for a descriptor wallet at a given index.
 /// Client must keep track of address indexes and ENSURE prevention of address reuse.
+/// - *OUTPUT*
+/// ```
+/// WalletAddress {
+///   address: String,
+/// }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_address(
@@ -349,8 +404,15 @@ pub unsafe extern "C" fn get_address(
 }
 
 /// Gets the current network fee (in sats/vbyte) for a given confirmation target.
+/// - *OUTPUT*
+/// ```  
+///  NetworkFee {
+///   rate: f32,
+///   absolute: Option<u64>,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn estimate_network_fee(
@@ -402,8 +464,15 @@ pub unsafe extern "C" fn estimate_network_fee(
 }
 
 /// Converts a given fee_rate (in sats/vbyte) to absolute fee (in sats); given some transaction weight.
+/// - *OUTPUT*
+/// ```  
+///  NetworkFee {
+///   rate: f32,
+///   absolute: Option<u64>,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn fee_rate_to_absolute(
@@ -426,8 +495,15 @@ pub unsafe extern "C" fn fee_rate_to_absolute(
 }
 
 /// Converts a given absolute_fee (in sats) to fee rate (in sats/vbyte); given some transaction weight.
+/// - *OUTPUT*
+/// ```  
+///  NetworkFee {
+///   rate: f32,
+///   absolute: Option<u64>,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn fee_absolute_to_rate(
@@ -450,8 +526,14 @@ pub unsafe extern "C" fn fee_absolute_to_rate(
 }
 
 /// Gets the weight of a transaction built with a given deposit-descriptor.
+/// - *OUTPUT*
+/// ```  
+///  TransactionWeight {
+///   weight: usize,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn get_weight(
@@ -479,8 +561,15 @@ pub unsafe extern "C" fn get_weight(
 /// Builds a transaction for a given descriptor wallet.
 /// If sweep is set to true, amount value is ignored and will default to None.
 /// Set amount to 0 for sweep.
+/// - *OUTPUT*
+/// ```
+///  WalletPSBT {
+///    pub psbt: String,
+///    pub is_finalized: bool,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn build_tx(
@@ -559,7 +648,7 @@ pub unsafe extern "C" fn build_tx(
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char) -> *mut c_char {
@@ -588,8 +677,15 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
 
 /// Signs a PSBT with a descriptor.
 /// Can only be used with descriptors containing private key(s).
+/// - *OUTPUT*
+/// ```
+///  WalletPSBT {
+///    pub psbt: String,
+///    pub is_finalized: bool,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn sign_tx(
@@ -633,8 +729,14 @@ pub unsafe extern "C" fn sign_tx(
 }
 
 /// Broadcasts a signed transaction to a remote node.
+/// - *OUTPUT*
+/// ```
+///  Txid {
+///    pub txid: String,
+///  }
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn broadcast_tx(
@@ -679,8 +781,12 @@ pub unsafe extern "C" fn broadcast_tx(
 
 /// Checks if an extended public key is valid.
 /// Do not use the key source while checking an xpub i.e. remove [fingerprint/derivation/path/values] and only provide the xpub/tpub.
+/// - *OUTPUT*
+/// ```
+/// "true" | "false"
+/// ```
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
@@ -700,7 +806,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 /// Switch on tor daemon. 
 /// BETA: Careful with this.
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 // #[no_mangle]
 // pub unsafe extern "C" fn tor_start(tmp_path: *mut c_char) -> *mut c_char {
@@ -717,7 +823,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 /// Get bootstrap progress from tor daemon. Wait ~1s after calling tor_start() before calling this.
 /// BETA: Careful with this.
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 // #[no_mangle]
 // pub unsafe extern "C" fn tor_progress(control_key: *mut c_char) -> *mut c_char {
@@ -735,7 +841,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 /// Shutdown tor daemon.
 /// BETA: Careful with this.
 /// # Safety
-/// - This function is unsafe because it dereferences and returns raw pointer.
+/// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 // #[no_mangle]
 // pub unsafe extern "C" fn tor_stop(control_key: *mut c_char) -> *mut c_char {
