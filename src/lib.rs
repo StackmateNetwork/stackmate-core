@@ -18,10 +18,10 @@ Developed by Stackmate India in 2021.
 //! ## Building a transaction
 //! 1. Build a transaction with a default fixed fee of 1000 sats
 //! 2. Get weight of the transaction for a given descriptor
-//! 3. Use get absolute fee to get the fee needed to be paid for the transaction given variable fee rate and fixed weight. 
+//! 3. Use get absolute fee to get the fee needed to be paid for the transaction given variable fee rate and fixed weight.
 //! 4. Build transaction with the absolute fee chosen, sign & broadcast.
-//! 
-//! 
+//!
+//!
 //! ### Tor controls are in BETA. Use with caution.
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
@@ -50,7 +50,6 @@ use crate::network::fees;
 use crate::network::height;
 
 // use crate::network::tor;
-
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
@@ -828,7 +827,6 @@ pub unsafe extern "C" fn get_height(
   network: *const c_char,
   node_address: *const c_char,
 ) -> *mut c_char {
-
   let network_cstr = CStr::from_ptr(network);
   let network: &str = match network_cstr.to_str() {
     Ok(string) => string,
@@ -866,7 +864,33 @@ pub unsafe extern "C" fn get_height(
   }
 }
 
-/// Switch on tor daemon. 
+/// Convert days to bitcoin blocks as height. *Does not consider the current block height*. Add to get_height to get the expected block height after the given time in days.
+/// - *OUTPUT*
+/// ```  
+///  BlockHeight {
+///    height: u32,
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn days_to_blocks(days: *const c_char) -> *mut c_char {
+  let days_cstr = CStr::from_ptr(days);
+  let days: u32 = match days_cstr.to_str() {
+    Ok(string) => match string.parse::<u32>() {
+      Ok(i) => i,
+      Err(_) => {
+        return S5Error::new(ErrorKind::Input, "Days must be a stringified uint32").c_stringify()
+      }
+    },
+    Err(_) => return S5Error::new(ErrorKind::Input, "Days").c_stringify(),
+  };
+
+  height::BlockHeight { height: days * 144 }.c_stringify()
+}
+
+/// Switch on tor daemon.
 /// BETA: Careful with this.
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -920,7 +944,6 @@ pub unsafe extern "C" fn get_height(
 //   }
 // }
 
- 
 /// After using any other function, pass the output pointer into cstring_free(ptr: *mut c_char) to clear memory.
 /// ALWAYS use this in combination with any other function.
 /// Failure to do so can lead to memory bugs.
@@ -1055,6 +1078,22 @@ mod tests {
       let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
       println!("{:#?}", history);
       // assert_eq!(history.history.len(),3);
+    }
+  }
+
+  #[test]
+  fn test_days_to_blocks() {
+    unsafe {
+      let one_day = "1";
+      let blocks_ptr = days_to_blocks(CString::new(one_day).unwrap().into_raw());
+      let blocks_str = CStr::from_ptr(blocks_ptr).to_str().unwrap();
+      let blocks: height::BlockHeight = serde_json::from_str(blocks_str).unwrap();
+      assert_eq!(blocks.height, 144);
+      let one_year_as_days = "365";
+      let blocks_ptr = days_to_blocks(CString::new(one_year_as_days).unwrap().into_raw());
+      let blocks_str = CStr::from_ptr(blocks_ptr).to_str().unwrap();
+      let blocks: height::BlockHeight = serde_json::from_str(blocks_str).unwrap();
+      assert_eq!(blocks.height, 52560);
     }
   }
 }
