@@ -47,6 +47,8 @@ use crate::wallet::psbt;
 
 pub mod network;
 use crate::network::fees;
+use crate::network::height;
+
 // use crate::network::tor;
 
 
@@ -811,6 +813,58 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
   }
 }
 
+/// Gets the current block height.
+/// - *OUTPUT*
+/// ```  
+///  BlockHeight {
+///    height: u32,
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn get_height(
+  network: *const c_char,
+  node_address: *const c_char,
+) -> *mut c_char {
+
+  let network_cstr = CStr::from_ptr(network);
+  let network: &str = match network_cstr.to_str() {
+    Ok(string) => string,
+    Err(_) => "test",
+  };
+  let network_enum = match network {
+    "main" => Network::Bitcoin,
+    _ => Network::Testnet,
+  };
+  let node_address_cstr = CStr::from_ptr(node_address);
+  let node_address: &str = match node_address_cstr.to_str() {
+    Ok(string) => {
+      if string == DEFAULT {
+        match network_enum {
+          Network::Bitcoin => DEFAULT_MAINNET_NODE,
+          _ => DEFAULT_TESTNET_NODE,
+        }
+      } else {
+        string
+      }
+    }
+    Err(_) => match network_enum {
+      Network::Bitcoin => DEFAULT_MAINNET_NODE,
+      _ => DEFAULT_TESTNET_NODE,
+    },
+  };
+
+  let config = match WalletConfig::new("/0/*", node_address, None) {
+    Ok(conf) => conf,
+    Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+  };
+  match height::get_height(config) {
+    Ok(result) => result.c_stringify(),
+    Err(e) => e.c_stringify(),
+  }
+}
 
 /// Switch on tor daemon. 
 /// BETA: Careful with this.
