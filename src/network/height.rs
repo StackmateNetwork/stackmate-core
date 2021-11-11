@@ -14,7 +14,7 @@ pub struct BlockHeight {
 }
 impl BlockHeight {
   pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(self.clone()) {
+    let stringified = match serde_json::to_string(&self) {
       Ok(result) => result,
       Err(_) => {
         return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
