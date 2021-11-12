@@ -1,29 +1,67 @@
 [package]
+authors = ["i5hi, mocodesmo"]
+description = "Rust-C FFI exposing composite functionality to build bitcoin descriptor wallets."
+edition = "2018"
+keywords = ["bitcoin", "rust-c-ffi"]
+license = "MIT"
 name = "stackmate"
 version = "0.7.15"
-authors = ["i5hi, mocodesmo"]
-edition = "2018"
-description = "Rust-C FFI exposing composite functionality to build bitcoin descriptor wallets."
-keywords = ["bitcoin","rust-c-ffi"]
-license = "MIT"
+[dependencies]
+bip39 = "1.0.1"
+hex = "0.4.3"
+libtor = "46.6.1+0.4.6.6"
+openssl = "*"
+serde = "1.0.126"
+serde_derive = "1.0.0"
+serde_json = "1.0.64"
+sha-1 = "0.9.8"
+
+[dependencies.bdk]
+features = ["compiler", "rpc", "electrum"]
+version = "0.12.0"
+
+[dependencies.bitcoin]
+features = ["rand", "base64"]
+version = "0.27.1"
 
 [lib]
-name = "stackmate"
 crate-type = ["staticlib", "cdylib"]
+name = "stackmate"
 
-[dependencies]
-hex = "0.4.3"
-sha-1 = "0.9.8"
-serde = "1.0.126"
-serde_json = "1.0.64"
-serde_derive = "1.0.0"
-bip39 = "1.0.1"
-bitcoin ={version = "0.27.1", features = ["rand", "base64"]}
-bdk = {version = "0.12.0", features = ["compiler", "rpc", "electrum"]}
-libtor = "46.6.1+0.4.6.6"
+[profile]
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "z"
+panic = "abort"
 
-[target.aarch64-linux-android.dependencies] 
-openssl-sys = { version = "*", features = ["vendored"] }
+[target]
+[target.aarch64-apple-ios]
+[target.aarch64-apple-ios.dependencies]
+[target.aarch64-apple-ios.dependencies.openssl-sys]
+features = ["vendored"]
+version = "*"
 
-[target.x84_64-linux-android.dependencies] 
-openssl-sys = { version = "*", features = ["vendored"] }
+[target.aarch64-linux-android]
+[target.aarch64-linux-android.dependencies]
+[target.aarch64-linux-android.dependencies.openssl-sys]
+features = ["vendored"]
+version = "*"
+
+[target.i686-linux-android]
+[target.i686-linux-android.dependencies]
+[target.i686-linux-android.dependencies.openssl-sys]
+features = ["vendored"]
+version = "*"
+
+[target.x84_64-linux-android]
+[target.x84_64-linux-android.dependencies]
+[target.x84_64-linux-android.dependencies.openssl-sys]
+features = ["vendored"]
+version = "*"
+
+[target.x86_64-apple-ios]
+[target.x86_64-apple-ios.dependencies]
+[target.x86_64-apple-ios.dependencies.openssl-sys]
+features = ["vendored"]
+version = "*"

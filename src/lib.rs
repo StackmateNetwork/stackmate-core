@@ -23,6 +23,13 @@ Developed by Stackmate India in 2021.
 //!
 //!
 //! ### Tor controls are in BETA. Use with caution.
+//! 
+
+use std::alloc::System;
+
+#[global_allocator]
+static A: System = System;
+
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
