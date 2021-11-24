@@ -243,11 +243,10 @@ pub unsafe extern "C" fn compile(
 
   let script_type_cstr = CStr::from_ptr(script_type);
   let script_type_str: &str = match script_type_cstr.to_str() {
-    Ok(string) => {
-      if string == "wsh" || string == "wpkh" || string == "sh" || string == "sh-wsh" {
-        string
-      } else {
-        "wpkh"
+    Ok(result) => {
+      match result{
+        "wpkh" | "wsh" | "sh" | "sh-wsh" => result,
+        _ => "wpkh",
       }
     }
     Err(_) => "wpkh",
