@@ -231,7 +231,10 @@ pub unsafe extern "C" fn derive_hardened(
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_char) -> *mut c_char {
+pub unsafe extern "C" fn compile(
+  policy: *const c_char, 
+  script_type: *const c_char) 
+  -> *mut c_char {
   let policy_cstr = CStr::from_ptr(policy);
   let policy_str: &str = match policy_cstr.to_str() {
     Ok(string) => string,
@@ -241,10 +244,10 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
   let script_type_cstr = CStr::from_ptr(script_type);
   let script_type_str: &str = match script_type_cstr.to_str() {
     Ok(string) => {
-      if string != "wsh" || string != "wpkh" || string != "sh" || string != "sh-wsh" {
-        "wpkh"
-      } else {
+      if string == "wsh" || string == "wpkh" || string == "sh" || string == "sh-wsh" {
         string
+      } else {
+        "wpkh"
       }
     }
     Err(_) => "wpkh",

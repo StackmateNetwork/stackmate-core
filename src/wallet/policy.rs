@@ -36,7 +36,10 @@ pub fn compile(
 ) -> Result<WalletPolicy, S5Error> {
   let x_policy = match Concrete::<String>::from_str(policy) {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Policy")),
+    Err(e) => {
+      eprintln!("{:#?}",e.to_string());
+      return Err(S5Error::new(ErrorKind::Input, "Invalid Policy"));
+    }
   };
 
   let legacy_policy: Miniscript<String, Legacy> = match x_policy.compile() {
@@ -157,5 +160,12 @@ mod tests {
     println!("{:#?}", desc.to_string());
     // println!("{:#?}",key_map);
     // println!("{:#?}",networks);
+  }
+
+  #[test]
+  fn test_raft(){
+    let policy = "or(pk([f128c8df/84h/1h/0h]tprv8fM5yWPWNuAU8wnYSVJed4xqGX5G9XEZHsMoy1wydWecBthUiJFDoKGqtAYZ2K9m1cfPSJvpGRyqgm8pdPWmGuj1nh8vTiuwEQdvPfDLS72/0/*),and(pk([05232dee/84h/1h/0h]tpubDCLDXhTEBD9usoa7td6k94WhnA8G8gLPnEkZeauvTqyB2NgV9hZkVbWeQmmSbDxYWuvcsiqg2DY688NiXzjZwt3TZAxYs33RDXvpqPNSdPM/0/*),after(2110534)))";
+    let result = compile(&policy, "wsh").unwrap();
+    println!("{:#?}", result);
   }
 }
