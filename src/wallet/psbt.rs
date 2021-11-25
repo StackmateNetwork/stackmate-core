@@ -22,7 +22,7 @@ use bdk::miniscript::DescriptorTrait;
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
 
-use crate::wallet::policy::{SpendingPolicyPaths, raft_policy_paths};
+use crate::wallet::policy::{SpendingPolicyPaths};
 
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -326,6 +326,8 @@ mod tests {
   use crate::config::WalletConfig;
   use crate::config::DEFAULT_TESTNET_NODE;
   use bitcoin::network::constants::Network;
+  use crate::wallet::policy::{raft_policy_paths};
+  use crate::wallet::address;
 
   #[test]
   fn test_send() {
@@ -367,27 +369,62 @@ mod tests {
   }
 
   #[test] #[ignore]
-  fn test_inheritance(){
-    let desc = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
-    let to = "tb1qp22axwc4xakcqj5v03mr0p2fuu7m3s5uu7njaj";
-    let amount = 1_000;
-    let fee_absolute = 2_100;
+  fn test_raft_send(){
 
-    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let desc_primary = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(2105103))))";
+    let desc_secondary = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tprv8fdte5erKhRGZySSQcvB1ayUUATESmVYpJ9BEtobSoPGB8vbBRwCYKrcGcmKaRqTp1hdpprDpwVq4Fd7p7VacgwdMywv1Lmet6ZtYHV3uc1/0/*),after(2105103))))";
+
+    let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
+    let amount = 2_100;
+    let fee_absolute = 1_500;
+
+    // TOP ME UP
+    // WalletAddress {
+    //   address: "tb1q50x7h63d7fl68s7jrqgkk9jwzmcegga3xqyufv0vugeln423veeqn8e3r6",
+    // }
+   
+    // Primary Withdrawl
+   
+    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
     let policy_paths = raft_policy_paths(config).unwrap();
     
-    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
-    let psbt_origin = build(config, to, None, fee_absolute, true,Some(policy_paths.primary));
+    println!("{:#?}", policy_paths);
+
+    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let psbt_origin = build(config, to, Some(amount), fee_absolute, true,Some(policy_paths.primary));
 
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
 
-    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
     let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
 
     assert_eq!(signed.clone().unwrap().is_finalized, true);
 
-    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let broadcasted = broadcast(config, &signed.clone().unwrap().psbt);
+    println!("{:#?}", broadcasted.clone().unwrap());
+
+
+    // Secondary Withdrawal
+   
+    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let policy_paths = raft_policy_paths(config).unwrap();
+    
+    println!("{:#?}", policy_paths);
+
+    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let psbt_origin = build(config, to, Some(amount), fee_absolute, true,Some(policy_paths.secondary));
+
+    let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
+    println!("Decoded: {:#?}", decoded.clone().unwrap());
+
+    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
+
+    assert_eq!(signed.clone().unwrap().is_finalized, true);
+
+    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
     let broadcasted = broadcast(config, &signed.clone().unwrap().psbt);
     println!("{:#?}", broadcasted.clone().unwrap());
 
