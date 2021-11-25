@@ -1,12 +1,22 @@
+use std::collections::btree_map::BTreeMap;
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use bdk::descriptor::{Descriptor, Legacy, Miniscript,Segwitv0};
+use bdk::descriptor::policy::Policy;
+use bdk::descriptor::{Descriptor, Legacy, Miniscript, Segwitv0};
 use bdk::miniscript::policy::Concrete;
+
+use bdk::descriptor::policy::SatisfiableItem;
+
+use bdk::blockchain::noop_progress;
+use bdk::database::MemoryDatabase;
+
+use bdk::{KeychainKind, Wallet};
 // use bdk::Error;
+use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
 
 /// FFI Output
@@ -30,14 +40,11 @@ impl WalletPolicy {
   }
 }
 
-pub fn compile(
-  policy: &str, 
-  script_type: &str
-) -> Result<WalletPolicy, S5Error> {
+pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error> {
   let x_policy = match Concrete::<String>::from_str(policy) {
     Ok(result) => result,
     Err(e) => {
-      eprintln!("{:#?}",e.to_string());
+      eprintln!("{:#?}", e.to_string());
       return Err(S5Error::new(ErrorKind::Input, "Invalid Policy"));
     }
   };
@@ -66,6 +73,81 @@ pub fn compile(
   })
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SpendingPolicyPaths {
+  pub internal: BTreeMap<String, Vec<usize>>,
+  pub external: BTreeMap<String, Vec<usize>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RaftMemberPolicyPaths {
+  pub primary: SpendingPolicyPaths,
+  pub secondary: SpendingPolicyPaths,
+}
+
+pub fn raft_policy_paths(config: WalletConfig) -> Result<RaftMemberPolicyPaths, S5Error> {
+  let wallet = match Wallet::new(
+    &config.deposit_desc,
+    Some(&config.change_desc),
+    config.network,
+    MemoryDatabase::default(),
+    config.client,
+  ) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
+  };
+
+  match wallet.sync(noop_progress(), None) {
+    Ok(_) => (),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
+  };
+
+  let ext_policies = match wallet.policies(KeychainKind::External) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Policy")),
+  };
+
+  let int_policies = match wallet.policies(KeychainKind::Internal) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Policy")),
+  };
+
+  let mut ext_path = BTreeMap::new();
+  ext_path.insert(ext_policies.clone().unwrap().item.id().to_string(), vec![0]);
+
+
+  let mut int_path = BTreeMap::new();
+  int_path.insert(int_policies.clone().unwrap().item.id().to_string(), vec![0]);
+
+  match ext_policies.clone().unwrap().item {
+    SatisfiableItem::Thresh { items, threshold } => {
+      ext_path.insert(items[0].id.to_string(), vec![1]);
+    }
+    _ => println!("{}", "Not-Thresh"),
+  };
+
+  match int_policies.clone().unwrap().item {
+    SatisfiableItem::Thresh { items, threshold } => {
+      int_path.insert(items[0].id.to_string(), vec![1]);
+    }
+    _ => println!("{}", "Not-Thresh"),
+  };
+
+  println!("{:#?}", ext_policies.unwrap().item.id());
+
+  // FIXME Find correct spending policy path for secondary
+  Ok(RaftMemberPolicyPaths {
+    primary: SpendingPolicyPaths {
+      internal: int_path.clone(),
+      external: ext_path.clone(),
+    },
+    secondary: SpendingPolicyPaths {
+      internal: int_path,
+      external: ext_path,
+    },
+  })
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -82,14 +164,19 @@ mod tests {
     let single_policy = format!("pk({})", user_xprv);
     let single_watchonly_policy = format!("pk({})", user_xpub);
     let raft_policy = format!(
-      "or(pk({}),and(pk({}),after({})))",
+      "thresh(1,pk({}),and(pk({}),after({})))",
       user_xprv, custodian, bailout_time
     );
+    // let raft_policy = format!(
+    //   "or(pk({}),and(pk({}),after({})))",
+    //   user_xprv, custodian, bailout_time
+    // );
 
     //  DESCRIPTORS
     let raft_result_bech32 = compile(&raft_policy, "wsh").unwrap();
-    let expected_raft_wsh = "wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
+    // let expected_raft_wsh = "wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
 
+    let expected_raft_wsh = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
     let single_result_bech32 = compile(&single_policy, "wpkh").unwrap();
     println!("{:#?}", single_result_bech32);
 
@@ -114,9 +201,9 @@ mod tests {
     // let single_watchonly_result_legacy = compile(&single_watchonly_policy, "pk").unwrap();
 
     let raft_config: WalletConfig =
-      WalletConfig::new(expected_raft_wsh, DEFAULT_TESTNET_NODE,None).unwrap();
+      WalletConfig::new(expected_raft_wsh, DEFAULT_TESTNET_NODE, None).unwrap();
     let single_config: WalletConfig =
-      WalletConfig::new(expected_single_wpkh, DEFAULT_TESTNET_NODE,None).unwrap();
+      WalletConfig::new(expected_single_wpkh, DEFAULT_TESTNET_NODE, None).unwrap();
     let watchonly_config: WalletConfig =
       WalletConfig::new(expected_single_watchonly_wpkh, DEFAULT_TESTNET_NODE, None).unwrap();
 
@@ -163,9 +250,12 @@ mod tests {
   }
 
   #[test]
-  fn test_raft(){
+  fn test_raft() {
     let policy = "or(pk([f128c8df/84h/1h/0h]tprv8fM5yWPWNuAU8wnYSVJed4xqGX5G9XEZHsMoy1wydWecBthUiJFDoKGqtAYZ2K9m1cfPSJvpGRyqgm8pdPWmGuj1nh8vTiuwEQdvPfDLS72/0/*),and(pk([05232dee/84h/1h/0h]tpubDCLDXhTEBD9usoa7td6k94WhnA8G8gLPnEkZeauvTqyB2NgV9hZkVbWeQmmSbDxYWuvcsiqg2DY688NiXzjZwt3TZAxYs33RDXvpqPNSdPM/0/*),after(2110534)))";
     let result = compile(&policy, "wsh").unwrap();
     println!("{:#?}", result);
+    let raft_config = WalletConfig::new(&result.descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
+    let spending_policies = raft_policy_paths(raft_config).unwrap();
+    println!("{:#?}", spending_policies);
   }
 }

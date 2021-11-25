@@ -1,13 +1,14 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::FromStr;
+use std::collections::btree_map::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 
-use bdk::{SignOptions, Wallet};
+use bdk::{SignOptions, Wallet, KeychainKind};
 
 use bitcoin::base64;
 use bitcoin::blockdata::transaction::Transaction;
@@ -20,6 +21,8 @@ use bdk::miniscript::DescriptorTrait;
 
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
+
+use crate::wallet::policy::{SpendingPolicyPaths, raft_policy_paths};
 
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -43,12 +46,14 @@ impl WalletPSBT {
   }
 }
 
+
 pub fn build(
   config: WalletConfig,
   to: &str,
   amount: Option<u64>,
   fee_absolute: u64,
   sweep: bool,
+  policy_paths: Option<SpendingPolicyPaths>
 ) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
@@ -82,6 +87,11 @@ pub fn build(
     }
 
     builder.fee_absolute(fee_absolute);
+
+    if policy_paths.is_some(){
+      builder.policy_path(policy_paths.clone().unwrap().external, KeychainKind::External);
+      builder.policy_path(policy_paths.unwrap().internal, KeychainKind::Internal);
+    }
 
     match builder.finish() {
       Ok(result) => result,
@@ -314,6 +324,7 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
 mod tests {
   use super::*;
   use crate::config::WalletConfig;
+  use crate::config::DEFAULT_TESTNET_NODE;
   use bitcoin::network::constants::Network;
 
   #[test]
@@ -331,7 +342,7 @@ mod tests {
     let amount = 5_000;
     let fee_absolute = 420;
 
-    let psbt_origin = build(config, to, Some(amount), fee_absolute, false);
+    let psbt_origin = build(config, to, Some(amount), fee_absolute, false, None);
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
     // assert_eq!(decoded.unwrap()[0].value, amount);
@@ -354,5 +365,33 @@ mod tests {
     assert_eq!(tx_weight.weight, expected_weight);
 
   }
+
+  #[test]
+  fn test_inheritance(){
+    let desc = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
+    let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
+    let amount = 5_000;
+    let fee_absolute = 2_100;
+
+    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let policy_paths = raft_policy_paths(config).unwrap();
+    
+    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let psbt_origin = build(config, to, Some(amount), fee_absolute, false,Some(policy_paths.primary));
+
+    let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
+    println!("Decoded: {:#?}", decoded.clone().unwrap());
+
+    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
+
+    assert_eq!(signed.clone().unwrap().is_finalized, true);
+
+    let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let broadcasted = broadcast(config, &signed.clone().unwrap().psbt);
+    println!("{:#?}", broadcasted.clone().unwrap());
+
+  }
+
 
 }

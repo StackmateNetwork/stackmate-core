@@ -647,7 +647,20 @@ pub unsafe extern "C" fn build_tx(
     Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
   };
 
-  match psbt::build(config, to_address, amount, fee_absolute, sweep) {
+  let policy_path = if deposit_desc.contains("wsh") {
+    Some(policy::raft_policy_paths(config).unwrap().primary)
+  }
+  else{
+    None
+  };
+  
+
+  let config = match WalletConfig::new(deposit_desc, node_address, None) {
+    Ok(conf) => conf,
+    Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+  };
+
+  match psbt::build(config, to_address, amount, fee_absolute, sweep, policy_path) {
     Ok(result) => result.c_stringify(),
     Err(e) => e.c_stringify(),
   }
