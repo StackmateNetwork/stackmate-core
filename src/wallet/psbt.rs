@@ -87,7 +87,7 @@ pub fn build(
       Ok(result) => result,
       Err(e) => {
         println!("{:?}", e);
-        return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
+        return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
       }
     }
   };
