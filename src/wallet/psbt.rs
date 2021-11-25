@@ -366,18 +366,18 @@ mod tests {
 
   }
 
-  #[test]
+  #[test] #[ignore]
   fn test_inheritance(){
     let desc = "wsh(thresh(1,pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),snj:and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
-    let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
-    let amount = 5_000;
+    let to = "tb1qp22axwc4xakcqj5v03mr0p2fuu7m3s5uu7njaj";
+    let amount = 1_000;
     let fee_absolute = 2_100;
 
     let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
     let policy_paths = raft_policy_paths(config).unwrap();
     
     let config = WalletConfig::new(&desc, DEFAULT_TESTNET_NODE, None).unwrap();
-    let psbt_origin = build(config, to, Some(amount), fee_absolute, false,Some(policy_paths.primary));
+    let psbt_origin = build(config, to, None, fee_absolute, true,Some(policy_paths.primary));
 
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());

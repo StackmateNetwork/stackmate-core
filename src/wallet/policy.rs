@@ -112,38 +112,66 @@ pub fn raft_policy_paths(config: WalletConfig) -> Result<RaftMemberPolicyPaths, 
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Policy")),
   };
 
-  let mut ext_path = BTreeMap::new();
-  ext_path.insert(ext_policies.clone().unwrap().item.id().to_string(), vec![0]);
+  let mut primary_ext_path = BTreeMap::new();
+  primary_ext_path.insert(ext_policies.clone().unwrap().item.id().to_string(), vec![0]);
 
 
-  let mut int_path = BTreeMap::new();
-  int_path.insert(int_policies.clone().unwrap().item.id().to_string(), vec![0]);
+  let mut primary_int_path = BTreeMap::new();
+  primary_int_path.insert(int_policies.clone().unwrap().item.id().to_string(), vec![0]);
 
-  match ext_policies.clone().unwrap().item {
+
+  let mut secondary_ext_path = BTreeMap::new();
+  secondary_ext_path.insert(ext_policies.clone().unwrap().item.id().to_string(), vec![0]);
+
+
+  let mut secondary_int_path = BTreeMap::new();
+  secondary_int_path.insert(int_policies.clone().unwrap().item.id().to_string(), vec![0]);
+
+  match ext_policies.clone().unwrap().item{
     SatisfiableItem::Thresh { items, threshold } => {
-      ext_path.insert(items[0].id.to_string(), vec![1]);
+      primary_ext_path.insert(items[0].id.to_string(), vec![1]);
+      secondary_ext_path.insert(items[1].id.to_string(), vec![1]);
+
+      match &items[1].item{
+        SatisfiableItem::Thresh { items, threshold } => {
+          secondary_ext_path.insert(items[0].id.to_string(), vec![2]);
+          // println!("SECONDARY{:#?}", items);
+        },
+        _ => println!("{}", "Not-Thresh"),
+
+      }
     }
     _ => println!("{}", "Not-Thresh"),
   };
 
-  match int_policies.clone().unwrap().item {
+  match int_policies.clone().unwrap().item{
     SatisfiableItem::Thresh { items, threshold } => {
-      int_path.insert(items[0].id.to_string(), vec![1]);
+      primary_int_path.insert(items[0].id.to_string(), vec![1]);
+      secondary_int_path.insert(items[1].id.to_string(), vec![1]);
+
+      match &items[1].item{
+        SatisfiableItem::Thresh { items, threshold } => {
+          secondary_int_path.insert(items[0].id.to_string(), vec![2]);
+          // println!("SECONDARY{:#?}", items);
+        },
+        _ => println!("{}", "Not-Thresh"),
+
+      }
     }
     _ => println!("{}", "Not-Thresh"),
   };
 
-  println!("{:#?}", ext_policies.unwrap().item.id());
+  // println!("{:#?}", ext_policies.unwrap().item);
 
   // FIXME Find correct spending policy path for secondary
   Ok(RaftMemberPolicyPaths {
     primary: SpendingPolicyPaths {
-      internal: int_path.clone(),
-      external: ext_path.clone(),
+      internal: primary_int_path.clone(),
+      external: primary_ext_path.clone(),
     },
     secondary: SpendingPolicyPaths {
-      internal: int_path,
-      external: ext_path,
+      internal: secondary_int_path,
+      external: secondary_ext_path,
     },
   })
 }
