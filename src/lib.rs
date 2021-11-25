@@ -647,13 +647,20 @@ pub unsafe extern "C" fn build_tx(
     Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
   };
 
-  let policy_path = if deposit_desc.contains("wsh") {
-    Some(policy::raft_policy_paths(config).unwrap().primary)
-  }
-  else{
+  // FIX ME. THIS ASSUMES RAFT IS THE ONLY WSH USED.
+
+  // WAYY TOO HACKY.
+  let policy_path: Option<policy::SpendingPolicyPaths> = if deposit_desc.contains("wsh") {
+    if deposit_desc.split("and_v").collect::<Vec<&str>>()[0].contains("tprv") || 
+      deposit_desc.split("and_v").collect::<Vec<&str>>()[0].contains("xprv") {
+      Some(policy::raft_policy_paths(config).unwrap().primary)
+    } else {
+      Some(policy::raft_policy_paths(config).unwrap().secondary)
+    }
+  }else{
     None
   };
-  
+
 
   let config = match WalletConfig::new(deposit_desc, node_address, None) {
     Ok(conf) => conf,
