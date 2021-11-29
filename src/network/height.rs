@@ -38,12 +38,13 @@ pub fn get_height(config: WalletConfig) -> Result<BlockHeight, S5Error> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::DEFAULT_MAINNET_NODE;
+  use crate::config::{DEFAULT_MAINNET_NODE,BlockchainBackend};
+
 
   #[test]
   fn test_get_height() {
     let dummy_desc = "xprv/0/*";
-    let config = WalletConfig::new(&dummy_desc, DEFAULT_MAINNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&dummy_desc, BlockchainBackend::Electrum, DEFAULT_MAINNET_NODE, None).unwrap();
     let height = get_height(config).unwrap();
     assert!(height.height>50000);
   }

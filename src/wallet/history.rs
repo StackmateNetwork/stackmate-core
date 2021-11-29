@@ -153,14 +153,14 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE};
+  use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE, BlockchainBackend};
 
   #[test]
   fn test_balance() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&deposit_desc, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let balance = sync_balance(config).unwrap();
     assert_eq!(balance.balance, 208856)
   }
@@ -169,7 +169,7 @@ mod tests {
     //   let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     //   let deposit_desc = format!("wpkh({}/0/*)", xkey);
     let deposit_desc = "wpkh([66a0c105/84h/1h/5h]tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*)";
-    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&deposit_desc, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let history = sync_history(config).unwrap();
     println!("{:#?}", history);
   }

@@ -58,11 +58,12 @@ pub fn get_rate(fee_absolute: u64, weight: usize) -> NetworkFee {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::DEFAULT_MAINNET_NODE;
+  use crate::config::{DEFAULT_MAINNET_NODE,BlockchainBackend};
+
   #[test]
   fn test_estimate_fee() {
     let dummy_desc = "xprv/0/*";
-    let config = WalletConfig::new(&dummy_desc, DEFAULT_MAINNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&dummy_desc, BlockchainBackend::Electrum, DEFAULT_MAINNET_NODE, None).unwrap();
     let network_fee = estimate_rate(config, 1).unwrap();
     println!("{:#?}", network_fee);
   }

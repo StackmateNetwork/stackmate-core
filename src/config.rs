@@ -1,8 +1,12 @@
+use std::boxed::Box;
+
 use bdk::blockchain::any::{AnyBlockchain, AnyBlockchainConfig};
 use bdk::blockchain::electrum::ElectrumBlockchainConfig;
+use bdk::blockchain::esplora::{EsploraBlockchainConfig, EsploraBlockchain, EsploraError};
 use bdk::blockchain::rpc::{wallet_name_from_descriptor, Auth, RpcConfig};
 use bdk::blockchain::{Blockchain, ConfigurableBlockchain, ElectrumBlockchain, RpcBlockchain};
-use bdk::core_rpc::Error as RpcError;
+
+use bdk::bitcoincore_rpc::Error as RpcError;
 use bdk::electrum_client::Error as ElectrumError;
 
 use bitcoin::network::constants::Network;
@@ -17,12 +21,18 @@ pub struct WalletConfig {
   pub client: AnyBlockchain,
 }
 
+pub enum BlockchainBackend{
+  Electrum,
+  Esplora,
+  Rpc
+}
+
 pub const DEFAULT: &str = "default";
 pub const DEFAULT_TESTNET_NODE: &str = "ssl://electrum.blockstream.info:60002";
 pub const DEFAULT_MAINNET_NODE: &str = "ssl://electrum.blockstream.info:50002";
 
 impl WalletConfig {
-  pub fn new(deposit_desc: &str, node_address: &str, socks5: Option<String>) -> Result<Self, S5Error> {
+  pub fn new(deposit_desc: &str, backend: BlockchainBackend, node_address: &str, socks5: Option<String>) -> Result<Self, S5Error> {
     let change_desc: &str = &deposit_desc.replace("/0/*", "/1/*");
     let network = if <&str>::clone(&deposit_desc).contains("xpub")
       || <&str>::clone(&deposit_desc).contains("xprv")
@@ -41,75 +51,96 @@ impl WalletConfig {
       node_address
     };
 
-    if node_address.contains("electrum") {
-      let config = if socks5.is_none() {
-        ElectrumBlockchainConfig {
-        url: node_address.to_string(),
-        socks5: None,
-        retry: 1,
-        timeout: Some(5),
-        stop_gap: 1000,
-        }
-      }else{
-        ElectrumBlockchainConfig{
+    let client = match backend{
+      Electrum=>{
+        let config = if socks5.is_none() {
+          ElectrumBlockchainConfig {
           url: node_address.to_string(),
-          socks5,
+          socks5: None,
           retry: 1,
-          timeout: None,
+          timeout: Some(5),
           stop_gap: 1000,
-        }
-      };
-      let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
-        Ok(client) => client,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
-      };
+          }
+        }else{
+          ElectrumBlockchainConfig{
+            url: node_address.to_string(),
+            socks5,
+            retry: 1,
+            timeout: None,
+            stop_gap: 1000,
+          }
+        };
+        let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
+          Ok(client) => client,
+          Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
+        };
+        client
+      },
+      Esplora=>{
+        let config = if socks5.is_none() {
+          EsploraBlockchainConfig {
+          base_url: node_address.to_string(),
+          proxy: None,
+          timeout_read: 5,
+          timeout_write: 5,
+          stop_gap: 1000,
+          }
+        }else{
+          EsploraBlockchainConfig{
+            base_url: node_address.to_string(),
+            proxy: socks5,
+            timeout_read: 5,
+            timeout_write: 5,
+            stop_gap: 1000,
+          }
+        };
+        let client = match create_blockchain_client(AnyBlockchainConfig::Esplora(config)) {
+          Ok(client) => client,
+          Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
+        };
+        client
+      },
+      Rpc=>{
+        let parts: Vec<&str> = node_address.split("?auth=").collect();
+        let auth = if parts[1].is_empty() {
+          Auth::None
+        } else {
+          Auth::UserPass {
+            username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),
+            password: parts[1].split(':').collect::<Vec<&str>>()[1].to_string(),
+          }
+        };
+        let wallet_name = match wallet_name_from_descriptor(
+          deposit_desc,
+          Some(change_desc),
+          network,
+          &Secp256k1::new(),
+        ) {
+          Ok(name) => name,
+          Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+        };
+        let config = RpcConfig {
+          url: parts[0].to_string(),
+          auth,
+          network,
+          wallet_name,
+          skip_blocks: None,
+        };
+        let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)) {
+          Ok(client) => client,
+          Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
+        };
+        client
+      }
+    };
 
-      Ok(WalletConfig {
-        deposit_desc: deposit_desc.to_string(),
-        change_desc: change_desc.to_string(),
-        network,
-        client,
-      })
-    } else if node_address.contains("http") {
-      let parts: Vec<&str> = node_address.split("?auth=").collect();
-      let auth = if parts[1].is_empty() {
-        Auth::None
-      } else {
-        Auth::UserPass {
-          username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),
-          password: parts[1].split(':').collect::<Vec<&str>>()[1].to_string(),
-        }
-      };
-      let wallet_name = match wallet_name_from_descriptor(
-        deposit_desc,
-        Some(change_desc),
-        network,
-        &Secp256k1::new(),
-      ) {
-        Ok(name) => name,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
-      };
-      let config = RpcConfig {
-        url: parts[0].to_string(),
-        auth,
-        network,
-        wallet_name,
-        skip_blocks: None,
-      };
-      let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)) {
-        Ok(client) => client,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
-      };
-
-      Ok(WalletConfig {
-        deposit_desc: deposit_desc.to_string(),
-        change_desc: change_desc.to_string(),
-        network,
-        client,
-      })
-    } else {
-      Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."))
-    }
+    
+    Ok(WalletConfig {
+      deposit_desc: deposit_desc.to_string(),
+      change_desc: change_desc.to_string(),
+      network,
+      client,
+    })
   }
 }
 
@@ -145,6 +176,21 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig) -> Result<AnyBlockc
         },
       };
       Ok(AnyBlockchain::Rpc(client))
+    }
+    AnyBlockchainConfig::Esplora(conf) => {
+      let client = match EsploraBlockchain::from_config(&conf) {
+        Ok(result) => result,
+        Err(bdk_error) => match bdk_error {
+          bdk::Error::Esplora(esplora_error) => match *esplora_error {
+            EsploraError::Io(c_error) => {
+              return Err(S5Error::new(ErrorKind::Network, &c_error.to_string()))
+            }
+            e_error => return Err(S5Error::new(ErrorKind::Internal, &e_error.to_string())),
+          },
+          e_error => return Err(S5Error::new(ErrorKind::Internal, &e_error.to_string())),
+        },
+      };
+      Ok(AnyBlockchain::Esplora(client))
     }
   }
 }
@@ -205,7 +251,7 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
+    let config = WalletConfig::new(&deposit_desc,BlockchainBackend::Esplora, DEFAULT_TESTNET_NODE,None).unwrap();
     match config.client {
       AnyBlockchain::Electrum(client) => {
         let height = client.get_height().unwrap();
@@ -227,7 +273,7 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
     let node_address = "http://172.18.0.2:18332?auth=satsbank:typercuz";
-    let config = WalletConfig::new(&deposit_desc, node_address,None).unwrap();
+    let config = WalletConfig::new(&deposit_desc,BlockchainBackend::Rpc, node_address,None).unwrap();
 
     match config.client {
       AnyBlockchain::Rpc(client) => {
@@ -250,7 +296,7 @@ mod tests {
   fn test_config_errors() {
     let dummy_desc = "xprv/0/*";
     let node_address = "ssl://electrum.blockstream.info:5002";
-    let config_error = WalletConfig::new(&dummy_desc, node_address,None)
+    let config_error = WalletConfig::new(&dummy_desc,BlockchainBackend::Electrum, node_address,None)
       .err()
       .unwrap();
     println!("{:#?}", config_error);

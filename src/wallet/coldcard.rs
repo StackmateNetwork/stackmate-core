@@ -72,7 +72,7 @@ mod tests {
   use super::*;
   use std::path::PathBuf;
   use crate::wallet::address;
-  use crate::config::{WalletConfig, DEFAULT_MAINNET_NODE}; 
+  use crate::config::{WalletConfig, DEFAULT_MAINNET_NODE, BlockchainBackend}; 
 
   #[test] #[ignore]
   fn test_coldcard_watcher() {
@@ -82,20 +82,20 @@ mod tests {
   
     let key_source_84 = cckeys.bip84.deriv.replace("m",&cckeys.xfp.to_lowercase());
     let bip84_deposit_desc = format!("wpkh([{}]{}/0/*)",key_source_84,cckeys.bip84.xpub);
-    let config = WalletConfig::new(&bip84_deposit_desc,DEFAULT_MAINNET_NODE,None).unwrap();
+    let config = WalletConfig::new(&bip84_deposit_desc, BlockchainBackend::Electrum,DEFAULT_MAINNET_NODE,None).unwrap();
     let bip84_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip84_first_address.address,cckeys.bip84.first);
 
     let key_source_49 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
     let bip49_deposit_desc = format!("sh(wpkh([{}]{}/0/*))",key_source_49,cckeys.bip49.xpub);
-    let config = WalletConfig::new(&bip49_deposit_desc, DEFAULT_MAINNET_NODE,None).unwrap();
+    let config = WalletConfig::new(&bip49_deposit_desc, BlockchainBackend::Electrum, DEFAULT_MAINNET_NODE,None).unwrap();
 
     let bip49_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip49_first_address.address,cckeys.bip49.first);
 
     let key_source_44 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
     let bip44_deposit_desc = format!("pkh([{}]{}/0/*)",key_source_44,cckeys.bip44.xpub);
-    let config = WalletConfig::new(&bip44_deposit_desc,DEFAULT_MAINNET_NODE,None).unwrap();
+    let config = WalletConfig::new(&bip44_deposit_desc, BlockchainBackend::Electrum,DEFAULT_MAINNET_NODE,None).unwrap();
 
     let bip44_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip44_first_address.address,cckeys.bip44.first);

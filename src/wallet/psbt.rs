@@ -310,7 +310,7 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Deserialize")),
   };
   let tx = psbt_struct.extract_tx();
-  let txid = match wallet.broadcast(tx) {
+  let txid = match wallet.broadcast(&tx) {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
@@ -324,7 +324,7 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
 mod tests {
   use super::*;
   use crate::config::WalletConfig;
-  use crate::config::DEFAULT_TESTNET_NODE;
+  use crate::config::{DEFAULT_TESTNET_NODE,BlockchainBackend};
   use bitcoin::network::constants::Network;
   use crate::wallet::policy::{raft_policy_paths};
   use crate::wallet::address;
@@ -335,11 +335,11 @@ mod tests {
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
     let node_address = "ssl://electrum.blockstream.info:60002";
 
-    let config = WalletConfig::new(&deposit_desc, node_address, None).unwrap();
+    let config = WalletConfig::new(&deposit_desc, BlockchainBackend::Electrum, node_address, None).unwrap();
     let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
     let deposit_desc = format!("wpkh({}/0/*)", xkey);
 
-    let sign_config = WalletConfig::new(&deposit_desc, node_address, None).unwrap();
+    let sign_config = WalletConfig::new(&deposit_desc, BlockchainBackend::Electrum, node_address, None).unwrap();
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;
     let fee_absolute = 420;
@@ -385,46 +385,46 @@ mod tests {
    
     // Primary Withdrawl
    
-    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let policy_paths = raft_policy_paths(config).unwrap();
     
     println!("{:#?}", policy_paths);
 
-    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let psbt_origin = build(config, to, Some(amount), fee_absolute, true,Some(policy_paths.primary));
 
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
 
-    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
 
     assert_eq!(signed.clone().unwrap().is_finalized, true);
 
-    let config = WalletConfig::new(&desc_primary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_primary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let broadcasted = broadcast(config, &signed.clone().unwrap().psbt);
     println!("{:#?}", broadcasted.clone().unwrap());
 
 
     // Secondary Withdrawal
    
-    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_secondary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let policy_paths = raft_policy_paths(config).unwrap();
     
     println!("{:#?}", policy_paths);
 
-    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_secondary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let psbt_origin = build(config, to, Some(amount), fee_absolute, true,Some(policy_paths.secondary));
 
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
 
-    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_secondary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
 
     assert_eq!(signed.clone().unwrap().is_finalized, true);
 
-    let config = WalletConfig::new(&desc_secondary, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&desc_secondary, BlockchainBackend::Electrum, DEFAULT_TESTNET_NODE, None).unwrap();
     let broadcasted = broadcast(config, &signed.clone().unwrap().psbt);
     println!("{:#?}", broadcasted.clone().unwrap());
 
