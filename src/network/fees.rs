@@ -31,7 +31,7 @@ impl NetworkFee {
 }
 
 pub fn estimate_rate(config: WalletConfig, target: usize) -> Result<NetworkFee, S5Error> {
-  let fee = match config.client.estimate_fee(target) {
+  let fee = match config.client.unwrap().estimate_fee(target) {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
@@ -61,8 +61,8 @@ mod tests {
   use crate::config::DEFAULT_MAINNET_NODE;
   #[test]
   fn test_estimate_fee() {
-    let dummy_desc = "xprv/0/*";
-    let config = WalletConfig::new(&dummy_desc, DEFAULT_MAINNET_NODE, None).unwrap();
+    let descriptor = "[fingerprint/h/d/path]xprv/*";
+    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None).unwrap();
     let network_fee = estimate_rate(config, 1).unwrap();
     println!("{:#?}", network_fee);
   }

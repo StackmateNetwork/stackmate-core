@@ -159,7 +159,7 @@ mod tests {
   use std::time;
   /// This test might require more than 10 seconds of sleep duration if running for the first time.
   /// Default uses 4 sleep cycles in total for CI. Comment out the last 2 if you have run this before locally.
-  #[test]
+  #[test] #[ignore]
   fn test_tor() {
     let control_key = start("/tmp");
     // handle.join().unwrap();

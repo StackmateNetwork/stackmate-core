@@ -31,12 +31,11 @@ pub fn generate(
   index: u32,
 ) -> Result<WalletAddress, S5Error> {
    
-  let wallet = match Wallet::new(
+  let wallet = match Wallet::new_offline(
     &config.deposit_desc,
     Some(&config.change_desc),
     config.network,
-    MemoryDatabase::default(),
-    config.client,
+    MemoryDatabase::default()
   ){
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal,&e.to_string()))
@@ -54,21 +53,20 @@ pub fn generate(
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::{DEFAULT_TESTNET_NODE};
 
   #[test]
   fn test_solo_address() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
-    let deposit_desc = format!("wpkh({}/0/*)", xkey);
+    let descriptor = format!("wpkh({}/*)", xkey);
 
-    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
+    let config = WalletConfig::new_offline(&descriptor).unwrap();
     
     let address0 = generate(config, 0).unwrap();
     assert_eq!(
       "tb1q093gl5yxww0hlvlkajdmf8wh3a6rlvsdk9e6d3".to_string(),
       address0.address
     );
-    let config = WalletConfig::new(&deposit_desc, DEFAULT_TESTNET_NODE,None).unwrap();
+    let config = WalletConfig::new_offline(&descriptor).unwrap();
 
     let address1 = generate(config, 1).unwrap();
     assert_eq!(

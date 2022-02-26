@@ -28,7 +28,7 @@ impl BlockHeight {
 }
 
 pub fn get_height(config: WalletConfig) -> Result<BlockHeight, S5Error> {
-  let height = match config.client.get_height() {
+  let height = match config.client.unwrap().get_height() {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
@@ -42,8 +42,8 @@ mod tests {
 
   #[test]
   fn test_get_height() {
-    let dummy_desc = "xprv/0/*";
-    let config = WalletConfig::new(&dummy_desc, DEFAULT_MAINNET_NODE, None).unwrap();
+    let descriptor = "[fingerprint/h/d/path]xprv/*";
+    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None).unwrap();
     let height = get_height(config).unwrap();
     assert!(height.height>50000);
   }

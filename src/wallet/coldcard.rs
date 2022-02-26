@@ -81,21 +81,21 @@ mod tests {
     let cckeys = ColdCardKeys::_from_json_file(&path.to_str().unwrap()).unwrap();
   
     let key_source_84 = cckeys.bip84.deriv.replace("m",&cckeys.xfp.to_lowercase());
-    let bip84_deposit_desc = format!("wpkh([{}]{}/0/*)",key_source_84,cckeys.bip84.xpub);
-    let config = WalletConfig::new(&bip84_deposit_desc,DEFAULT_MAINNET_NODE,None).unwrap();
+    let bip84_descriptor = format!("wpkh([{}]{}/*)",key_source_84,cckeys.bip84.xpub);
+    let config = WalletConfig::new(&bip84_descriptor,DEFAULT_MAINNET_NODE,None).unwrap();
     let bip84_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip84_first_address.address,cckeys.bip84.first);
 
     let key_source_49 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
-    let bip49_deposit_desc = format!("sh(wpkh([{}]{}/0/*))",key_source_49,cckeys.bip49.xpub);
-    let config = WalletConfig::new(&bip49_deposit_desc, DEFAULT_MAINNET_NODE,None).unwrap();
+    let bip49_descriptor = format!("sh(wpkh([{}]{}/*))",key_source_49,cckeys.bip49.xpub);
+    let config = WalletConfig::new(&bip49_descriptor, DEFAULT_MAINNET_NODE,None).unwrap();
 
     let bip49_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip49_first_address.address,cckeys.bip49.first);
 
     let key_source_44 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
-    let bip44_deposit_desc = format!("pkh([{}]{}/0/*)",key_source_44,cckeys.bip44.xpub);
-    let config = WalletConfig::new(&bip44_deposit_desc,DEFAULT_MAINNET_NODE,None).unwrap();
+    let bip44_descriptor = format!("pkh([{}]{}/*)",key_source_44,cckeys.bip44.xpub);
+    let config = WalletConfig::new(&bip44_descriptor,DEFAULT_MAINNET_NODE,None).unwrap();
 
     let bip44_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip44_first_address.address,cckeys.bip44.first);

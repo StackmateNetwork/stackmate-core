@@ -62,7 +62,7 @@ estimate_fee(
 
 ```
 get_weight(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   psbt: *const c_char,
 ) -> TransactionWeight {
   weight: usize
@@ -80,7 +80,7 @@ get_absolute_fee(
 ```
 ```
 sync_balance(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
 )->WalletBalance {
   balance: u64
@@ -89,7 +89,7 @@ sync_balance(
 
 ```
 sync_history(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
 )->WalletHistory {
   history: Vec<Transaction {
@@ -107,7 +107,7 @@ sync_history(
 
 ```
 get_address(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   index: *const c_char,
 )->WalletAddress {
@@ -121,11 +121,11 @@ get_address(
 
 ```
 build_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   to_address: *const c_char,
   amount: *const c_char, (Use "0" when combined with sweep)
-  fee_rate: *const c_char,
+  fee_absolute: *const c_char,
   sweep: "true" || "false" (defaults to "false" for any other strings)
 )->WalletPSBT {
   psbt: String,
@@ -135,7 +135,7 @@ build_tx(
 
 ```
 sign_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   unsigned_psbt: *const c_char,
 )->WalletPSBT {
@@ -146,7 +146,7 @@ sign_tx(
 
 ```
 broadcast_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   signed_psbt: *const c_char,
 )->Txid {
