@@ -50,18 +50,37 @@ compile(
 ```
 
 ```
-get_fees(
+estimate_fee(
   network: "test" || "main", (All other strings default to "test")
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   target_size: *const c_char, (Values that cannot be parsed to integer will default to "6")
 )->NetworkFee {
-  fee: f32
+  rate: f32,
+  absolute: Option<u64>
 }
 ```
 
 ```
+get_weight(
+  descriptor: *const c_char,
+  psbt: *const c_char,
+) -> TransactionWeight {
+  weight: usize
+}
+```
+
+```
+get_absolute_fee(
+  fee_rate: *const c_char,
+  weight: *const c_char,
+) -> NetworkFee{
+  rate: f32,
+  absolute: Option<u64>
+}
+```
+```
 sync_balance(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
 )->WalletBalance {
   balance: u64
@@ -70,7 +89,7 @@ sync_balance(
 
 ```
 sync_history(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
 )->WalletHistory {
   history: Vec<Transaction {
@@ -88,7 +107,7 @@ sync_history(
 
 ```
 get_address(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   index: *const c_char,
 )->WalletAddress {
@@ -102,11 +121,11 @@ get_address(
 
 ```
 build_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   to_address: *const c_char,
   amount: *const c_char, (Use "0" when combined with sweep)
-  fee_rate: *const c_char,
+  fee_absolute: *const c_char,
   sweep: "true" || "false" (defaults to "false" for any other strings)
 )->WalletPSBT {
   psbt: String,
@@ -116,7 +135,7 @@ build_tx(
 
 ```
 sign_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   unsigned_psbt: *const c_char,
 )->WalletPSBT {
@@ -127,7 +146,7 @@ sign_tx(
 
 ```
 broadcast_tx(
-  deposit_desc: *const c_char,
+  descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   signed_psbt: *const c_char,
 )->Txid {
@@ -138,6 +157,28 @@ broadcast_tx(
 ```
 cstring_free(ptr: *mut c_char)
 
+```
+
+### TOR
+
+Provide a temp working directory for tor. Defaults to /tmp.
+
+Returns control_key required to use tor_progress and tor_shutdown.
+
+```
+tor_start(tmp_path: *mut c_char) -> *mut c_char
+```
+
+Returns a stringidied usize between 0-100, indicating bootstrap progress.
+Returns 101 incase of error. In such cases, try again (it could be too soon).
+
+```
+tor_progress(control_key: *mut c_char) -> *mut c_char 
+```
+
+Returns true or false stringified indicating successful shutdown.
+```
+tor_stop(control_key: *mut c_char) -> *mut c_char 
 ```
 
 ```
@@ -166,14 +207,14 @@ Where conditions involve keys, the extended key format is
 [fingerprint/hardened_path]key/unhardened_path
 ```
 
-Making the format for a deposit descriptor as
+Making the extended key format in a deposit descriptor as
 
 ```
 [fingerprint/purpose'/network'/account']key/0/*
 ```
 
 
-And the format for a change descriptor as (done internally)
+And the format in a change descriptor as (done internally)
 
 ```
 [fingerprint/purpose'/network'/account']key/1/*

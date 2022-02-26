@@ -7,6 +7,7 @@ Currently used by [Stackmate Wallet](https://github.com/mocodesmo/stackmate).
 ## Table of Contents
 - [Acknowledgements](#acknowledgements)
 - [Overview](#overview)
+- [Test](#test)
 - [Build](#build)
 - [Documentation](#docs)
 - [Contributions](#contributions)
@@ -30,6 +31,14 @@ The entire ffi uses a string interface; defined in `src/lib.rs`
 
 3. All native structs being returned `impl` a `c_stringify` method which converts the native struct into stringified JSON outputted as a CString.
 
+## Test
+
+`tests/test.sh`
+
+Test individual units with printing.
+
+`cargo test -- --nocapture <test_name>`
+
 ## Build
 
 `resources/build.sh` currently only supports android builds. 
@@ -38,7 +47,11 @@ Binaries are zipped into `resources/builds.zip`.
 
 ## Documentation
 
-More documentation can be found in `resources/docs`
+[Docs.rs](https://docs.rs/stackmate/0.7.0/stackmate/)
+
+This library expects the client to build a policy (string) by themselves - refer to http://bitcoin.sipa.be/miniscript/ for more info.
+
+More documentation can be found in `resources/docs`.
 
 ## Contributions
 

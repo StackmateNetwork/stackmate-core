@@ -54,24 +54,26 @@ export PATH=$PATH:$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuil
 
 It is safe to explicitly specify which specific linker to use per build target. 
 
-Add the following to your global cargo config @ `$HOME/.cargo/config` to point to the correct linker for each build target
+Add the following to your global cargo config @ `$HOME/.cargo/config` to point to the correct linker for each build target.
+
+Make sure to substitute with the appropriate <version_number>
 
 ```toml
 [target.aarch64-linux-android]
-ar = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang"
+ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang"
 
 [target.armv7-linux-androideabi]
-ar = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang"
+ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang"
 
 [target.i686-linux-android]
-ar = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang"
+ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
+linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang"
 
 [target.x86_64-linux-android]
-ar = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
+ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
 
 [target.x86_64-apple-darwin]
 linker = "x86_64-apple-darwin14-clang"

@@ -1,11 +1,12 @@
+// Implement bitcoin and bdk error type.
+use std::ffi::CString;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::os::raw::c_char;
-use std::ffi::{CString};
 
-use serde::{Serialize,Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize,Deserialize,Debug,Copy,Clone)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub enum ErrorKind {
   Key,
   Wallet,
@@ -22,12 +23,12 @@ impl Display for ErrorKind {
       ErrorKind::Key => write!(f, "KeyError"),
       ErrorKind::Wallet => write!(f, "WalletError"),
       ErrorKind::Network => write!(f, "NetworkError"),
-
     }
   }
 }
 
-#[derive(Serialize,Deserialize,Debug,Clone)]
+/// FFI Output
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct S5Error {
   pub kind: String,
   pub message: String,
@@ -40,10 +41,14 @@ impl S5Error {
       message: message.to_string(),
     }
   }
-  pub fn c_stringify(&self)->*mut c_char{
-    let stringified = match serde_json::to_string(self){
-        Ok(result)=>result,
-        Err(_)=>return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.").unwrap().into_raw()
+  pub fn c_stringify(&self) -> *mut c_char {
+    let stringified = match serde_json::to_string(self) {
+      Ok(result) => result,
+      Err(_) => {
+        return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
+          .unwrap()
+          .into_raw()
+      }
     };
 
     CString::new(stringified).unwrap().into_raw()

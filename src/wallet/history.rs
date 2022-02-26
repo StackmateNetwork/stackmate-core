@@ -1,16 +1,15 @@
-use crate::e::{ErrorKind, S5Error};
-use crate::config::{WalletConfig};
-
 use std::ffi::CString;
 use std::os::raw::c_char;
 
 use serde::{Deserialize, Serialize};
 
-
-use bdk::blockchain::{noop_progress};
+use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::TransactionDetails;
 use bdk::Wallet;
+
+use crate::config::WalletConfig;
+use crate::e::{ErrorKind, S5Error};
 
 /**
 *   "fees": 153,
@@ -22,6 +21,7 @@ use bdk::Wallet;
    "txid"
 */
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Transaction {
   pub timestamp: u64,
@@ -33,11 +33,11 @@ pub struct Transaction {
   pub fee: u64,
 }
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletHistory {
-  history: Vec<Transaction>
+  history: Vec<Transaction>,
 }
-
 
 impl WalletHistory {
   pub fn c_stringify(&self) -> *mut c_char {
@@ -55,7 +55,6 @@ impl WalletHistory {
 }
 
 impl Transaction {
-
   pub fn from_txdetail(txdetail: TransactionDetails) -> Self {
     Transaction {
       timestamp: match txdetail.confirmation_time.clone() {
@@ -76,17 +75,16 @@ impl Transaction {
 }
 
 pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
-
   let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client,
+    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(e) => {
-      println!("{:#?}",e);
+      println!("{:#?}", e);
       return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
     }
   };
@@ -97,14 +95,12 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
   };
 
   match wallet.list_transactions(false) {
-    Ok(history) => {
-      Ok(WalletHistory{
-          history: history
-          .iter()
-          .map(|txdetail| Transaction::from_txdetail(txdetail.clone()))
-          .collect(),
-      })
-    }
+    Ok(history) => Ok(WalletHistory {
+      history: history
+        .iter()
+        .map(|txdetail| Transaction::from_txdetail(txdetail.clone()))
+        .collect(),
+    }),
     Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   }
 }
@@ -134,13 +130,13 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client,
+    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(e) => {
-      println!("{:#?}",e);
-      return Err(S5Error::new(ErrorKind::Internal, &e.to_string()))
-    },
+      println!("{:#?}", e);
+      return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
+    }
   };
 
   match wallet.sync(noop_progress(), None) {
@@ -157,26 +153,24 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::{WalletConfig,DEFAULT_TESTNET_NODE};
+  use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE};
 
   #[test]
   fn test_balance() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
-    let deposit_desc = format!("wpkh({}/0/*)", xkey);
-    
-    let config = WalletConfig::default(&deposit_desc,DEFAULT_TESTNET_NODE).unwrap();
+    let descriptor = format!("wpkh({}/*)", xkey);
 
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let balance = sync_balance(config).unwrap();
-    assert_eq!(balance.balance, 208856)
+    assert_eq!((balance.balance>=0), true)
   }
   #[test]
   fn test_history() {
-  //   let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
-  //   let deposit_desc = format!("wpkh({}/0/*)", xkey);
-    let deposit_desc = "wpkh([66a0c105/84h/1h/5h]tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*)";
-    let config = WalletConfig::default(&deposit_desc,DEFAULT_TESTNET_NODE).unwrap();
+    //   let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+    //   let descriptor = format!("wpkh({}/0/*)", xkey);
+    let descriptor = "wpkh([66a0c105/84h/1h/5h]tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*)";
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let history = sync_history(config).unwrap();
-    println!("{:#?}",history);
-
+    println!("{:#?}", history);
   }
 }

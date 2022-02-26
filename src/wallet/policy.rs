@@ -1,16 +1,15 @@
-use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::os::raw::c_char;
-
-use crate::e::{ErrorKind, S5Error};
-
 use std::str::FromStr;
 
-use bdk::descriptor::Segwitv0;
-use bdk::descriptor::{Descriptor, Legacy, Miniscript};
+use serde::{Deserialize, Serialize};
+
+use bdk::descriptor::{Descriptor, Legacy, Miniscript,Segwitv0};
 use bdk::miniscript::policy::Concrete;
 // use bdk::Error;
+use crate::e::{ErrorKind, S5Error};
 
+/// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletPolicy {
   pub policy: String,
@@ -31,25 +30,24 @@ impl WalletPolicy {
   }
 }
 
-pub fn compile(policy: &str, script_type: &str) -> Result<WalletPolicy, S5Error> {
-  // println!("{:#?}",policy);
-
+pub fn compile(
+  policy: &str, 
+  script_type: &str
+) -> Result<WalletPolicy, S5Error> {
   let x_policy = match Concrete::<String>::from_str(policy) {
     Ok(result) => result,
     Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Policy")),
   };
-  // println!("{:#?}",x_policy);
 
   let legacy_policy: Miniscript<String, Legacy> = match x_policy.compile() {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
   // .map_err(|e| Error::Generic(e.to_string())).unwrap();
-  let segwit_policy: Miniscript<String, Segwitv0> = match x_policy
-    .compile(){
-      Ok(result) => result,
-      Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
-    };
+  let segwit_policy: Miniscript<String, Segwitv0> = match x_policy.compile() {
+    Ok(result) => result,
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+  };
 
   let descriptor = match script_type {
     "wpkh" => policy.replace("pk", "wpkh"),
@@ -73,9 +71,9 @@ mod tests {
 
   #[test]
   fn test_policies() {
-    let user_xprv = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*";
-    let user_xpub = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/0/*";
-    let custodian = "[66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*";
+    let user_xprv = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*";
+    let user_xpub = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/*";
+    let custodian = "[66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*";
     let bailout_time = 595_600;
     // POLICIES
     let single_policy = format!("pk({})", user_xprv);
@@ -87,15 +85,15 @@ mod tests {
 
     //  DESCRIPTORS
     let raft_result_bech32 = compile(&raft_policy, "wsh").unwrap();
-    let expected_raft_wsh = "wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*),and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/0/*),after(595600))))";
+    let expected_raft_wsh = "wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*),and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*),after(595600))))";
 
     let single_result_bech32 = compile(&single_policy, "wpkh").unwrap();
     println!("{:#?}", single_result_bech32);
 
-    let expected_single_wpkh = "wpkh([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/0/*)";
+    let expected_single_wpkh = "wpkh([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)";
 
     let single_watchonly_result_bech32 = compile(&single_watchonly_policy, "wpkh").unwrap();
-    let expected_single_watchonly_wpkh = "wpkh([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/0/*)";
+    let expected_single_watchonly_wpkh = "wpkh([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/*)";
 
     assert_eq!(&raft_result_bech32.descriptor, expected_raft_wsh);
     assert_eq!(&single_result_bech32.descriptor, expected_single_wpkh);
@@ -113,11 +111,11 @@ mod tests {
     // let single_watchonly_result_legacy = compile(&single_watchonly_policy, "pk").unwrap();
 
     let raft_config: WalletConfig =
-      WalletConfig::default(expected_raft_wsh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_raft_wsh, DEFAULT_TESTNET_NODE,None).unwrap();
     let single_config: WalletConfig =
-      WalletConfig::default(expected_single_wpkh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_single_wpkh, DEFAULT_TESTNET_NODE,None).unwrap();
     let watchonly_config: WalletConfig =
-      WalletConfig::default(expected_single_watchonly_wpkh, DEFAULT_TESTNET_NODE).unwrap();
+      WalletConfig::new(expected_single_watchonly_wpkh, DEFAULT_TESTNET_NODE, None).unwrap();
 
     let raft_bech32_address = generate(raft_config, 0);
     let single_bech32_address = generate(single_config, 0);
