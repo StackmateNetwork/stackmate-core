@@ -275,7 +275,7 @@ pub unsafe extern "C" fn sync_balance(
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     let node_address_cstr = CStr::from_ptr(node_address);
@@ -326,7 +326,7 @@ pub unsafe extern "C" fn sync_history(
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     let node_address_cstr = CStr::from_ptr(node_address);
@@ -365,28 +365,17 @@ pub unsafe extern "C" fn sync_history(
 #[no_mangle]
 pub unsafe extern "C" fn get_address(
     descriptor: *const c_char,
-    node_address: *const c_char,
     index: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
-    let node_address_cstr = CStr::from_ptr(node_address);
-    let node_address: &str = match node_address_cstr.to_str() {
-        Ok(string) => {
-            if string.contains("electrum") || string.contains("http") {
-                string
-            } else {
-                DEFAULT
-            }
-        }
-        Err(_) => DEFAULT,
-    };
 
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+
+    let config = match WalletConfig::new_offline(descriptor) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -532,7 +521,7 @@ pub unsafe extern "C" fn fee_absolute_to_rate(
     fees::get_rate(fee_absolute_u64, weight_usize).c_stringify()
 }
 
-/// Gets the weight of a transaction built with a given deposit-descriptor.
+/// Gets the weight of a transaction built with a given descriptor.
 /// - *OUTPUT*
 /// ```  
 ///  TransactionWeight {
@@ -547,7 +536,7 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     let psbt_cstr = CStr::from_ptr(psbt);
@@ -587,7 +576,7 @@ pub unsafe extern "C" fn build_tx(
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     let node_address_cstr = CStr::from_ptr(node_address);
@@ -703,28 +692,15 @@ pub unsafe extern "C" fn decode_psbt(network: *const c_char, psbt: *const c_char
 #[no_mangle]
 pub unsafe extern "C" fn sign_tx(
     descriptor: *const c_char,
-    node_address: *const c_char,
     unsigned_psbt: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
-    let node_address_cstr = CStr::from_ptr(node_address);
-    let node_address: &str = match node_address_cstr.to_str() {
-        Ok(string) => {
-            if string.contains("electrum") || string.contains("http") {
-                string
-            } else {
-                DEFAULT
-            }
-        }
-        Err(_) => DEFAULT,
-    };
-
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let config = match WalletConfig::new_offline(descriptor) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -732,7 +708,7 @@ pub unsafe extern "C" fn sign_tx(
     let unsigned_psbt_cstr = CStr::from_ptr(unsigned_psbt);
     let unsigned_psbt: &str = match unsigned_psbt_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     match psbt::sign(config, unsigned_psbt) {
@@ -760,7 +736,7 @@ pub unsafe extern "C" fn broadcast_tx(
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     let node_address_cstr = CStr::from_ptr(node_address);
@@ -783,7 +759,7 @@ pub unsafe extern "C" fn broadcast_tx(
     let psbt_cstr = CStr::from_ptr(signed_psbt);
     let signed_psbt: &str = match psbt_cstr.to_str() {
         Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Deposit-Descriptor").c_stringify(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
     match psbt::broadcast(config, signed_psbt) {
@@ -1054,7 +1030,7 @@ mod tests {
             let balance: history::WalletBalance = serde_json::from_str(balance_str).unwrap();
             assert_eq!(balance.balance, 10_000);
             let index_cstr = CString::new("0").unwrap().into_raw();
-            let address_ptr = get_address(descriptor_cstr, node_address_cstr, index_cstr);
+            let address_ptr = get_address(descriptor_cstr, index_cstr);
             let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
             let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
             assert_eq!(
