@@ -50,7 +50,7 @@ compile(
 ```
 
 ```
-estimate_fee(
+estimate_network_fee(
   network: "test" || "main", (All other strings default to "test")
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
   target_size: *const c_char, (Values that cannot be parsed to integer will default to "6")
