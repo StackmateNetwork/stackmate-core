@@ -1,3 +1,3 @@
-pub mod master;
-pub mod child;
-pub mod schnorr;
+pub mod seed;
+pub mod derivation;
+pub mod ec;

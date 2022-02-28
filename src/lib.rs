@@ -43,8 +43,9 @@ mod config;
 use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE};
 
 pub mod key;
-use crate::key::child;
-use crate::key::master;
+use crate::key::derivation;
+use crate::key::seed;
+use crate::key::ec;
 
 pub mod wallet;
 use crate::wallet::address;
@@ -108,7 +109,7 @@ pub unsafe extern "C" fn generate_master(
         _ => Network::Testnet,
     };
 
-    match master::generate(length, passphrase, network) {
+    match seed::generate(length, passphrase, network) {
         Ok(master_key) => master_key.c_stringify(),
         Err(e) => e.c_stringify(),
     }
@@ -155,7 +156,7 @@ pub unsafe extern "C" fn import_master(
         _ => Network::Testnet,
     };
 
-    match master::import(mnemonic, passphrase, network) {
+    match seed::import(mnemonic, passphrase, network) {
         Ok(master_key) => master_key.c_stringify(),
         Err(e) => e.c_stringify(),
     }
@@ -173,6 +174,7 @@ pub unsafe extern "C" fn import_master(
 ///   xpub: String,
 /// }
 /// ```
+/// 
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
@@ -212,12 +214,146 @@ pub unsafe extern "C" fn derive_hardened(
         Err(_) => "0",
     };
 
-    match child::derive(master_xprv, purpose, account) {
+    match derivation::derive(master_xprv, purpose, account) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
 }
+/// Derives child keys from a master xprv.
+/// Allows passing a custom derivation path string.
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn derive_path_str(
+    master_xprv: *const c_char,
+    derivation_path: *const c_char,
+) -> *mut c_char {
+    let master_xprv_cstr = CStr::from_ptr(master_xprv);
+    let master_xprv: &str = match master_xprv_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
+    };
 
+    let dp_cstr = CStr::from_ptr(derivation_path);
+    let dp_str: &str = match dp_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Derivation-Path").c_stringify(),
+    };
+  
+    match derivation::derive_str(master_xprv, dp_str) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+/// Converts an xprv into EC keys with XOnlyPub..
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn xprv_to_ec(
+    master_xprv: *const c_char,
+) -> *mut c_char {
+    let master_xprv_cstr = CStr::from_ptr(master_xprv);
+    let master_xprv: &str = match master_xprv_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
+    };
+
+    let keypair = match ec::keypair_from_xprv_str(master_xprv) {
+        Ok(result) => result,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
+    };
+    ec::XOnlyPair::from_keypair(keypair).c_stringify()
+
+}
+/// Computes a Diffie Hellman shared secret
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn shared_secret(
+    local_priv: *const c_char,
+    remote_pub: *const c_char
+) -> *mut c_char {
+    let local_priv_cstr = CStr::from_ptr(local_priv);
+    let local_priv: &str = match local_priv_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Local-Private-Key").c_stringify(),
+    };
+    let remote_pub_cstr = CStr::from_ptr(remote_pub);
+    let remote_pub: &str = match remote_pub_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Remote-Public-Key").c_stringify(),
+    };
+
+    match ec::compute_shared_secret_str(local_priv,remote_pub){
+        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+        Err(e) =>  e.c_stringify(),
+    }
+}
+/// Signs a message using schnorr signature scheme 
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn sign_message(
+    message: *const c_char,
+    seckey: *const c_char,
+) -> *mut c_char {
+    let seckey_cstr = CStr::from_ptr(seckey);
+    let seckey: &str = match seckey_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Secret-Key").c_stringify(),
+    };
+    let message_cstr = CStr::from_ptr(message);
+    let message: &str = match message_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Message").c_stringify(),
+    };
+
+    let keypair = match ec::keypair_from_seckey_str(seckey) {
+        Ok(result) => result,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
+    };
+    match ec::schnorr_sign(message, keypair){
+        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+        Err(e) =>  e.c_stringify(),
+    }
+}
+/// Signs a message using schnorr signature scheme 
+/// Private key extracted from extended private key.
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn verify_signature(
+    signature: *const c_char,
+    message: *const c_char,
+    pubkey: *const c_char
+) -> *mut c_char {
+    let signature_cstr = CStr::from_ptr(signature);
+    let signature_str = match signature_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Signature").c_stringify(),
+    };
+ 
+    let message_cstr = CStr::from_ptr(message);
+    let message_str: &str = match message_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Message").c_stringify(),
+    };
+    let pubkey_cstr = CStr::from_ptr(pubkey);
+    let pubkey_str: &str = match pubkey_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Pubkey").c_stringify(),
+    };
+
+    match ec::schnorr_verify(signature_str, message_str, pubkey_str){
+        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+        Err(e) =>  e.c_stringify(),
+    }
+}
 /// Compiles a policy into a descriptor of the specified script type.
 /// Use wpkh for a single signature segwit native wallet (default).
 /// Use wsh for a scripted segwit native wallet.
@@ -785,7 +921,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
         Err(_) => return CString::new("false").unwrap().into_raw(),
     };
 
-    match child::check_xpub(xpub) {
+    match derivation::check_xpub(xpub) {
         true => CString::new("true").unwrap().into_raw(),
         false => CString::new("false").unwrap().into_raw(),
     }
@@ -955,7 +1091,7 @@ mod tests {
             // unrecognized network string must default to test
             //length 9 should default to 24 words
             let master = CStr::from_ptr(master).to_str().unwrap();
-            let master: master::MasterKey = serde_json::from_str(master).unwrap();
+            let master: seed::MasterKey = serde_json::from_str(master).unwrap();
             assert_eq!(
                 24,
                 master
@@ -974,7 +1110,7 @@ mod tests {
                 CString::new("").unwrap().into_raw(),
             );
             let master = CStr::from_ptr(master).to_str().unwrap();
-            let master: master::MasterKey = serde_json::from_str(master).unwrap();
+            let master: seed::MasterKey = serde_json::from_str(master).unwrap();
             assert_eq!(xprv, master.xprv);
             assert_eq!(fingerprint, master.fingerprint);
         }
@@ -1001,11 +1137,12 @@ mod tests {
             let hardened_path = "m/84h/1h/0h";
             let account_xprv = "tprv8gqqcZU4CTQ9bFmmtVCfzeSU9ch3SfgpmHUPzFP5ktqYpnjAKL9wQK5vx89n7tgkz6Am42rFZLS9Qs4DmFvZmgukRE2b5CTwiCWrJsFUoxz";
             let account_xpub = "tpubDDXskyWJLq5pUioZn8sGQ46aieCybzsjLb5BGmRPBAdwfGyvwiyXaoho8EYJcgJa5QGHGYpDjLQ8gWzczWbxadeRkCuExW32Boh696yuQ9m";
-            let child_keys = child::ChildKeys {
+            let child_keys = derivation::ChildKeys {
                 fingerprint: fingerprint.to_string(),
                 hardened_path: hardened_path.to_string(),
                 xprv: account_xprv.to_string(),
                 xpub: account_xpub.to_string(),
+                
             };
 
             let stringified = serde_json::to_string(&child_keys).unwrap();

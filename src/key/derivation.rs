@@ -6,9 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use bitcoin::network::constants::Network;
 use bitcoin::secp256k1::Secp256k1;
-use bitcoin::util::bip32::DerivationPath;
-use bitcoin::util::bip32::ExtendedPrivKey;
-use bitcoin::util::bip32::ExtendedPubKey;
+use bitcoin::util::bip32::{ExtendedPrivKey, ExtendedPubKey,DerivationPath};
 
 use crate::e::{ErrorKind, S5Error};
 
@@ -69,9 +67,39 @@ pub fn derive(master_xprv: &str, purpose: &str, account: &str) -> Result<ChildKe
 
   let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
 
+  
   Ok(ChildKeys {
     fingerprint: fingerprint.to_string(),
     hardened_path,
+    xprv: child_xprv.to_string(),
+    xpub: child_xpub.to_string(),
+  })
+}
+pub fn derive_str(master_xprv: &str, derivation_path: &str) -> Result<ChildKeys, S5Error> {
+  let secp = Secp256k1::new();
+  let root = match ExtendedPrivKey::from_str(master_xprv) {
+    Ok(xprv) => xprv,
+    Err(_) => return Err(S5Error::new(ErrorKind::Key, "Invalid Master Key.")),
+  };
+  let fingerprint = root.fingerprint(&secp);
+  let path = match DerivationPath::from_str(&derivation_path) {
+    Ok(path) => path,
+    Err(_) => {
+      return Err(S5Error::new(
+        ErrorKind::Key,
+        "Invalid Derivation Path.",
+      ))
+    }
+  };
+  let child_xprv = match root.derive_priv(&secp, &path) {
+    Ok(xprv) => xprv,
+    Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
+  };
+  let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
+
+  Ok(ChildKeys {
+    fingerprint: fingerprint.to_string(),
+    hardened_path: derivation_path.to_string(),
     xprv: child_xprv.to_string(),
     xpub: child_xpub.to_string(),
   })
@@ -93,6 +121,7 @@ mod tests {
     let hardened_path = "m/84h/1h/0h";
     let account_xprv = "tprv8gqqcZU4CTQ9bFmmtVCfzeSU9ch3SfgpmHUPzFP5ktqYpnjAKL9wQK5vx89n7tgkz6Am42rFZLS9Qs4DmFvZmgukRE2b5CTwiCWrJsFUoxz";
     let account_xpub = "tpubDDXskyWJLq5pUioZn8sGQ46aieCybzsjLb5BGmRPBAdwfGyvwiyXaoho8EYJcgJa5QGHGYpDjLQ8gWzczWbxadeRkCuExW32Boh696yuQ9m";
+
     let child_keys = ChildKeys {
       fingerprint: fingerprint.to_string(),
       hardened_path: hardened_path.to_string(),

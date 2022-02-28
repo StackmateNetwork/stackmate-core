@@ -233,7 +233,6 @@ mod tests {
     match config.client.unwrap() {
       AnyBlockchain::Electrum(client) => {
         let height = client.get_height().unwrap();
-        println!("{:#?}", height);
         assert_eq!((height > 2097921), true);
       }
       _ => println!("Should not reach."),
