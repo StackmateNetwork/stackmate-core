@@ -162,7 +162,7 @@ mod tests {
 
     let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let balance = sync_balance(config).unwrap();
-    assert_eq!((balance.balance>=0), true)
+    assert!(balance.balance>=0)
   }
   #[test]
   fn test_history() {

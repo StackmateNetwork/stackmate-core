@@ -1,12 +1,12 @@
 use bdk::blockchain::any::{AnyBlockchain, AnyBlockchainConfig};
 use bdk::blockchain::electrum::ElectrumBlockchainConfig;
-use bdk::blockchain::rpc::{wallet_name_from_descriptor, Auth, RpcConfig};
+use bdk::blockchain::rpc::{Auth, RpcConfig};
 use bdk::blockchain::{Blockchain, ConfigurableBlockchain, ElectrumBlockchain, RpcBlockchain};
-use bdk::core_rpc::Error as RpcError;
 use bdk::electrum_client::Error as ElectrumError;
-
+// use bdk::wallet::wallet_name_from_descriptor;
 use bitcoin::network::constants::Network;
-use bitcoin::secp256k1::Secp256k1;
+// use bitcoin::secp256k1::Secp256k1;
+// use bdk::bitcoincore_rpc::Error;
 
 use crate::e::{ErrorKind, S5Error};
 
@@ -46,75 +46,34 @@ impl WalletConfig {
       node_address
     };
 
-    if node_address.contains("electrum") {
-      let config = if socks5.is_none() {
-        ElectrumBlockchainConfig {
-          url: node_address.to_string(),
-          socks5: None,
-          retry: 1,
-          timeout: Some(5),
-          stop_gap: 1000,
-        }
-      } else {
-        ElectrumBlockchainConfig {
-          url: node_address.to_string(),
-          socks5,
-          retry: 1,
-          timeout: None,
-          stop_gap: 1000,
-        }
-      };
-      let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
-        Ok(client) => client,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
-      };
-
-      Ok(WalletConfig {
-        deposit_desc: deposit_desc.to_string(),
-        change_desc: change_desc.to_string(),
-        network,
-        client: Some(client),
-      })
-    } else if node_address.contains("http") {
-      let parts: Vec<&str> = node_address.split("?auth=").collect();
-      let auth = if parts[1].is_empty() {
-        Auth::None
-      } else {
-        Auth::UserPass {
-          username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),
-          password: parts[1].split(':').collect::<Vec<&str>>()[1].to_string(),
-        }
-      };
-      let wallet_name = match wallet_name_from_descriptor(
-        descriptor,
-        Some(change_desc),
-        network,
-        &Secp256k1::new(),
-      ) {
-        Ok(name) => name,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
-      };
-      let config = RpcConfig {
-        url: parts[0].to_string(),
-        auth,
-        network,
-        wallet_name,
-        skip_blocks: None,
-      };
-      let client = match create_blockchain_client(AnyBlockchainConfig::Rpc(config)) {
-        Ok(client) => client,
-        Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
-      };
-
-      Ok(WalletConfig {
-        deposit_desc: deposit_desc.to_string(),
-        change_desc: change_desc.to_string(),
-        network,
-        client: Some(client),
-      })
+    let config = if socks5.is_none() {
+      ElectrumBlockchainConfig {
+        url: node_address.to_string(),
+        socks5: None,
+        retry: 1,
+        timeout: Some(5),
+        stop_gap: 1000,
+      }
     } else {
-      Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."))
-    }
+      ElectrumBlockchainConfig {
+        url: node_address.to_string(),
+        socks5,
+        retry: 1,
+        timeout: None,
+        stop_gap: 1000,
+      }
+    };
+    let client = match create_blockchain_client(AnyBlockchainConfig::Electrum(config)) {
+      Ok(client) => client,
+      Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.message)),
+    };
+
+    Ok(WalletConfig {
+      deposit_desc: deposit_desc.to_string(),
+      change_desc: change_desc.to_string(),
+      network,
+      client: Some(client),
+    })
   }
 
   pub fn new_offline(descriptor: &str) -> Result<Self, S5Error> {
@@ -160,7 +119,7 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig) -> Result<AnyBlockc
         Ok(result) => result,
         Err(bdk_error) => match bdk_error {
           bdk::Error::Rpc(rpc_error) => match rpc_error {
-            RpcError::Io(c_error) => {
+            bdk::bitcoincore_rpc::Error::Io(c_error) => {
               return Err(S5Error::new(ErrorKind::Network, &c_error.to_string()))
             }
             r_error => return Err(S5Error::new(ErrorKind::Internal, &r_error.to_string())),

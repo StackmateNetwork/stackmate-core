@@ -162,7 +162,7 @@ mod tests {
       pubkey: "dfbbf1979269802015da7dba4143ff5935ea502ef3a7276cc650be0d84a9c882".to_string(),
     };
 
-    let expected_shared_secret = "48c413dc9459a3c154221a524e8fad34267c47fc7b47443246fa8919b19fff93";
+    // let expected_shared_secret = "48c413dc9459a3c154221a524e8fad34267c47fc7b47443246fa8919b19fff93";
 
     let alice_shared_secret =
       compute_shared_secret_str(&alice_pair.privkey, &bob_pair.pubkey).unwrap();

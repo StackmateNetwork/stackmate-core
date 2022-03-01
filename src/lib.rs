@@ -388,7 +388,7 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
     };
 
     match policy::compile(policy_str, script_type_str) {
-        Ok(result) => result.c_stringify(),
+        Ok(result) => CString::new(result).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
 }
