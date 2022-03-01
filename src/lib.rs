@@ -4,7 +4,7 @@ Developed by Stackmate India in 2021.
 //! # Stackmate
 //! A set of composite functions that uses [rust-bitcoin](https://docs.rs/crate/bitcoin/0.27.1) & [bdk](bitcoindevkit.com) and exposes a simplified C interface to build descriptor based wallets.
 //! ## Workflow
-//! 1. Use key functions generate_master/import_master and derive a parent key at a hardened path with a variable account number. Currently purpose is fixed at 84' for segwit-native only.
+//! 1. Use key functions generate_master/import_master and derive a parent key at a hardened path with a variable account number. Currently purpose is fixed at 84' for Native-native only.
 //! 2. Use extended key format to create string policies. More on [policies](http://bitcoin.sipa.be/miniscript/).
 //! 3. Use the compile function to get a general descriptor (keys ending in /*).
 //! 4. Use wallet functions by passing your descriptor and node_address as primary inputss.
@@ -29,11 +29,9 @@ use std::alloc::System;
 
 #[global_allocator]
 static A: System = System;
-
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
-
 use bitcoin::network::constants::Network;
 
 pub mod e;
@@ -191,30 +189,31 @@ pub unsafe extern "C" fn derive_hardened(
     };
 
     let purpose_cstr = CStr::from_ptr(purpose);
-    let purpose: &str = match purpose_cstr.to_str() {
+    let purpose:derivation::DerivationPurpose = match purpose_cstr.to_str() {
         Ok(string) => match string.parse::<usize>() {
             Ok(value) => {
-                if value == 84 || value == 49 || value == 44 {
-                    string
-                } else {
-                    "84"
+                match value{
+                    84=>derivation::DerivationPurpose::Native,
+                    49=>derivation::DerivationPurpose::Compatible,
+                    44=>derivation::DerivationPurpose::Legacy,
+                    _=>derivation::DerivationPurpose::Native,
                 }
             }
-            Err(_) => "84",
+            Err(_) => derivation::DerivationPurpose::Native,
         },
-        Err(_) => "84",
+        Err(_) => derivation::DerivationPurpose::Native,
     };
 
     let account_cstr = CStr::from_ptr(account);
-    let account: &str = match account_cstr.to_str() {
-        Ok(string) => match string.parse::<usize>() {
-            Ok(_) => string,
-            Err(_) => "0",
+    let account = match account_cstr.to_str() {
+        Ok(string) => match string.parse::<u64>() {
+            Ok(number) => number,
+            Err(_) => 0,
         },
-        Err(_) => "0",
+        Err(_) => 0,
     };
 
-    match derivation::derive(master_xprv, purpose, account) {
+    match derivation::to_hardened_account(master_xprv, purpose, account) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
@@ -241,7 +240,7 @@ pub unsafe extern "C" fn derive_path_str(
         Err(_) => return S5Error::new(ErrorKind::Input, "Derivation-Path").c_stringify(),
     };
   
-    match derivation::derive_str(master_xprv, dp_str) {
+    match derivation::to_path_str(master_xprv, dp_str) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
@@ -355,8 +354,8 @@ pub unsafe extern "C" fn verify_signature(
     }
 }
 /// Compiles a policy into a descriptor of the specified script type.
-/// Use wpkh for a single signature segwit native wallet (default).
-/// Use wsh for a scripted segwit native wallet.
+/// Use wpkh for a single signature Native native wallet (default).
+/// Use wsh for a scripted Native native wallet.
 /// - *OUTPUT*
 /// ```
 /// WalletPolicy {

@@ -147,6 +147,7 @@ mod tests {
     let signature = schnorr_sign(message, key_pair).unwrap();
     let signature = signature_from_str(&signature.to_string()).unwrap();
     let check_sig = schnorr_verify(message, &signature.to_string(), &key_pair.public_key().to_string()).unwrap();
+    // println!("{:#?}",signature.to_string());
     assert!(check_sig);
   }
 

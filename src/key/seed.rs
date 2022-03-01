@@ -1,15 +1,11 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
-
 use serde::{Deserialize, Serialize};
-
 use bip39::{Language, Mnemonic};
-
 use bitcoin::network::constants::Network;
 use bitcoin::secp256k1::rand::rngs::OsRng;
 use bitcoin::secp256k1::Secp256k1;
 use bitcoin::util::bip32::ExtendedPrivKey;
-
 use crate::e::{ErrorKind, S5Error};
 
 /// FFI Output
@@ -36,65 +32,60 @@ impl MasterKey {
   }
 }
 
-pub fn generate(length: usize, passphrase: &str, network: Network) -> Result<MasterKey, S5Error> {
+pub fn generate(
+  length: usize, 
+  passphrase: &str, 
+  network: Network
+) -> Result<MasterKey, S5Error> {
   let secp = Secp256k1::new();
-
   let length: usize = if length == 12 || length == 24 {
     length
   } else {
     24
   };
-
   let mut rng = match OsRng::new() {
     Ok(r) => r,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
-
   let mnemonic = match Mnemonic::generate_in_with(&mut rng, Language::English, length) {
     Ok(mne) => mne,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
-
   let mnemonic_struct = match Mnemonic::parse_in(Language::English, &mnemonic.to_string()) {
     Ok(mne) => mne,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
-
   let seed = mnemonic_struct.to_seed(passphrase);
-
   let master_xprv = match ExtendedPrivKey::new_master(network, &seed) {
     Ok(xprv) => xprv,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
 
-  let fingerprint = master_xprv.fingerprint(&secp);
-
   Ok(MasterKey {
-    fingerprint: fingerprint.to_string(),
+    fingerprint: master_xprv.fingerprint(&secp).to_string(),
     mnemonic: mnemonic.to_string(),
     xprv: master_xprv.to_string(),
   })
 }
 
-pub fn import(mnemonic: &str, passphrase: &str, network: Network) -> Result<MasterKey, S5Error> {
+pub fn import(
+  mnemonic: &str, 
+  passphrase: &str, 
+  network: Network
+) -> Result<MasterKey, S5Error> {
   let secp = Secp256k1::new();
-
   let mnemonic_struct = match Mnemonic::parse_in(Language::English, mnemonic.to_string()) {
     Ok(mne) => mne,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
-
   let seed = mnemonic_struct.to_seed(passphrase);
-
   let master_xprv = match ExtendedPrivKey::new_master(network, &seed) {
     Ok(xprv) => xprv,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
 
-  let fingerprint = master_xprv.fingerprint(&secp);
-
   Ok(MasterKey {
-    fingerprint: fingerprint.to_string(),
+    fingerprint: master_xprv.fingerprint(&secp).to_string(),
     mnemonic: mnemonic.to_string(),
     xprv: master_xprv.to_string(),
   })

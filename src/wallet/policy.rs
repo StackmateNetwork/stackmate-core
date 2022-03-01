@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use bdk::database::MemoryDatabase;
-use bdk::descriptor::policy::{Condition, SatisfiableItem};
+use bdk::descriptor::policy::{Condition, SatisfiableItem, Policy};
 use bdk::descriptor::{Descriptor, ExtendedDescriptor, Legacy, Miniscript, Segwitv0};
 use bdk::miniscript::policy::Concrete;
 use bdk::KeychainKind;
@@ -63,7 +63,7 @@ pub fn compile(policy: &str, script_type: &str) -> Result<String, S5Error> {
   Ok(descriptor.split('#').collect::<Vec<&str>>()[0].to_string())
 }
 
-pub fn get_wallet_policies(config: WalletConfig) -> Result<WalletPolicy, S5Error> {
+pub fn decode(config: WalletConfig) -> Result<Policy, S5Error> {
   let wallet = match Wallet::new_offline(
     &config.deposit_desc,
     Some(&config.change_desc),
@@ -76,7 +76,7 @@ pub fn get_wallet_policies(config: WalletConfig) -> Result<WalletPolicy, S5Error
 
   let external_policies = wallet.policies(KeychainKind::External).unwrap().unwrap();
   let mut path = BTreeMap::new();
-  path.insert(external_policies.item.id(),vec![0,1,0]);
+  path.insert(external_policies.item.id(),vec![0]);
   let conditions = external_policies.get_condition(&path);
   println!(
     "Policy Conditions: {:?}",
@@ -93,7 +93,7 @@ pub fn get_wallet_policies(config: WalletConfig) -> Result<WalletPolicy, S5Error
             for item in items {
               match &item.item {
                 SatisfiableItem::Signature(pkorf) => {
-                  println!("{:#?}, id: {:#?}", pkorf, item.item.id());
+                  println!("{:#?}, id: {:#?}", format!("{:?}",pkorf), item.item.id());
                 }
                 _ => {
                   println!("NOT A SIGNATURE POLICY: {:#?}", item.item.id());
@@ -112,10 +112,7 @@ pub fn get_wallet_policies(config: WalletConfig) -> Result<WalletPolicy, S5Error
     SatisfiableItem::RelativeTimelock { value } => {}
     _ => {}
   };
-  Ok(WalletPolicy {
-    policy: "policy".to_string(),
-    descriptor: "x_descriptor".to_string(),
-  })
+  Ok(external_policies)
 }
 
 #[cfg(test)]
@@ -187,13 +184,12 @@ mod tests {
     // println!("signers: {:#?}", signers);
 
     // println!("{:#?}", expected_raft_wsh);
-    println!("{:?}", get_wallet_policies(raft_config).unwrap());
+    println!("{:?}", decode(raft_config).unwrap());
     // println!("{:?}", get_wallet_policies(single_config).unwrap());
     // println!("{:?}", get_wallet_policies(watchonly_config).unwrap());
   }
 
   use bdk::keys::{DescriptorKey, ExtendedKey};
-
   use bdk::descriptor;
   use bdk::keys::DerivableKey;
   use bitcoin::util::bip32::DerivationPath;
