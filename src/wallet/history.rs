@@ -1,16 +1,12 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
-
 use serde::{Deserialize, Serialize};
-
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::TransactionDetails;
 use bdk::Wallet;
-
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
-
 /**
 *   "fees": 153,
    "height": 2062130,
@@ -32,28 +28,6 @@ pub struct Transaction {
   pub sent: u64,
   pub fee: u64,
 }
-
-/// FFI Output
-#[derive(Serialize, Deserialize, Debug)]
-pub struct WalletHistory {
-  history: Vec<Transaction>,
-}
-
-impl WalletHistory {
-  pub fn c_stringify(&self) -> *mut c_char {
-    let stringified = match serde_json::to_string(self) {
-      Ok(result) => result,
-      Err(_) => {
-        return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
-          .unwrap()
-          .into_raw()
-      }
-    };
-
-    CString::new(stringified).unwrap().into_raw()
-  }
-}
-
 impl Transaction {
   pub fn from_txdetail(txdetail: TransactionDetails) -> Self {
     Transaction {
@@ -71,6 +45,25 @@ impl Transaction {
       sent: txdetail.sent,
       fee: txdetail.fee.unwrap_or(0),
     }
+  }
+}
+/// FFI Output
+#[derive(Serialize, Deserialize, Debug)]
+pub struct WalletHistory {
+  history: Vec<Transaction>,
+}
+impl WalletHistory {
+  pub fn c_stringify(&self) -> *mut c_char {
+    let stringified = match serde_json::to_string(self) {
+      Ok(result) => result,
+      Err(_) => {
+        return CString::new("Error:JSON Stringify Failed. BAD NEWS! Contact Support.")
+          .unwrap()
+          .into_raw()
+      }
+    };
+
+    CString::new(stringified).unwrap().into_raw()
   }
 }
 
@@ -138,12 +131,10 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
       return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
     }
   };
-
   match wallet.sync(noop_progress(), None) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
-
   match wallet.get_balance() {
     Ok(balance) => Ok(WalletBalance { balance }),
     Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
@@ -159,7 +150,6 @@ mod tests {
   fn test_balance() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
-
     let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let balance = sync_balance(config).unwrap();
     assert!(balance.balance>=0)

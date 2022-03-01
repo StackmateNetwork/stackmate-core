@@ -3,12 +3,13 @@ use bdk::blockchain::electrum::ElectrumBlockchainConfig;
 use bdk::blockchain::rpc::{Auth, RpcConfig};
 use bdk::blockchain::{Blockchain, ConfigurableBlockchain, ElectrumBlockchain, RpcBlockchain};
 use bdk::electrum_client::Error as ElectrumError;
-// use bdk::wallet::wallet_name_from_descriptor;
 use bitcoin::network::constants::Network;
-// use bitcoin::secp256k1::Secp256k1;
-// use bdk::bitcoincore_rpc::Error;
-
 use crate::e::{ErrorKind, S5Error};
+
+
+pub const DEFAULT: &str = "default";
+pub const DEFAULT_TESTNET_NODE: &str = "ssl://electrum.blockstream.info:60002";
+pub const DEFAULT_MAINNET_NODE: &str = "ssl://electrum.blockstream.info:50002";
 
 pub struct WalletConfig {
   pub deposit_desc: String,
@@ -16,11 +17,6 @@ pub struct WalletConfig {
   pub network: Network,
   pub client: Option<AnyBlockchain>,
 }
-
-pub const DEFAULT: &str = "default";
-pub const DEFAULT_TESTNET_NODE: &str = "ssl://electrum.blockstream.info:60002";
-pub const DEFAULT_MAINNET_NODE: &str = "ssl://electrum.blockstream.info:50002";
-
 impl WalletConfig {
   pub fn new(
     descriptor: &str,
@@ -36,7 +32,6 @@ impl WalletConfig {
     } else {
       Network::Testnet
     };
-
     let node_address = if node_address.contains(DEFAULT) {
       match network {
         Network::Bitcoin => DEFAULT_MAINNET_NODE,
@@ -114,7 +109,6 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig) -> Result<AnyBlockc
       Ok(AnyBlockchain::Electrum(client))
     }
     AnyBlockchainConfig::Rpc(conf) => {
-      println!("{:#?}", conf);
       let client = match RpcBlockchain::from_config(&conf) {
         Ok(result) => result,
         Err(bdk_error) => match bdk_error {
@@ -170,7 +164,6 @@ pub fn _check_client(network: Network, node_address: &str) -> Result<bool, S5Err
   } else {
     return Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."));
   };
-
   match client.estimate_fee(1) {
     Ok(_) => Ok(true),
     Err(e) => Err(S5Error::new(ErrorKind::Network, &e.to_string())),
@@ -187,7 +180,6 @@ mod tests {
   fn test_default_electrum_config() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
-
     let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     match config.client.unwrap() {
       AnyBlockchain::Electrum(client) => {
@@ -210,7 +202,6 @@ mod tests {
     let descriptor = format!("wpkh({}/*)", xkey);
     let node_address = "http://172.18.0.2:18332?auth=satsbank:typercuz";
     let config = WalletConfig::new(&descriptor, node_address, None).unwrap();
-
     match config.client.unwrap() {
       AnyBlockchain::Rpc(client) => {
         let height = client.get_height().unwrap();

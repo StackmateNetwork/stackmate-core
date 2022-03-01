@@ -2,13 +2,11 @@ use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::{from_utf8, FromStr};
-
 use secp256k1::hashes::sha256;
-// use secp256k1::rand::rngs::OsRng;
-use bitcoin::util::bip32::ExtendedPrivKey;
 use secp256k1::schnorr::Signature;
 use secp256k1::Secp256k1;
 use secp256k1::{ecdh::SharedSecret, KeyPair, Message, PublicKey, SecretKey, XOnlyPublicKey};
+use bitcoin::util::bip32::ExtendedPrivKey;
 
 use crate::e::{ErrorKind, S5Error};
 
@@ -18,7 +16,6 @@ pub struct XOnlyPair {
   pub privkey: String,
   pub pubkey: String,
 }
-
 impl XOnlyPair {
   pub fn c_stringify(&self) -> *mut c_char {
     let stringified = match serde_json::to_string(self) {
@@ -71,7 +68,6 @@ pub fn compute_shared_secret_str(secret_key: &str, public_key: &str) -> Result<S
     Ok(result) => result,
     Err(_) =>  return Err(S5Error::new(ErrorKind::Key, "BAD SECKEY STRING")),
   };
-
   let public_key = if public_key.clone().len() == 64 {
     "02".to_string() + public_key.clone()
   } else if public_key.clone().len() == 66 {
@@ -130,7 +126,7 @@ mod tests {
   use super::*;
 
   #[test]
-  fn test_schnorr_keys() {
+  fn test_from_xprv_str() {
     let xprv= "xprv9ym1fn2sRJ6Am4z3cJkM4NoxFsaeNdSyFQvE5CqzqqterM5nZdKUStQghQWBupjAgJZEgAWCSQWuFgqbvdGwg22tiUp8rsupd4fTrtYMEWS";
     let key_pair = keypair_from_xprv_str(&xprv).unwrap();
     let expected_pubkey = "86a4b6e8b4c544111a6736d4f4195027d23495d947f87aa448c088da477c1b5f";
@@ -157,21 +153,17 @@ mod tests {
       privkey: "d5f984d2ab332345dbf7ddff9f47852125721b2025329e6981c4130671e237d0".to_string(),
       pubkey: "3946267e8f3eeeea651b0ea865b52d1f9d1c12e851b0f98a3303c15a26cf235d".to_string(),
     };
-
     let bob_pair = XOnlyPair {
       privkey: "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7".to_string(),
       pubkey: "dfbbf1979269802015da7dba4143ff5935ea502ef3a7276cc650be0d84a9c882".to_string(),
     };
-
     // let expected_shared_secret = "48c413dc9459a3c154221a524e8fad34267c47fc7b47443246fa8919b19fff93";
-
     let alice_shared_secret =
       compute_shared_secret_str(&alice_pair.privkey, &bob_pair.pubkey).unwrap();
     let bob_shared_secret =
       compute_shared_secret_str(&bob_pair.privkey, &alice_pair.pubkey).unwrap();
     // let alice_shared_secret = generate_shared_secret(alice_pair.0, bob_pair.1).unwrap();
     // let bob_shared_secret = generate_shared_secret(bob_pair.0, alice_pair.1).unwrap();
-
     assert_eq!(alice_shared_secret, bob_shared_secret);
     // assert_eq!(alice_shared_secret,expected_shared_secret);
   }

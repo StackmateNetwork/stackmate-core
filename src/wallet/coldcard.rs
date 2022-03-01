@@ -56,13 +56,10 @@ impl ColdCardKeys{
       Ok(file)=>file,
       Err(_)=> return Err(S5Error::new(ErrorKind::Internal,"File-Open-Cold-Card-Json."))
     };
-    
     match serde_json::from_reader(file){
       Ok(result)=>Ok(result),
       Err(_)=>Err(S5Error::new(ErrorKind::Internal,"JSON-File-To-Struct"))
     }
-
-    
   }
 }
 
@@ -89,14 +86,12 @@ mod tests {
     let key_source_49 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
     let bip49_descriptor = format!("sh(wpkh([{}]{}/*))",key_source_49,cckeys.bip49.xpub);
     let config = WalletConfig::new(&bip49_descriptor, DEFAULT_MAINNET_NODE,None).unwrap();
-
     let bip49_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip49_first_address.address,cckeys.bip49.first);
 
     let key_source_44 = cckeys.bip49.deriv.replace("m",&cckeys.xfp.to_lowercase());
     let bip44_descriptor = format!("pkh([{}]{}/*)",key_source_44,cckeys.bip44.xpub);
     let config = WalletConfig::new(&bip44_descriptor,DEFAULT_MAINNET_NODE,None).unwrap();
-
     let bip44_first_address = address::generate(config,0).unwrap();
     assert_eq!(bip44_first_address.address,cckeys.bip44.first);
     
