@@ -155,8 +155,7 @@ get_address(
 }
 ```
 
-## build_tx
-
+## PSBT
 
 
 ```
@@ -241,23 +240,29 @@ The descriptor format is
 script(conditions)
 ```
 
+We use only one of the following 2 script types:
+- `wpkh` for segwit single sig
+- `wsh` for multi-condition segwit scripts
+
 Where conditions involve keys, the extended key format is
 
 ```
-[fingerprint/hardened_path]key/unhardened_path
+[key_source]key/unhardened_path
 ```
 
-Making the extended key format in a deposit descriptor as
+Key source tells us the parent fingerprint and the hardened derived path used to reach this child key
 
 ```
-[fingerprint/purpose'/network'/account']key/0/*
+[fingerprint/hardened_path]
+i.e.
+[fingerprint/purpose'/network'/account']
+eg: [6eg88e/84h/0h/1h]
 ```
 
-
-And the format in a change descriptor as (done internally)
+Making the extended key format in a descriptor as
 
 ```
-[fingerprint/purpose'/network'/account']key/1/*
+[fingerprint/purpose'/network'/account']key/*
 ```
 
 Where the complete derivation path in isolation is represented as 
@@ -267,7 +272,7 @@ m/purpose'/network'/account'/desopit/index
 ```
 Where ' or "h" represents a hardened path &
 
-Where m is replaced by the fingerprint in the extended key format and unhardened paths deposit/index follows the key.
+Where m is replaced by the fingerprint in the key source and unhardened paths deposit/index are set to be * i.e. it will be rotated per payment requirements.
 
 ## Note on fees:
 
