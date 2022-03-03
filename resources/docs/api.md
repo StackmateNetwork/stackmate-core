@@ -247,7 +247,7 @@ We use only one of the following 2 script types:
 Where conditions involve keys, the extended key format is
 
 ```
-[key_source]key/unhardened_path
+[source]xkey/*
 ```
 
 Key source tells us the parent fingerprint and the hardened derived path used to reach this child key
@@ -259,12 +259,6 @@ i.e.
 eg: [6eg88e/84h/0h/1h]
 ```
 
-Making the extended key format in a descriptor as
-
-```
-[fingerprint/purpose'/network'/account']key/*
-```
-
 Where the complete derivation path in isolation is represented as 
 
 ```
@@ -272,7 +266,7 @@ m/purpose'/network'/account'/desopit/index
 ```
 Where ' or "h" represents a hardened path &
 
-Where m is replaced by the fingerprint in the key source and unhardened paths deposit/index are set to be * i.e. it will be rotated per payment requirements.
+Where m is replaced by the fingerprint in the key source and `unhardened paths m/deposit/index are set to be *` i.e. it will be rotated per payment requirements by the wallet.
 
 ## Note on fees:
 
