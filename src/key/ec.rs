@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::os::raw::c_char;
-use std::str::{from_utf8, FromStr};
+use std::str::{FromStr};
 use secp256k1::hashes::sha256;
 use secp256k1::schnorr::Signature;
 use secp256k1::Secp256k1;
@@ -13,7 +13,7 @@ use crate::e::{ErrorKind, S5Error};
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct XOnlyPair {
-  pub privkey: String,
+  pub seckey: String,
   pub pubkey: String,
 }
 impl XOnlyPair {
@@ -31,9 +31,7 @@ impl XOnlyPair {
   }
   pub fn from_keypair(keypair: KeyPair) -> XOnlyPair {
     return XOnlyPair {
-      privkey: from_utf8(hex::decode(keypair.serialize_secret()).unwrap().as_ref())
-        .unwrap()
-        .to_string(),
+      seckey: hex::encode(keypair.serialize_secret()).to_string(),
       pubkey: keypair.public_key().to_string(),
     };
   }
@@ -98,7 +96,7 @@ pub fn schnorr_sign(message: &str, key_pair: KeyPair) -> Result<Signature, S5Err
   Ok(signature)
 }
 
-pub fn schnorr_verify(message: &str, signature: &str, pubkey: &str) -> Result<bool, S5Error> {
+pub fn schnorr_verify(signature: &str,message: &str, pubkey: &str) -> Result<bool, S5Error> {
   let message = Message::from_hashed_data::<sha256::Hash>(message.as_bytes());
 
   let signature = match signature_from_str(signature) {
@@ -128,21 +126,21 @@ mod tests {
   #[test]
   fn test_from_xprv_str() {
     let xprv= "xprv9ym1fn2sRJ6Am4z3cJkM4NoxFsaeNdSyFQvE5CqzqqterM5nZdKUStQghQWBupjAgJZEgAWCSQWuFgqbvdGwg22tiUp8rsupd4fTrtYMEWS";
-    let key_pair = keypair_from_xprv_str(&xprv).unwrap();
+    let key_pair = keypair_from_xprv_str(xprv).unwrap();
     let expected_pubkey = "86a4b6e8b4c544111a6736d4f4195027d23495d947f87aa448c088da477c1b5f";
     assert_eq!(expected_pubkey, key_pair.public_key().to_string());
   }
   #[test]
   fn test_schnorr_sigs() {
     let message = "stackmate 1646056571433";
-    let alice_privkey = "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7";
+    let alice_seckey = "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7";
     let exptected_pubkey = "dfbbf1979269802015da7dba4143ff5935ea502ef3a7276cc650be0d84a9c882";
-    let key_pair = keypair_from_seckey_str(&alice_privkey).unwrap();
+    let key_pair = keypair_from_seckey_str(&alice_seckey).unwrap();
     assert_eq!(exptected_pubkey, &key_pair.public_key().to_string());
 
     let signature = schnorr_sign(message, key_pair).unwrap();
     let signature = signature_from_str(&signature.to_string()).unwrap();
-    let check_sig = schnorr_verify(message, &signature.to_string(), &key_pair.public_key().to_string()).unwrap();
+    let check_sig = schnorr_verify(&signature.to_string(),message, &key_pair.public_key().to_string()).unwrap();
     // println!("{:#?}",signature.to_string());
     assert!(check_sig);
   }
@@ -150,18 +148,18 @@ mod tests {
   #[test]
   fn test_shared_secret() {
     let alice_pair = XOnlyPair {
-      privkey: "d5f984d2ab332345dbf7ddff9f47852125721b2025329e6981c4130671e237d0".to_string(),
+      seckey: "d5f984d2ab332345dbf7ddff9f47852125721b2025329e6981c4130671e237d0".to_string(),
       pubkey: "3946267e8f3eeeea651b0ea865b52d1f9d1c12e851b0f98a3303c15a26cf235d".to_string(),
     };
     let bob_pair = XOnlyPair {
-      privkey: "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7".to_string(),
+      seckey: "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7".to_string(),
       pubkey: "dfbbf1979269802015da7dba4143ff5935ea502ef3a7276cc650be0d84a9c882".to_string(),
     };
     // let expected_shared_secret = "48c413dc9459a3c154221a524e8fad34267c47fc7b47443246fa8919b19fff93";
     let alice_shared_secret =
-      compute_shared_secret_str(&alice_pair.privkey, &bob_pair.pubkey).unwrap();
+      compute_shared_secret_str(&alice_pair.seckey, &bob_pair.pubkey).unwrap();
     let bob_shared_secret =
-      compute_shared_secret_str(&bob_pair.privkey, &alice_pair.pubkey).unwrap();
+      compute_shared_secret_str(&bob_pair.seckey, &alice_pair.pubkey).unwrap();
     // let alice_shared_secret = generate_shared_secret(alice_pair.0, bob_pair.1).unwrap();
     // let bob_shared_secret = generate_shared_secret(bob_pair.0, alice_pair.1).unwrap();
     assert_eq!(alice_shared_secret, bob_shared_secret);

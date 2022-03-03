@@ -3,9 +3,9 @@
 
 ```
 generate_master(
-    network: "test" || "main", (All other strings default to "test")
-    length: "12" || "24", (All other strings default to "24")
-    passphrase: *const c_char, (Can be empty string)
+  network: "test" || "main", (All other strings default to "test")
+  length: "12" || "24", (All other strings default to "24")
+  passphrase: *const c_char, (Can be empty string)
 )->MasterKey {
   fingerprint: String,
   mnemonic: String,
@@ -15,9 +15,9 @@ generate_master(
 
 ```
 import_master(
-    network: "test" || "main", (All other strings default to "test")
-    mnemonic: *const c_char, (words separated by space)
-    passphrase: *const c_char, (Can be empty string)
+  network: "test" || "main", (All other strings default to "test")
+  mnemonic: *const c_char, (words separated by space)
+  passphrase: *const c_char, (Can be empty string)
 )->MasterKey {
   fingerprint: String,
   mnemonic: String,
@@ -26,7 +26,7 @@ import_master(
 ```
 
 ```
-derive_hardened(
+derive_wallet_account(
     master_xprv: *const c_char,
     purpose: "84" || "49" || "44", (All other strings default to "84")
     account: *const c_char, (Can be empty - will default to "0" if value cannot be parsed to integer)
@@ -36,6 +36,46 @@ derive_hardened(
   xprv: String,
   xpub: String
 }
+```
+
+```
+derive_to_path(
+    master_xprv: *const c_char,
+    derivation_path: *const c_char*,
+)->ChildKeys {
+  fingerprint: String,
+  hardened_path: String,
+  xprv: String,
+  xpub: String
+}
+```
+
+```
+xprv_to_ec(
+  xprv: *const c_char
+) -> *mut c_char
+```
+
+```
+shared_secret(
+    local_priv: *const c_char,
+    remote_pub: *const c_char,
+) -> *mut c_char {
+```
+
+```
+sign_message(
+  message: *const c_char,
+  seckey: *const c_char,
+) -> *mut c_char
+```
+
+```
+verify_signature(
+  signature: *const c_char,
+  message: *const c_char,
+  pubkey: *const c_char,
+) -> *mut c_char 
 ```
 
 ```

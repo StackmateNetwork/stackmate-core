@@ -29,10 +29,10 @@ use std::alloc::System;
 
 #[global_allocator]
 static A: System = System;
+use bitcoin::network::constants::Network;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
-use bitcoin::network::constants::Network;
 
 pub mod e;
 use e::{ErrorKind, S5Error};
@@ -42,8 +42,8 @@ use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET
 
 pub mod key;
 use crate::key::derivation;
-use crate::key::seed;
 use crate::key::ec;
+use crate::key::seed;
 
 pub mod wallet;
 use crate::wallet::address;
@@ -172,12 +172,12 @@ pub unsafe extern "C" fn import_master(
 ///   xpub: String,
 /// }
 /// ```
-/// 
+///
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn derive_hardened(
+pub unsafe extern "C" fn derive_wallet_account(
     master_xprv: *const c_char,
     purpose: *const c_char,
     account: *const c_char,
@@ -189,16 +189,14 @@ pub unsafe extern "C" fn derive_hardened(
     };
 
     let purpose_cstr = CStr::from_ptr(purpose);
-    let purpose:derivation::DerivationPurpose = match purpose_cstr.to_str() {
+    let purpose: derivation::DerivationPurpose = match purpose_cstr.to_str() {
         Ok(string) => match string.parse::<usize>() {
-            Ok(value) => {
-                match value{
-                    84=>derivation::DerivationPurpose::Native,
-                    49=>derivation::DerivationPurpose::Compatible,
-                    44=>derivation::DerivationPurpose::Legacy,
-                    _=>derivation::DerivationPurpose::Native,
-                }
-            }
+            Ok(value) => match value {
+                84 => derivation::DerivationPurpose::Native,
+                49 => derivation::DerivationPurpose::Compatible,
+                44 => derivation::DerivationPurpose::Legacy,
+                _ => derivation::DerivationPurpose::Native,
+            },
             Err(_) => derivation::DerivationPurpose::Native,
         },
         Err(_) => derivation::DerivationPurpose::Native,
@@ -224,7 +222,7 @@ pub unsafe extern "C" fn derive_hardened(
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn derive_path_str(
+pub unsafe extern "C" fn derive_to_path(
     master_xprv: *const c_char,
     derivation_path: *const c_char,
 ) -> *mut c_char {
@@ -239,7 +237,6 @@ pub unsafe extern "C" fn derive_path_str(
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Derivation-Path").c_stringify(),
     };
-  
     match derivation::to_path_str(master_xprv, dp_str) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
@@ -250,21 +247,18 @@ pub unsafe extern "C" fn derive_path_str(
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn xprv_to_ec(
-    master_xprv: *const c_char,
-) -> *mut c_char {
-    let master_xprv_cstr = CStr::from_ptr(master_xprv);
-    let master_xprv: &str = match master_xprv_cstr.to_str() {
+pub unsafe extern "C" fn xprv_to_ec(xprv: *const c_char) -> *mut c_char {
+    let xprv_cstr = CStr::from_ptr(xprv);
+    let xprv: &str = match xprv_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
     };
 
-    let keypair = match ec::keypair_from_xprv_str(master_xprv) {
+    let keypair = match ec::keypair_from_xprv_str(xprv) {
         Ok(result) => result,
         Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
     };
     ec::XOnlyPair::from_keypair(keypair).c_stringify()
-
 }
 /// Computes a Diffie Hellman shared secret
 /// # Safety
@@ -273,7 +267,7 @@ pub unsafe extern "C" fn xprv_to_ec(
 #[no_mangle]
 pub unsafe extern "C" fn shared_secret(
     local_priv: *const c_char,
-    remote_pub: *const c_char
+    remote_pub: *const c_char,
 ) -> *mut c_char {
     let local_priv_cstr = CStr::from_ptr(local_priv);
     let local_priv: &str = match local_priv_cstr.to_str() {
@@ -286,12 +280,12 @@ pub unsafe extern "C" fn shared_secret(
         Err(_) => return S5Error::new(ErrorKind::Input, "Remote-Public-Key").c_stringify(),
     };
 
-    match ec::compute_shared_secret_str(local_priv,remote_pub){
+    match ec::compute_shared_secret_str(local_priv, remote_pub) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
-        Err(e) =>  e.c_stringify(),
+        Err(e) => e.c_stringify(),
     }
 }
-/// Signs a message using schnorr signature scheme 
+/// Signs a message using schnorr signature scheme
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
@@ -315,12 +309,12 @@ pub unsafe extern "C" fn sign_message(
         Ok(result) => result,
         Err(_) => return S5Error::new(ErrorKind::Input, "Master-Xprv").c_stringify(),
     };
-    match ec::schnorr_sign(message, keypair){
+    match ec::schnorr_sign(message, keypair) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
-        Err(e) =>  e.c_stringify(),
+        Err(e) => e.c_stringify(),
     }
 }
-/// Signs a message using schnorr signature scheme 
+/// Signs a message using schnorr signature scheme
 /// Private key extracted from extended private key.
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -329,14 +323,13 @@ pub unsafe extern "C" fn sign_message(
 pub unsafe extern "C" fn verify_signature(
     signature: *const c_char,
     message: *const c_char,
-    pubkey: *const c_char
+    pubkey: *const c_char,
 ) -> *mut c_char {
     let signature_cstr = CStr::from_ptr(signature);
     let signature_str = match signature_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Signature").c_stringify(),
     };
- 
     let message_cstr = CStr::from_ptr(message);
     let message_str: &str = match message_cstr.to_str() {
         Ok(string) => string,
@@ -348,9 +341,9 @@ pub unsafe extern "C" fn verify_signature(
         Err(_) => return S5Error::new(ErrorKind::Input, "Pubkey").c_stringify(),
     };
 
-    match ec::schnorr_verify(signature_str, message_str, pubkey_str){
+    match ec::schnorr_verify(signature_str, message_str, pubkey_str) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
-        Err(e) =>  e.c_stringify(),
+        Err(e) => e.c_stringify(),
     }
 }
 /// Compiles a policy into a descriptor of the specified script type.
@@ -507,8 +500,6 @@ pub unsafe extern "C" fn get_address(
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
-
-
 
     let config = match WalletConfig::new_offline(descriptor) {
         Ok(conf) => conf,
@@ -1127,10 +1118,8 @@ mod tests {
             let fingerprint = "eb79e0ff";
             let master_xprv: &str = "tprv8ZgxMBicQKsPduTkddZgfGyk4ZJjtEEZQjofpyJg74LizJ469DzoF8nmU1YcvBFskXVKdoYmLoRuZZR1wuTeuAf8rNYR2zb1RvFns2Vs8hY";
             let master_xprv_cstr = CString::new(master_xprv).unwrap().into_raw();
-
             let purpose_index = "84";
             let purpose_cstr = CString::new(purpose_index).unwrap().into_raw();
-
             let account_index = "0";
             let account_cstr = CString::new(account_index).unwrap().into_raw();
             let hardened_path = "m/84h/1h/0h";
@@ -1141,15 +1130,77 @@ mod tests {
                 hardened_path: hardened_path.to_string(),
                 xprv: account_xprv.to_string(),
                 xpub: account_xpub.to_string(),
-                
             };
 
             let stringified = serde_json::to_string(&child_keys).unwrap();
-
-            let result = derive_hardened(master_xprv_cstr, purpose_cstr, account_cstr);
+            let result = derive_wallet_account(master_xprv_cstr, purpose_cstr, account_cstr);
             let result_cstr = CStr::from_ptr(result);
             let result: &str = result_cstr.to_str().unwrap();
             assert_eq!(result, stringified);
+            let hardened_path_cstr = CString::new(hardened_path).unwrap().into_raw();
+            let result = derive_to_path(master_xprv_cstr, hardened_path_cstr);
+            let result_cstr = CStr::from_ptr(result);
+            let result: &str = result_cstr.to_str().unwrap();
+            assert_eq!(result, stringified);
+
+            //ECDH
+            let xprv_str = "xprvA3nH6HUGxEUZbeZ2AGbsuVcsoEsa269AmySR95i3E81mwY3TmWoxoGUUqB59p8kjS6wb3Ppg2c9y3vKyG2aecijRpJfGWMxVX4swXwMLaSB";
+            let xprv_cstr = CString::new(xprv_str).unwrap().into_raw();
+            let alice_ec_pair = ec::XOnlyPair {
+                seckey: "3c842fc0e15f2f1395922d432aafa60c35e09ad97c363a37b637f03e7adcb1a7"
+                    .to_string(),
+                pubkey: "dfbbf1979269802015da7dba4143ff5935ea502ef3a7276cc650be0d84a9c882"
+                    .to_string(),
+            };
+            let stringified = serde_json::to_string(&alice_ec_pair).unwrap();
+            let result = xprv_to_ec(xprv_cstr);
+            let result_cstr = CStr::from_ptr(result);
+            let result: &str = result_cstr.to_str().unwrap();
+            assert_eq!(result, stringified);
+
+            let bob_ec_pair = ec::XOnlyPair {
+                seckey: "d5f984d2ab332345dbf7ddff9f47852125721b2025329e6981c4130671e237d0"
+                    .to_string(),
+                pubkey: "3946267e8f3eeeea651b0ea865b52d1f9d1c12e851b0f98a3303c15a26cf235d"
+                    .to_string(),
+            };
+            let expected_shared_secret =
+                "49ab8cb9ba741c6083343688544861872e3b73b3d094b09e36550cf62d06ef1e";
+
+            let alice_side_secret = shared_secret(
+                CString::new(alice_ec_pair.seckey.clone())
+                    .unwrap()
+                    .into_raw(),
+                CString::new(bob_ec_pair.pubkey).unwrap().into_raw(),
+            );
+            let a_side_secret_cstr = CStr::from_ptr(alice_side_secret);
+            let a_side_secret: &str = a_side_secret_cstr.to_str().unwrap();
+
+            let bob_side_secret = shared_secret(
+                CString::new(bob_ec_pair.seckey).unwrap().into_raw(),
+                CString::new(alice_ec_pair.pubkey.clone())
+                    .unwrap()
+                    .into_raw(),
+            );
+            let b_side_secret_cstr = CStr::from_ptr(bob_side_secret);
+            let b_side_secret: &str = b_side_secret_cstr.to_str().unwrap();
+
+            assert_eq!(a_side_secret, b_side_secret);
+            assert_eq!(a_side_secret, expected_shared_secret);
+            let message = "POST /identity {username: moco} 18989237823";
+            let signature_cstr = CStr::from_ptr(sign_message(
+                CString::new(message).unwrap().into_raw(),
+                CString::new(alice_ec_pair.seckey).unwrap().into_raw(),
+            ));
+
+            let signature: &str = signature_cstr.to_str().unwrap();
+            let verification_cstr = CStr::from_ptr(verify_signature(
+                CString::new(signature).unwrap().into_raw(),
+                CString::new(message).unwrap().into_raw(),
+                CString::new(alice_ec_pair.pubkey).unwrap().into_raw(),
+            ));
+            let verification = verification_cstr.to_str().unwrap();
+            assert_eq!(verification,"true");
         }
     }
 
@@ -1192,7 +1243,7 @@ mod tests {
             let history_ptr = sync_history(descriptor_cstr, node_address_cstr);
             let history_str = CStr::from_ptr(history_ptr).to_str().unwrap();
             let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
-            println!("{:#?}", history);
+            // println!("{:#?}", history);
             // assert_eq!(history.history.len(),3);
         }
     }
