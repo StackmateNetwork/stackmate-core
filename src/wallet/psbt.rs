@@ -1,10 +1,11 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::FromStr;
+use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
-use bdk::{SignOptions, Wallet};
+use bdk::{SignOptions, Wallet,KeychainKind};
 use bitcoin::base64;
 use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::consensus::deserialize;
@@ -43,6 +44,7 @@ pub fn build(
   amount: Option<u64>,
   fee_absolute: u64,
   sweep: bool,
+  policy_path: Option<BTreeMap<String,Vec<usize>>>
 ) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
@@ -72,6 +74,10 @@ pub fn build(
         .add_recipient(send_to.script_pubkey(), amount.unwrap());
     }
     builder.fee_absolute(fee_absolute);
+    if policy_path.is_some(){
+      builder.policy_path(policy_path.clone().unwrap(), KeychainKind::External);
+      builder.policy_path(policy_path.unwrap(), KeychainKind::Internal);
+    }
     match builder.finish() {
       Ok(result) => result,
       Err(e) => {
@@ -80,6 +86,7 @@ pub fn build(
       }
     }
   };
+
 
   Ok(WalletPSBT {
     psbt: psbt.to_string(),
@@ -299,7 +306,7 @@ mod tests {
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;
     let fee_absolute = 420;
-    let psbt_origin = build(config, to, Some(amount), fee_absolute, false);
+    let psbt_origin = build(config, to, Some(amount), fee_absolute, false,None);
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
     // assert_eq!(decoded.unwrap()[0].value, amount);

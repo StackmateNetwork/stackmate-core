@@ -1,5 +1,4 @@
-# api
-### stackmate-bdk ffi documentation
+## ffi specifications
 
 ```
 generate_master(
@@ -58,8 +57,8 @@ xprv_to_ec(
 
 ```
 shared_secret(
-    local_priv: *const c_char,
-    remote_pub: *const c_char,
+    local_secret: *const c_char,
+    remote_pubkey: *const c_char,
 ) -> *mut c_char {
 ```
 
@@ -267,6 +266,35 @@ m/purpose'/network'/account'/desopit/index
 Where ' or "h" represents a hardened path &
 
 Where m is replaced by the fingerprint in the key source and `unhardened paths m/deposit/index are set to be *` i.e. it will be rotated per payment requirements by the wallet.
+
+
+A single sig policy string 
+
+```
+pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
+```
+
+will compile into the following descriptor
+
+```
+wpkh([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
+```
+
+A timlocked custodian policy string
+```
+or(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*),
+and(pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*),after(595_600)))
+```
+
+will compile into the following descriptor
+
+```
+wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*),
+and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*),after(595600))))
+
+```
+
+Checkout the [Miniscript Primer](https://bitcoin.sipa.be/miniscript/) for more.
 
 ## Note on fees:
 

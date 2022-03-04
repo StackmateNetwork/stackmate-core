@@ -266,21 +266,21 @@ pub unsafe extern "C" fn xprv_to_ec(xprv: *const c_char) -> *mut c_char {
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn shared_secret(
-    local_priv: *const c_char,
-    remote_pub: *const c_char,
+    local_secret: *const c_char,
+    remote_pubkey: *const c_char,
 ) -> *mut c_char {
-    let local_priv_cstr = CStr::from_ptr(local_priv);
-    let local_priv: &str = match local_priv_cstr.to_str() {
+    let local_secret_cstr = CStr::from_ptr(local_secret);
+    let local_secret: &str = match local_secret_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Local-Private-Key").c_stringify(),
     };
-    let remote_pub_cstr = CStr::from_ptr(remote_pub);
-    let remote_pub: &str = match remote_pub_cstr.to_str() {
+    let remote_pubkey_cstr = CStr::from_ptr(remote_pubkey);
+    let remote_pubkey: &str = match remote_pubkey_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Remote-Public-Key").c_stringify(),
     };
 
-    match ec::compute_shared_secret_str(local_priv, remote_pub) {
+    match ec::compute_shared_secret_str(local_secret, remote_pubkey) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
@@ -368,15 +368,11 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
     };
 
     let script_type_cstr = CStr::from_ptr(script_type);
-    let script_type_str: &str = match script_type_cstr.to_str() {
+    let script_type_str: policy::ScriptType = match script_type_cstr.to_str() {
         Ok(string) => {
-            if string == "wsh" || string == "wpkh" || string == "sh" || string == "sh-wsh" {
-                string
-            } else {
-                "wpkh"
-            }
+            policy::ScriptType::from_str(string)
         }
-        Err(_) => "wpkh",
+        Err(_) => policy::ScriptType::WPKH,
     };
 
     match policy::compile(policy_str, script_type_str) {
@@ -758,7 +754,7 @@ pub unsafe extern "C" fn build_tx(
         Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
     };
 
-    match psbt::build(config, to_address, amount, fee_absolute, sweep) {
+    match psbt::build(config, to_address, amount, fee_absolute, sweep,None) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }

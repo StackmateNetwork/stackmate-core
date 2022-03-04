@@ -61,7 +61,10 @@ pub fn keypair_from_seckey_str(seckey: &str) -> Result<KeyPair, S5Error> {
 }
 
 /// Generate a ecdsa shared secret
-pub fn compute_shared_secret_str(secret_key: &str, public_key: &str) -> Result<String, S5Error> {
+pub fn compute_shared_secret_str(
+  secret_key: &str, 
+  public_key: &str
+) -> Result<String, S5Error> {
   let seckey = match SecretKey::from_str(secret_key) {
     Ok(result) => result,
     Err(_) =>  return Err(S5Error::new(ErrorKind::Key, "BAD SECKEY STRING")),
