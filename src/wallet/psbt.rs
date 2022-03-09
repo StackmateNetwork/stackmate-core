@@ -1,21 +1,21 @@
-use std::ffi::CString;
-use std::os::raw::c_char;
-use std::str::FromStr;
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
+use crate::config::WalletConfig;
+use crate::e::{ErrorKind, S5Error};
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
-use bdk::{SignOptions, Wallet,KeychainKind};
+use bdk::descriptor::Descriptor;
+use bdk::miniscript::DescriptorTrait;
+use bdk::{KeychainKind, SignOptions, Wallet};
 use bitcoin::base64;
 use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::consensus::deserialize;
 use bitcoin::network::constants::Network;
 use bitcoin::util::address::Address;
 use bitcoin::util::psbt::PartiallySignedTransaction;
-use bdk::descriptor::{Descriptor};
-use bdk::miniscript::DescriptorTrait;
-use crate::config::WalletConfig;
-use crate::e::{ErrorKind, S5Error};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::ffi::CString;
+use std::os::raw::c_char;
+use std::str::FromStr;
 
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -38,13 +38,56 @@ impl WalletPSBT {
   }
 }
 
+#[derive(Deserialize)]
+pub struct TxOutput {
+  pub address: String,
+  pub amount: Option<u64>,
+}
+
+pub type TxOutputs = Vec<TxOutput>;
+
+impl TxOutput {
+  /// outputs as a str is address:amount,address:amount,address:amount
+  pub  fn from_str(str: &str) -> Result<TxOutputs, S5Error> {
+    let mut outputs: Vec<TxOutput> = Vec::new();
+    for output in str.split(",") {
+      let mut output_split = output.split(":");
+      let address = match output_split.next() {
+        Some(addr) => addr,
+        None => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
+      };
+      let amount = match output_split.next() {
+        Some(amount) => {
+          match amount.parse::<u64>() {
+            Ok(amount) => amount,
+            Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx amount")),
+          }
+        },
+        None => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
+      };
+
+      outputs.push(TxOutput {
+        address: address.to_string(),
+        amount: Some(amount),
+      });
+    }
+    Ok(outputs)
+  }
+  pub fn from_json_str(str: &str)->Result<TxOutputs, S5Error>{
+    let outputs: TxOutputs = match serde_json::from_str(str) {
+      Ok(result) => result,
+      Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
+    };
+    Ok(outputs)
+  }
+}
+
 pub fn build(
   config: WalletConfig,
-  to: &str,
-  amount: Option<u64>,
+  outputs: Vec<TxOutput>,
   fee_absolute: u64,
   sweep: bool,
-  policy_path: Option<BTreeMap<String,Vec<usize>>>
+  policy_path: Option<BTreeMap<String, Vec<usize>>>,
 ) -> Result<WalletPSBT, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
@@ -60,24 +103,42 @@ pub fn build(
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
-  let send_to = match Address::from_str(to) {
+  let outputs = match outputs
+    .iter()
+    .map(|output| {
+      let address = match Address::from_str(&output.address) {
+        Ok(result) => result,
+        Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Address")),
+      };
+      let amount = match output.amount {
+        Some(result) => result,
+        None => return Err(S5Error::new(ErrorKind::Input, "Invalid Amount")),
+      };
+      Ok((address, amount))
+    })
+    .collect::<Result<Vec<(Address, u64)>, S5Error>>()
+  {
     Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Address-Parse")),
+    Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Output Set")),
   };
+
   let (psbt, _) = {
     let mut builder = wallet.build_tx();
-    if sweep && amount.is_none() {
-      builder.drain_wallet().drain_to(send_to.script_pubkey());
-    } else {
+    if sweep {
       builder
-        .enable_rbf()
-        .add_recipient(send_to.script_pubkey(), amount.unwrap());
+        .drain_wallet()
+        .drain_to(outputs[0].0.script_pubkey());
+    } else {
+      outputs.iter().for_each(|(address, amount)| {
+        builder.add_recipient(address.script_pubkey(), *amount);
+      });
     }
-    builder.fee_absolute(fee_absolute);
-    if policy_path.is_some(){
+    if policy_path.is_some() {
       builder.policy_path(policy_path.clone().unwrap(), KeychainKind::External);
       builder.policy_path(policy_path.unwrap(), KeychainKind::Internal);
     }
+    builder.enable_rbf();
+    builder.fee_absolute(fee_absolute);
     match builder.finish() {
       Ok(result) => result,
       Err(e) => {
@@ -86,7 +147,6 @@ pub fn build(
       }
     }
   };
-
 
   Ok(WalletPSBT {
     psbt: psbt.to_string(),
@@ -162,7 +222,6 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
   })
 }
 
-
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TransactionWeight {
@@ -184,10 +243,7 @@ impl TransactionWeight {
   }
 }
 
-pub fn get_weight(
-  deposit_desc: &str,
-  psbt: &str
-)->Result<TransactionWeight, S5Error>{
+pub fn get_weight(deposit_desc: &str, psbt: &str) -> Result<TransactionWeight, S5Error> {
   let decoded_psbt = match base64::decode(psbt) {
     Ok(psbt) => psbt,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Base64-Decode")),
@@ -201,11 +257,10 @@ pub fn get_weight(
   let transaction: Transaction = psbt_struct.extract_tx();
   let desc = Descriptor::<String>::from_str(deposit_desc).unwrap();
   let satisfaction_weight = desc.max_satisfaction_weight().unwrap();
-  
-  Ok(TransactionWeight{
-    weight: transaction.get_weight() + satisfaction_weight
+
+  Ok(TransactionWeight {
+    weight: transaction.get_weight() + satisfaction_weight,
   })
- 
 }
 
 pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
@@ -282,7 +337,6 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
-
   Ok(Txid {
     txid: txid.to_string(),
   })
@@ -306,7 +360,11 @@ mod tests {
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;
     let fee_absolute = 420;
-    let psbt_origin = build(config, to, Some(amount), fee_absolute, false,None);
+    let output = TxOutput {
+      address: to.to_string(),
+      amount: Some(amount),
+    };
+    let psbt_origin = build(config, vec![output], fee_absolute, false, None);
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
     // assert_eq!(decoded.unwrap()[0].value, amount);
@@ -314,13 +372,13 @@ mod tests {
     println!("{:#?}", signed.clone().unwrap());
     assert_eq!(signed.clone().unwrap().is_finalized, true);
     // let broadcasted = broadcast(config, &signed.unwrap().psbt);
-    println!("{:#?}",psbt_origin.clone().unwrap());
+    println!("{:#?}", psbt_origin.clone().unwrap());
     // assert_eq!(broadcasted.clone().unwrap().txid.len(), 64);
   }
 
   #[test]
 
-  fn test_get_weight(){
+  fn test_get_weight() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
     let psbt = "cHNidP8BAHQBAAAAAf3cLERUN9+6X5+1yk3x9XzSCq1417WtB+gB5qNyj+xpAAAAAAD9////AnRxAQAAAAAAFgAUVyorkNVSCsiE4/7OspP52IwquzqIEwAAAAAAABl2qRQ0Sg9IyhUOwrkDgXZgubaLE6ZwJoisAAAAAAABAN4CAAAAAAEByvn9X3PvFqemGsrTv8ivAO07IOeRhBz7J0huqXJLfVgBAAAAAP7///8CoIYBAAAAAAAWABQTXAMs/1Qr5n6pDVK9O15ODZ/UCVZWjQAAAAAAFgAUIixaISTPlO8fwyT3hCL+An5+Km4CRzBEAiBFsQJfBur3eQgO5Vw+EvEgr2CagcVGXw9oYw3FOaMSSgIgch0CV+W3oRCKNBwxqiqIK0C5b1TsGk32HvNM+4Z7IksBIQNP/rsBHKbA98977TzmriFrOuO8hQjNg4ON3goI9/Uwjp0BIAABAR+ghgEAAAAAABYAFBNcAyz/VCvmfqkNUr07Xk4Nn9QJIgYD9WhlKKSeNh6567KTmyKrlitDWZOz/+mms7emVsWjGTsY230ltVQAAIABAACABgAAgAAAAAABAAAAACICAgHPrE7CShQkK90ApPF8xdr+8o7T/sHggOlZNOHIUft/GNt9JbVUAACAAQAAgAYAAIABAAAAAQAAAAAA";
@@ -328,5 +386,4 @@ mod tests {
     let tx_weight = get_weight(&descriptor, &psbt).unwrap();
     assert_eq!(tx_weight.weight, expected_weight);
   }
-
 }

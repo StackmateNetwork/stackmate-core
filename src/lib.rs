@@ -706,6 +706,14 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
 }
 
 /// Builds a transaction for a given descriptor wallet.
+/// TxOutputs have to be provided as a stringified JSON array.
+/// ```
+/// TxOutput{
+///  address: String,
+///  amount: u64,
+/// }
+/// ```
+/// 
 /// If sweep is set to true, amount value is ignored and will default to None.
 /// Set amount to 0 for sweep.
 /// - *OUTPUT*
@@ -722,8 +730,7 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
 pub unsafe extern "C" fn build_tx(
     descriptor: *const c_char,
     node_address: *const c_char,
-    to_address: *const c_char,
-    amount: *const c_char,
+    tx_outputs: *const c_char,
     fee_absolute: *const c_char,
     sweep: *const c_char,
 ) -> *mut c_char {
@@ -750,31 +757,21 @@ pub unsafe extern "C" fn build_tx(
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
 
-    let to_address_cstr = CStr::from_ptr(to_address);
-    let to_address: &str = match to_address_cstr.to_str() {
+    let tx_outputs_cstr = CStr::from_ptr(tx_outputs);
+    let tx_outputs_str: &str = match tx_outputs_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "To-Address").c_stringify(),
+    };
+
+    let tx_outputs = match  psbt::TxOutput::from_json_str(tx_outputs_str) {
+        Ok(result) => result,
+        Err(e) => return S5Error::new(ErrorKind::Input, &e.message).c_stringify(),
     };
 
     let sweep_cstr = CStr::from_ptr(sweep);
     let sweep: bool = match sweep_cstr.to_str() {
         Ok(string) => string == "true",
         Err(_) => false,
-    };
-
-    let amount_cstr = CStr::from_ptr(amount);
-    let amount: Option<u64> = match amount_cstr.to_str() {
-        Ok(string) => match string.parse::<u64>() {
-            Ok(i) => {
-                if sweep {
-                    None
-                } else {
-                    Some(i)
-                }
-            }
-            Err(_) => return S5Error::new(ErrorKind::Input, "Invalid Amount.").c_stringify(),
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Amount").c_stringify(),
     };
 
     let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
@@ -786,7 +783,7 @@ pub unsafe extern "C" fn build_tx(
         Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
     };
 
-    match psbt::build(config, to_address, amount, fee_absolute, sweep,None) {
+    match psbt::build(config, tx_outputs, fee_absolute, sweep,None) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }

@@ -84,6 +84,10 @@ mod tests {
   // #[ignore]
   fn test_escrow_wallet_online() {
     let return_address = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
+    let output = psbt::TxOutput{
+      address: return_address.to_string(),
+      amount: Some(700)
+    };
     let expected_address = "tb1q64kehk7zq7xnkhv9m4n800g0tuyn4xrdg68376kgzqsyml2246tq7nu8uq".to_string();
     let _starting_balance = 5_000;
 
@@ -144,11 +148,11 @@ mod tests {
     ).unwrap();
     assert!(!policy_id.0); // policy path not required
     
+
     let init_psbt = psbt::build(
       WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
-      return_address, 
-      Some(650), 
-      250,
+      vec![output], 
+      300,
       false,
       None
     ).unwrap();
