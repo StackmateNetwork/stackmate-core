@@ -34,7 +34,7 @@ impl Debug for WalletConfig {
           .field("network", &self.network)
           .field("backend", &"CoreRpc".to_string())
           .finish(),
-          _=> write!(f, "Unknown"),
+          // _=> write!(f, "Unknown"),
         }
       },
       None=> {

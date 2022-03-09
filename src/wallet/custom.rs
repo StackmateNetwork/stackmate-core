@@ -1,4 +1,3 @@
-use crate::config::WalletConfig;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -23,43 +22,11 @@ impl Display for CustomWallet {
   }
 }
 
-pub struct StackmateWallet {
-  pub kind: CustomWallet,
-  pub owner: String,
-  pub config: WalletConfig,
-  pub policy_id: String,
-  pub policy_path: Option<Vec<usize>>,
-}
-
-impl StackmateWallet {
-  fn new(kind: CustomWallet, owner: String, config: WalletConfig) -> StackmateWallet {
-    StackmateWallet {
-      kind: kind,
-      owner: owner,
-      config: config,
-      policy_id: "policy_id".to_string(),
-      policy_path: None,
-    }
-  }
-}
-impl Debug for StackmateWallet {
-  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    f.debug_struct("StackmateWallet")
-      .field("kind", &self.kind)
-      .field("owner", &self.owner)
-      .field("config", &self.config)
-      .field("policy_id", &self.policy_id)
-      .field("policy_path", &self.policy_path)
-      .finish()
-  }
-}
 #[cfg(test)]
 mod tests {
-  use super::*;
-  use crate::config::DEFAULT_TESTNET_NODE;
+  use crate::config::{WalletConfig,DEFAULT_TESTNET_NODE};
   use crate::key::{
     derivation::{ChildKeys, DerivationPurpose},
-    ec,
     seed::MasterKey,
   };
   use crate::wallet::{policy, address, history, psbt};
@@ -105,9 +72,7 @@ mod tests {
 
     println!("{}", public_descriptor);
     let public_config = WalletConfig::new_offline(&public_descriptor).unwrap();
-    let public_wallet =
-      StackmateWallet::new(CustomWallet::Escrow, "Shared".to_string(), public_config);
-    let address0 = address::generate(public_wallet.config, 0).unwrap().address;
+    let address0 = address::generate(public_config, 0).unwrap().address;
     let expected_address = "tb1q64kehk7zq7xnkhv9m4n800g0tuyn4xrdg68376kgzqsyml2246tq7nu8uq";
     // println!("{:#?}", address0);
     assert_eq!(address0, expected_address);
