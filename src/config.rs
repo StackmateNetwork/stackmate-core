@@ -4,6 +4,8 @@ use bdk::blockchain::rpc::{Auth, RpcConfig};
 use bdk::blockchain::{Blockchain, ConfigurableBlockchain, ElectrumBlockchain, RpcBlockchain};
 use bdk::electrum_client::Error as ElectrumError;
 use bitcoin::network::constants::Network;
+use std::fmt::Debug;
+use std::fmt::Formatter;
 use crate::e::{ErrorKind, S5Error};
 
 
@@ -16,6 +18,31 @@ pub struct WalletConfig {
   pub change_desc: String,
   pub network: Network,
   pub client: Option<AnyBlockchain>,
+}
+impl Debug for WalletConfig {
+  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+    match &self.client {
+      Some(client)=> {
+        match client{
+          AnyBlockchain::Electrum(ref _config) => f.debug_struct("WalletConfig")
+          .field("deposit_descriptor", &self.deposit_desc)
+          .field("network", &self.network)
+          .field("backend", &"Electrum".to_string())
+          .finish(),
+          AnyBlockchain::Rpc(ref _config) =>f.debug_struct("WalletConfig")
+          .field("deposit_descriptor", &self.deposit_desc)
+          .field("network", &self.network)
+          .field("backend", &"CoreRpc".to_string())
+          .finish(),
+          _=> write!(f, "Unknown"),
+        }
+      },
+      None=> {
+        write!(f, "deposit_desc: {}\nchange_desc: {}\nnetwork: {}\nbackend: None",
+          self.deposit_desc, self.change_desc, self.network)
+      }
+    }
+  }
 }
 impl WalletConfig {
   pub fn new(

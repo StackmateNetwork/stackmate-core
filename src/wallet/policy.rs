@@ -1,13 +1,13 @@
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
 use bdk::database::MemoryDatabase;
-use bdk::descriptor::policy::{Condition, Policy, Satisfaction, SatisfiableItem};
-use bdk::descriptor::{Descriptor, ExtendedDescriptor, Legacy, Miniscript, Segwitv0};
+// use bdk::descriptor::policy::{Policy, Satisfaction, SatisfiableItem};
+use bdk::descriptor::{Descriptor, Legacy, Miniscript, Segwitv0};
 use bdk::miniscript::policy::Concrete;
 use bdk::KeychainKind;
 use bdk::Wallet;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+// use std::collections::BTreeMap;
 use std::ffi::CString;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -83,97 +83,96 @@ pub fn compile(policy: &str, script_type: ScriptType) -> Result<String, S5Error>
     ScriptType::SH => Descriptor::new_sh(legacy_policy).unwrap().to_string(),
     ScriptType::WSH => Descriptor::new_wsh(segwit_policy).unwrap().to_string(),
     ScriptType::SHWSH => Descriptor::new_sh_wsh(segwit_policy).unwrap().to_string(),
-    _ => return Err(S5Error::new(ErrorKind::Internal, "Invalid-Script-Type")),
   };
   Ok(descriptor.split('#').collect::<Vec<&str>>()[0].to_string())
 }
 
-pub fn decode(config: WalletConfig) -> Result<Policy, S5Error> {
-  let wallet = match Wallet::new_offline(
-    &config.deposit_desc,
-    Some(&config.change_desc),
-    config.network,
-    MemoryDatabase::default(),
-  ) {
-    Ok(result) => result,
-    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
-  };
+// pub fn _decode(config: WalletConfig) -> Result<Policy, S5Error> {
+//   let wallet = match Wallet::new_offline(
+//     &config.deposit_desc,
+//     Some(&config.change_desc),
+//     config.network,
+//     MemoryDatabase::default(),
+//   ) {
+//     Ok(result) => result,
+//     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+//   };
 
-  let external_policies = wallet.policies(KeychainKind::External).unwrap().unwrap();
-  println!("{:#?}", external_policies);
-  println!(
-    "The policy with id {} requires the following conditions to be satisfied.",
-    external_policies.id
-  );
+//   let external_policies = wallet.policies(KeychainKind::External).unwrap().unwrap();
+//   println!("{:#?}", external_policies);
+//   println!(
+//     "The policy with id {} requires the following conditions to be satisfied.",
+//     external_policies.id
+//   );
 
-  match external_policies.clone().satisfaction {
-    Satisfaction::Partial {
-      n,
-      m,
-      items,
-      sorted,
-      conditions,
-    } => {
-      println!("{}/{} conditions need to be satisfied.", m, n);
-    }
-    Satisfaction::PartialComplete {
-      n,
-      m,
-      items,
-      sorted,
-      conditions,
-    } => {
-      println!("{}/{} conditions need to be satisfied.", m, n);
-    }
-    Satisfaction::Complete { condition } => {
-      println!("{:#?} conditions need to be satisfied.", condition);
-    }
-    _ => {
-      println!("No conditions need to be satisfied :o Free coinsh??");
-    }
-  };
+//   match external_policies.clone().satisfaction {
+//     Satisfaction::Partial {
+//       n,
+//       m,
+//       items,
+//       sorted,
+//       conditions,
+//     } => {
+//       println!("{}/{} conditions need to be satisfied.", m, n);
+//     }
+//     Satisfaction::PartialComplete {
+//       n,
+//       m,
+//       items,
+//       sorted,
+//       conditions,
+//     } => {
+//       println!("{}/{} conditions need to be satisfied.", m, n);
+//     }
+//     Satisfaction::Complete { condition } => {
+//       println!("{:#?} conditions need to be satisfied.", condition);
+//     }
+//     _ => {
+//       println!("No conditions need to be satisfied :o Free coinsh??");
+//     }
+//   };
 
-  let mut path = BTreeMap::new();
-  path.insert(external_policies.item.id(), vec![0]);
-  let conditions = external_policies.get_condition(&path);
-  println!("is_leaf: {:#?}", external_policies.item.is_leaf());
+//   let mut path = BTreeMap::new();
+//   path.insert(external_policies.item.id(), vec![0]);
+//   let conditions = external_policies.get_condition(&path);
+//   println!("is_leaf: {:#?}", external_policies.item.is_leaf());
 
-  match &external_policies.item {
+//   match &external_policies.item {
 
-    SatisfiableItem::Thresh { items, threshold } => {
-      for item in items {
-        match &item.item {
-          SatisfiableItem::Signature(pkorf) => {
-            println!("is_leaf: {:#?}", item.item.is_leaf());
-            println!("{:#?}, id: {:#?}", format!("{:?}", pkorf), item.item.id());
-          }
-          SatisfiableItem::Thresh { items, threshold } => {
-            for item in items {
-              match &item.item {
-                SatisfiableItem::Signature(pkorf) => {
-                  println!("is_leaf: {:#?}", item.item.is_leaf());
-                  println!("{:#?}, id: {:#?}", format!("{:?}", pkorf), item.item.id());
-                }
-                _ => {
-                  println!("NOT A SIGNATURE POLICY: {:#?}", item.item.id());
-                }
-              }
-            }
-          }
-          _ => {
-            println!("NOT A SIGNATURE POLICY: {:#?}", item.item.id());
-          }
-        }
-      }
-    }
-    SatisfiableItem::Multisig { keys, threshold } => {
-    }
-    SatisfiableItem::AbsoluteTimelock { value } => {}
-    SatisfiableItem::RelativeTimelock { value } => {}
-    _ => {}
-  };
-  Ok(external_policies)
-}
+//     SatisfiableItem::Thresh { items, threshold } => {
+//       for item in items {
+//         match &item.item {
+//           SatisfiableItem::Signature(pkorf) => {
+//             println!("is_leaf: {:#?}", item.item.is_leaf());
+//             println!("{:#?}, id: {:#?}", format!("{:?}", pkorf), item.item.id());
+//           }
+//           SatisfiableItem::Thresh { items, threshold } => {
+//             for item in items {
+//               match &item.item {
+//                 SatisfiableItem::Signature(pkorf) => {
+//                   println!("is_leaf: {:#?}", item.item.is_leaf());
+//                   println!("{:#?}, id: {:#?}", format!("{:?}", pkorf), item.item.id());
+//                 }
+//                 _ => {
+//                   println!("NOT A SIGNATURE POLICY: {:#?}", item.item.id());
+//                 }
+//               }
+//             }
+//           }
+//           _ => {
+//             println!("NOT A SIGNATURE POLICY: {:#?}", item.item.id());
+//           }
+//         }
+//       }
+//     }
+//     SatisfiableItem::Multisig { keys, threshold } => {
+//     }
+//     SatisfiableItem::AbsoluteTimelock { value } => {}
+//     SatisfiableItem::RelativeTimelock { value } => {}
+//     _ => {}
+//   };
+//   Ok(external_policies)
+// }
 
 /// Checks wether a wallet needs to specify policy path and returns the root policy node id.
 pub fn id(config: WalletConfig) -> Result<(bool,String), S5Error> {

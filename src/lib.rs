@@ -216,6 +216,7 @@ pub unsafe extern "C" fn derive_wallet_account(
         Err(e) => e.c_stringify(),
     }
 }
+
 /// Derives child keys from a master xprv.
 /// Allows passing a custom derivation path string.
 /// # Safety
@@ -260,6 +261,7 @@ pub unsafe extern "C" fn xprv_to_ec(xprv: *const c_char) -> *mut c_char {
     };
     ec::XOnlyPair::from_keypair(keypair).c_stringify()
 }
+
 /// Computes a Diffie Hellman shared secret
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -285,6 +287,7 @@ pub unsafe extern "C" fn shared_secret(
         Err(e) => e.c_stringify(),
     }
 }
+
 /// Signs a message using schnorr signature scheme
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -314,6 +317,7 @@ pub unsafe extern "C" fn sign_message(
         Err(e) => e.c_stringify(),
     }
 }
+
 /// Signs a message using schnorr signature scheme
 /// Private key extracted from extended private key.
 /// # Safety
@@ -346,6 +350,7 @@ pub unsafe extern "C" fn verify_signature(
         Err(e) => e.c_stringify(),
     }
 }
+
 /// Compiles a policy into a descriptor of the specified script type.
 /// Use wpkh for a single signature Native native wallet (default).
 /// Use wsh for a scripted Native native wallet.
@@ -377,6 +382,33 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
 
     match policy::compile(policy_str, script_type_str) {
         Ok(result) => CString::new(result).unwrap().into_raw(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
+/// Gets the policy id from a given descriptor.
+/// - *OUTPUT*
+/// ```
+/// String,String
+/// ```
+/// First string is whether specifying a policy id is required. 
+/// Second string is the policy id.
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor_str: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+    let config = match WalletConfig::new_offline(descriptor_str) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    match policy::id(config) {
+        Ok(result) => CString::new(format!("{},{}",result.0,result.1)).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
 }
@@ -591,7 +623,7 @@ pub unsafe extern "C" fn estimate_network_fee(
 /// ```
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
-/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.       
 #[no_mangle]
 pub unsafe extern "C" fn fee_rate_to_absolute(
     fee_rate: *const c_char,
@@ -1240,7 +1272,7 @@ mod tests {
             let history_str = CStr::from_ptr(history_ptr).to_str().unwrap();
             let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
             // println!("{:#?}", history);
-            // assert_eq!(history.history.len(),3);
+            assert_eq!(history.history.len()>0, true);
         }
     }
 

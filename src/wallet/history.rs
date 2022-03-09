@@ -50,7 +50,7 @@ impl Transaction {
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletHistory {
-  history: Vec<Transaction>,
+  pub history: Vec<Transaction>,
 }
 impl WalletHistory {
   pub fn c_stringify(&self) -> *mut c_char {
@@ -152,7 +152,8 @@ mod tests {
     let descriptor = format!("wpkh({}/*)", xkey);
     let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let balance = sync_balance(config).unwrap();
-    assert!(balance.balance>=0)
+    let zero: u64 = 0;
+    assert_eq!(balance.balance>=zero, true)
   }
   #[test]
   fn test_history() {
