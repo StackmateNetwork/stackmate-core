@@ -31,7 +31,7 @@ impl XOnlyPair {
   }
   pub fn from_keypair(keypair: KeyPair) -> XOnlyPair {
     return XOnlyPair {
-      seckey: hex::encode(keypair.serialize_secret()).to_string(),
+      seckey: hex::encode(keypair.secret_bytes()).to_string(),
       pubkey: keypair.public_key().to_string(),
     };
   }
@@ -82,7 +82,7 @@ pub fn compute_shared_secret_str(
   };
 
   let shared_secret = SharedSecret::new(&pubkey, &seckey);
-  let shared_secret_hex = hex::encode(&(shared_secret.to_vec()));
+  let shared_secret_hex = hex::encode(&(shared_secret.secret_bytes()));
   Ok(shared_secret_hex)
 }
 
