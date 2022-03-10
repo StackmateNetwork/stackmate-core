@@ -17,7 +17,7 @@ Currently used by [Stackmate Wallet](https://github.com/mocodesmo/stackmate).
 
 ## Acknowledgements
 
-Immense love to our friend and sponsor `Prashant Balani` for being patient and supportive throughout the 3 years of R&D that was required to make this project come to life!
+Immense love to our friend and sponsor `Prashant Balani` for being patient and supportive throughout the 3 years of R&D that was required to make this project come to life! 
 
 Massive thanks to the [bdk](https://bitcoindevkit.org) & [cyphernode](http://cyphernode.io) teams for all the support and feedback which saved us a lot of time and improved the quality of our work.
 
@@ -29,11 +29,13 @@ The entire ffi uses a string interface; defined in `src/lib.rs`
 
 2. Native types are then used in pure rust modules.
 
-3. All native structs being returned `impl` a `c_stringify` method which converts the native struct into stringified JSON outputted as a CString.
+3. All native structs being returned (responses and errors) `impl` a `c_stringify` method which converts the native struct into stringified JSON outputted as a CString.
 
 ## Test
 
-`tests/test.sh`
+Test everything!
+
+`bash tests/test.sh`
 
 Test individual units with printing.
 
@@ -41,7 +43,9 @@ Test individual units with printing.
 
 ## Build
 
-`resources/build.sh` currently only supports android builds. 
+`bash resources/build.sh` 
+
+Currently only supports android builds. 
 
 Binaries are zipped into `resources/builds.zip`.
 
@@ -69,15 +73,15 @@ We are looking for active contributions in the following areas:
 
 ## Community
 
-Join us on the Bitcoin-only India group where we are openly working on tools required for a Bitcoin standard in India.
+Join us on the Bitcoin-only India group where we are openly working on tools required for a Bitcoin standard, within the context of India.
 
 Discord: https://discord.gg/PdRERkyNt4
 
 ## Maintainers
 
-[Morteza](https://github.com/mocodesmo)
+[ishi](https://github.com/i5hi)
 
-[Vishal](https://github.com/i5hi)
+[mocodesmo](https://github.com/mocodesmo)
 
 ## License
 
