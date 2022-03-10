@@ -1,4 +1,4 @@
-<h1 align="center">STACKMATE-CORE</h1>
+<h1 align="center">LIBSTACKMATE</h1>
 
 A Rust-C FFI library exposing composite functionality from [rust-bitcoin](https://github.com/rust-bitcoin/rust-bitcoin/) & [bdk](https://github.com/bitcoindevkit/bdk); to create cross-platform descriptor wallets.
 
