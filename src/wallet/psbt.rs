@@ -143,7 +143,7 @@ pub fn build(
       Err(e) => {
         println!("{:?}", e);
         return match e {
-          Error::SpendingPolicyRequired(_KeychainKind) => {
+          Error::SpendingPolicyRequired(_) => {
             Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
           }
           _ => Err(S5Error::new(ErrorKind::Internal, "Transaction-Build")),
