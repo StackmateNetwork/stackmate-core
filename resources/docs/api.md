@@ -161,8 +161,7 @@ get_address(
 build_tx(
   descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
-  to_address: *const c_char,
-  amount: *const c_char, (Use "0" when combined with sweep)
+  tx_outputs: *const c_char (stringified JSON array of TxOutput{address, amount}),
   fee_absolute: *const c_char,
   sweep: "true" || "false" (defaults to "false" for any other strings)
 )->WalletPSBT {

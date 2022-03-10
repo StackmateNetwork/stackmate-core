@@ -24,6 +24,7 @@ impl Display for CustomWallet {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::BTreeMap;
   use crate::config::{WalletConfig,DEFAULT_TESTNET_NODE};
   use crate::key::{
     derivation::{ChildKeys, DerivationPurpose},
@@ -182,5 +183,95 @@ mod tests {
 
     // println!("Balance: {}", new_balance.balance);
 
+  }
+
+  #[test]
+  fn  test_raft_online(){
+      let return_address = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
+      let output = psbt::TxOutput{
+        address: return_address.to_string(),
+        amount: Some(700)
+      };
+      let expected_address = "tb1q4p6g4cs3e9wwyeg0jfwsrqx6j93h28zzumasvutfv684gmqlkl2qnx0ypf".to_string();
+      let timelock = 600_000;
+  
+      let public_descriptor = "wsh(or_d(pk([c2cb6b81/84h/1h/0h]tpubDDVqM1YixTfp9yZvxxAt5m6ybA48yeeYWdd3KndqrtVRBiPD2PKYMELSTq1JA3qPo4LXimT2VvBCure4JTTvgR3grz8nBY655bgTSCncmSg/*),and_v(v:pk([958b4ad7/84h/1h/0h]tpubDD249riYEKPfTZrg9vTdwzmcF3ccLdgHQCp2vx4tuHFV4z6aq42xDZVG1EA3qQwNJkPRaZe6tb3jds65qMRYFgevbd6PXdUPutLbB5JQjft/*),after(600000))))";
+  
+      let a_xprv = "[c2cb6b81/84h/1h/0h]tprv8gooCbWUp5z9GWY95JWHgMSs28YCpKTdwL2G3GbYSch2ME8SPzVxAjiaHgCDdyHBLGkUB7Nh5U66G5uLwykSAvECA78Bx6T8mS3wVgQMAGf/*";
+      let a_xpub = "[c2cb6b81/84h/1h/0h]tpubDDVqM1YixTfp9yZvxxAt5m6ybA48yeeYWdd3KndqrtVRBiPD2PKYMELSTq1JA3qPo4LXimT2VvBCure4JTTvgR3grz8nBY655bgTSCncmSg/*";
+
+      let e_xprv = "[958b4ad7/84h/1h/0h]tprv8gL21SgJ5whza6ptGGo3Yb7Vg26gBJVNpuDFeS2bV1T6EVqpCfDN34sPq6rvHgdbfXMP4mUf7khyCRhLpCGCrHqNxDL3g8456KckGU3Q9gW/*";
+      let e_xpub = "[958b4ad7/84h/1h/0h]tpubDD249riYEKPfTZrg9vTdwzmcF3ccLdgHQCp2vx4tuHFV4z6aq42xDZVG1EA3qQwNJkPRaZe6tb3jds65qMRYFgevbd6PXdUPutLbB5JQjft/*";
+
+      let a_prv_policy = format!(
+        "or(pk({}),and(pk({}),after({})))",
+        a_xprv,
+        e_xpub,
+        timelock
+      );
+      let a_prv_desc = policy::compile(&a_prv_policy, policy::ScriptType::WSH).unwrap();
+  
+      let e_prv_policy = format!(
+        "or(pk({}),and(pk({}),after({})))",
+        a_xpub,
+        e_xprv,
+        timelock
+      );
+      let e_prv_desc = policy::compile(&e_prv_policy, policy::ScriptType::WSH).unwrap();
+  
+      assert_eq!(
+        address::generate(WalletConfig::new_offline(&a_prv_desc).unwrap(),0).unwrap().address,
+        address::generate(WalletConfig::new_offline(&e_prv_desc).unwrap(),0).unwrap().address,
+      );
+      assert_eq!(
+        address::generate(WalletConfig::new_offline(&a_prv_desc).unwrap(),0).unwrap().address,
+        address::generate(WalletConfig::new_offline(&public_descriptor).unwrap(),0).unwrap().address,
+      );
+      assert_eq!(
+        address::generate(WalletConfig::new_offline(&a_prv_desc).unwrap(),0).unwrap().address,
+        expected_address,
+      );
+  
+      let policy_id = policy::id(
+        WalletConfig::new_offline(&public_descriptor).unwrap()
+      ).unwrap();
+      assert!(policy_id.0); // policy path IS required
+      //single sig is only path 0
+      //custodian uses path 1
+
+      let init_psbt = psbt::build(
+        WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
+        vec![output.clone()], 
+        300,
+        false,
+        None
+      ).unwrap_err();
+      assert_eq!(init_psbt.message, "Spending Policy Required".to_string());
+
+      let mut policy_path_both = BTreeMap::new();
+      policy_path_both.insert(policy_id.1.clone(), vec![0,1]);
+
+      let init_psbt = psbt::build(
+        WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
+        vec![output], 
+        300,
+        false,
+        Some(policy_path_both)
+      ).unwrap();
+      assert!(!init_psbt.is_finalized);
+
+      let e_signed = psbt::sign(
+        WalletConfig::new_offline(&e_prv_desc).unwrap(),
+        &init_psbt.psbt,
+      ).unwrap();
+      assert!(e_signed.is_finalized);
+
+      let a_signed = psbt::sign(
+        WalletConfig::new_offline(&a_prv_desc).unwrap(),
+        &init_psbt.psbt,
+      ).unwrap();
+      assert!(a_signed.is_finalized);
+      
+  
   }
 }

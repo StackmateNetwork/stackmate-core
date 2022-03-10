@@ -4,6 +4,7 @@ use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::descriptor::Descriptor;
 use bdk::miniscript::DescriptorTrait;
+use bdk::Error;
 use bdk::{KeychainKind, SignOptions, Wallet};
 use bitcoin::base64;
 use bitcoin::blockdata::transaction::Transaction;
@@ -38,7 +39,7 @@ impl WalletPSBT {
   }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Clone)]
 pub struct TxOutput {
   pub address: String,
   pub amount: Option<u64>,
@@ -48,7 +49,7 @@ pub type TxOutputs = Vec<TxOutput>;
 
 impl TxOutput {
   /// outputs as a str is address:amount,address:amount,address:amount
-  pub  fn from_str(str: &str) -> Result<TxOutputs, S5Error> {
+  pub fn from_str(str: &str) -> Result<TxOutputs, S5Error> {
     let mut outputs: Vec<TxOutput> = Vec::new();
     for output in str.split(",") {
       let mut output_split = output.split(":");
@@ -57,11 +58,9 @@ impl TxOutput {
         None => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
       };
       let amount = match output_split.next() {
-        Some(amount) => {
-          match amount.parse::<u64>() {
-            Ok(amount) => amount,
-            Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx amount")),
-          }
+        Some(amount) => match amount.parse::<u64>() {
+          Ok(amount) => amount,
+          Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx amount")),
         },
         None => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
       };
@@ -73,7 +72,7 @@ impl TxOutput {
     }
     Ok(outputs)
   }
-  pub fn from_json_str(str: &str)->Result<TxOutputs, S5Error>{
+  pub fn from_json_str(str: &str) -> Result<TxOutputs, S5Error> {
     let outputs: TxOutputs = match serde_json::from_str(str) {
       Ok(result) => result,
       Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
@@ -143,7 +142,12 @@ pub fn build(
       Ok(result) => result,
       Err(e) => {
         println!("{:?}", e);
-        return Err(S5Error::new(ErrorKind::Internal, "Transaction-Build"));
+        return match e {
+          Error::SpendingPolicyRequired(_KeychainKind) => {
+            Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
+          }
+          _ => Err(S5Error::new(ErrorKind::Internal, "Transaction-Build")),
+        };
       }
     }
   };

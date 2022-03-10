@@ -706,12 +706,15 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
 }
 
 /// Builds a transaction for a given descriptor wallet.
+/// Supports sending to multiple outputs.
 /// TxOutputs have to be provided as a stringified JSON array.
 /// ```
 /// TxOutput{
 ///  address: String,
 ///  amount: u64,
 /// }
+/// 
+/// TxOutputs = Vec<TxOutput>
 /// ```
 /// 
 /// If sweep is set to true, amount value is ignored and will default to None.
