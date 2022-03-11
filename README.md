@@ -43,6 +43,8 @@ Test individual units with printing.
 
 ## Build
 
+Refer to `resources/docs/build.md` for pre-build configuration and considerations.
+
 `bash resources/build.sh` 
 
 Currently only supports android builds. 
@@ -50,12 +52,15 @@ Currently only supports android builds.
 Binaries are zipped into `resources/builds.zip`.
 
 ## Documentation
+All documentation can be found in `resources/docs`.
 
 [Docs.rs](https://docs.rs/stackmate/0.7.0/stackmate/)
 
 This library expects the client to build a policy (string) by themselves - refer to http://bitcoin.sipa.be/miniscript/ for more info.
 
-More documentation can be found in `resources/docs`.
+The FFI API is defined in `resources/docs/api.md`
+
+Build support can be found in `resources/docs/build.md`
 
 ## Contributions
 
