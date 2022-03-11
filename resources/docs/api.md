@@ -1,4 +1,4 @@
-## ffi specifications
+## FFI API
 
 ```
 generate_master(
