@@ -154,8 +154,8 @@ mod tests {
       WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
       vec![output], 
       300,
-      false,
-      None
+      None,
+      false
     ).unwrap();
     assert!(!init_psbt.is_finalized);
     
@@ -243,8 +243,8 @@ mod tests {
         WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
         vec![output.clone()], 
         300,
-        false,
-        None
+        None,
+        false
       ).unwrap_err();
       assert_eq!(init_psbt.message, "Spending Policy Required".to_string());
 
@@ -255,8 +255,8 @@ mod tests {
         WalletConfig::new(&public_descriptor,DEFAULT_TESTNET_NODE,None).unwrap(), 
         vec![output], 
         300,
+        Some(policy_path_both),
         false,
-        Some(policy_path_both)
       ).unwrap();
       assert!(!init_psbt.is_finalized);
 

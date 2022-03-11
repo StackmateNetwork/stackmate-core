@@ -283,7 +283,7 @@ pub unsafe extern "C" fn shared_secret(
     };
 
     match ec::compute_shared_secret_str(local_secret, remote_pubkey) {
-        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
+        Ok(result) => CString::new(result).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
 }
@@ -735,6 +735,7 @@ pub unsafe extern "C" fn build_tx(
     node_address: *const c_char,
     tx_outputs: *const c_char,
     fee_absolute: *const c_char,
+    policy_path: *const c_char,
     sweep: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
@@ -771,6 +772,16 @@ pub unsafe extern "C" fn build_tx(
         Err(e) => return S5Error::new(ErrorKind::Input, &e.message).c_stringify(),
     };
 
+    let policy_path_cstr = CStr::from_ptr(policy_path);
+    let policy_path_str: &str = match policy_path_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Policy-Path").c_stringify(),
+    };
+    let policy_path = match psbt::PolicyPath::from_json_str(policy_path_str) {
+        Ok(result) => Some(result.to_btreemap()),
+        Err(_) => None,
+    };
+
     let sweep_cstr = CStr::from_ptr(sweep);
     let sweep: bool = match sweep_cstr.to_str() {
         Ok(string) => string == "true",
@@ -786,7 +797,7 @@ pub unsafe extern "C" fn build_tx(
         Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
     };
 
-    match psbt::build(config, tx_outputs, fee_absolute, sweep,None) {
+    match psbt::build(config, tx_outputs, fee_absolute, policy_path, sweep) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }

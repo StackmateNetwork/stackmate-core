@@ -161,8 +161,9 @@ get_address(
 build_tx(
   descriptor: *const c_char,
   node_address: "default" || *const c_char, ("default" or invalid *const c_char will default to blockstream server)
-  tx_outputs: *const c_char (stringified JSON array of TxOutput{address, amount}),
+  tx_outputs: *const c_char (stringified JSON array of TxOutput{address: String, amount: u64}),
   fee_absolute: *const c_char,
+  policy_path: *const c_char (stringified JSON PolicyPath{id:String, path: Vec<usize>} - can be empty string or null - unparsable JSON will assume empty path)
   sweep: "true" || "false" (defaults to "false" for any other strings)
 )->WalletPSBT {
   psbt: String,

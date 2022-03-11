@@ -1,5 +1,8 @@
-use crate::config::WalletConfig;
-use crate::e::{ErrorKind, S5Error};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::ffi::CString;
+use std::os::raw::c_char;
+use std::str::FromStr;
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::descriptor::Descriptor;
@@ -12,11 +15,8 @@ use bitcoin::consensus::deserialize;
 use bitcoin::network::constants::Network;
 use bitcoin::util::address::Address;
 use bitcoin::util::psbt::PartiallySignedTransaction;
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
-use std::ffi::CString;
-use std::os::raw::c_char;
-use std::str::FromStr;
+use crate::config::WalletConfig;
+use crate::e::{ErrorKind, S5Error};
 
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,7 +34,6 @@ impl WalletPSBT {
           .into_raw()
       }
     };
-
     CString::new(stringified).unwrap().into_raw()
   }
 }
@@ -81,13 +80,35 @@ impl TxOutput {
   }
 }
 
+#[derive(Deserialize,Clone)]
+pub struct PolicyPath{
+  pub id: String,
+  pub path: Vec<usize>
+}
+
+impl PolicyPath{
+  pub fn to_btreemap(&self) -> BTreeMap<String, Vec<usize>>{
+    let mut map = BTreeMap::new();
+    map.insert(self.id.clone(), self.path.clone());
+    map
+  }
+  pub fn from_json_str(str: &str) -> Result<PolicyPath, S5Error> {
+    let policy_path: PolicyPath = match serde_json::from_str(str) {
+      Ok(result) => result,
+      Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid policy path.")),
+    };
+    Ok(policy_path)
+  }
+}
+
 pub fn build(
   config: WalletConfig,
   outputs: Vec<TxOutput>,
   fee_absolute: u64,
-  sweep: bool,
   policy_path: Option<BTreeMap<String, Vec<usize>>>,
+  sweep: bool,
 ) -> Result<WalletPSBT, S5Error> {
+  
   let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
@@ -102,6 +123,7 @@ pub fn build(
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
+
   let outputs = match outputs
     .iter()
     .map(|output| {
@@ -368,7 +390,7 @@ mod tests {
       address: to.to_string(),
       amount: Some(amount),
     };
-    let psbt_origin = build(config, vec![output], fee_absolute, false, None);
+    let psbt_origin = build(config, vec![output], fee_absolute, None, false);
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
     // assert_eq!(decoded.unwrap()[0].value, amount);
