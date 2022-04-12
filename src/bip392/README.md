@@ -14,14 +14,14 @@
 - [Abstract](#abstract)
 - [Motivation](#motivation)
 - [Encryption Algorithm](#encryptalgo)
-- [Public Script Descriptor](#pubdes)
+- [External Recovery Data](#erd)
 - [Data Redundancy](#datared)
 - [Key Derivation](#kd)
 - [Implementations](#implementations)
 
 ## Abstract
 
-This BIP describes an encryption standard and a method for handling script wallet backups using the familiar interface of BIP39 mnemonic seed and BIP32 key management.
+This BIP describes an encryption standard and a method for handling script wallet backups using the familiar interface of BIP39 mnemonic seed, BIP32 key management and the concept of data redundancy.
 
 ## Motivation
 
@@ -45,19 +45,21 @@ This is because it is the most commonly used standard for encryption.
 
 Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
 
-## Public Script Descriptor
+## External Recovery Data 
 
-The data being encrypted is the public script descriptor; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
+The external recovery data (erd) being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
 
 We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
 
 ## Data Redundancy
 
-Users must still be made aware of the fact that script wallets require external data that is not contained within their mnemonic.
+Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic.
 
-The mnemonic only supports the external data in being redundant and highly available; through encryption.
+The mnemonic only supports the erd in being redundant and highly available; through encryption.
 
-Wallets must focus on creating redundant copies of encrypted wallet backups.
+Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
+
+`the-erd.musbe-red.`
 
 ## Key Derivation
 
