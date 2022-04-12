@@ -16,9 +16,9 @@
 - [Encryption Algorithm](#encryptalgo)
 - [External Recovery Data](#erd)
 - [Data Redundancy](#datared)
-- [Key Derivation](#kd)
-- [Implementations](#impl)?
-- [Final Interface](#finint)?
+- [Key Source Construction](#ksc)
+- [Implementations](#impl)
+- [Final Interface](#finint)
 
 ## Abstract
 
@@ -46,24 +46,11 @@ This is because it is the most commonly used standard for encryption.
 
 Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
 
-## External Recovery Data 
-Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic.
+## Key Source Construction
 
-The external recovery data (erd) being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
+The key used will be a `sha256(privatekey)` derived from the mnemonic seed based on a derivation scheme.
 
-We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
-
-## Data Redundancy
- 
-The mnemonic only supports the erd in being redundant and highly available; through encryption.
-
-Since the erd is encrypted, more copies makes recovery safer and easier.
-
-Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
-
-## Key Derivation
-
-The key used will be a sha256 hash of the private key derived from the mnemonic seed based on a derivation scheme.
+Consensus is required only on the above key source construction.
 
 We propose using the following derivation scheme:
 
@@ -79,11 +66,38 @@ If this mnemonic is part of several different scripts, each will have their corr
 
 Wallets are free to use any path of their choice OR add more paths to proposed scheme. Wallets should allow users to input their own specified path, in the event that they have chosen to use another scheme.
 
+## External Recovery Data 
+
+Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic.
+
+The external recovery data (erd) being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
+
+We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
+
+## Data Redundancy
+ 
+The mnemonic only supports the erd in being redundant and highly available; through encryption.
+
+Since the erd is encrypted, more copies makes recovery safer and easier.
+
+Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
+
+
 ## Final Interface
 
-With such a methodology in place during wallet setup, the final interface for the user, is the same old mnemonic words with the addition of a bip392 tag, indicating that this seed is also part of scripts and requires some erd to recover more than just a single signature wallet. 
+The final interface for the user:
 
-Users of air-gapped hardware only require their hardware manufacturers to support encrypt/decrypt functions. The erd is then in the descriptor format which more wallets are beginning to adopt as the standard for script wallets.
+- Generate a mnemonic (on hardware?)
+- Write it down (on a seedplate?)
+- Tag it with `bip392` (on the same seedplate?)
+
+This mnemonic is now ready to take part in scripts.
+
+To avoid confusion, it is encouraged not to tag a seed as bip392 compatible if only being used for single signature wallets.
+
+Whenever you use a public key from this mnemonic in a script, you create a dedicated account number for it and encrypt the public script descriptor as erd and create multiple copies of it.
+
+Users of air-gapped hardware only require their manufacturers to support the `key source construction and encrypt/decrypt functions` in order to facilitate much more reliable bitcoin scripting on the application layer.
 
 ## Implementations
 
