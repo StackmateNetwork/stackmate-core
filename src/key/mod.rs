@@ -2,4 +2,4 @@ pub mod seed;
 pub mod derivation;
 pub mod ec;
 pub mod encoding;
-pub mod aes;
+pub mod encryption;

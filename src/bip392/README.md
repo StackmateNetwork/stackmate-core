@@ -10,10 +10,14 @@
   Created: 2022-04-12
 </pre>
 
+# Copyright
+
+This proposal is hereby placed in the public domain.
+
 ## Table of Contents
 - [Abstract](#abstract)
 - [Motivation](#motivation)
-- [Encryption Algorithm](#encryptalgo)
+- [Encryption Standard](#estd)
 - [Key Source Construction](#ksc)
 - [Derivation Scheme](#ds)
 - [External Recovery Data](#erd)
@@ -39,13 +43,15 @@ The solutions differ in the key source used in encryption and most have either a
 
 Our goal is to construct a methodology for script wallet backup that maintains the single mnemonic interface to recover single signature AND script wallets with minimized trade-offs.
 
-## Encryption Algorithm
+## Encryption Standard
 
-We propose primarily supporting the AES-256-CBC standard, with the requirement of a 16-bit initialization vector.
+We propose primarily supporting the simple ChaCha20Poly1305 cipher standard, with the requirement of a 24-bit initialization vector or nonce.
 
-This is because it is the most commonly used standard for encryption.
+Ciphertext is encoded in base64 to be as compact as possible.
 
-Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
+Example : ```"ZXh0cmEgbG9uZyB1bmlxdWUgbm9uY2Uh":"+dj7i1ViaGhL/3PvsAewrqoIqZBv3D3ACDxPbQWaioGIrqYyqRHuyVybXlUmdHiVK3To38omnU/3ujE6xFfHCAo="```
+
+Other algorithms such as AES256-CBC/GCM etc. can also be supported with very little effort.
 
 ## Key Source Construction
 
@@ -82,7 +88,6 @@ The mnemonic only supports the erd in being redundant and highly available; thro
 Since the erd is encrypted, more copies makes recovery safer and easier.
 
 Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
-
 
 ## Final Interface
 

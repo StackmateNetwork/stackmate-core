@@ -117,6 +117,7 @@ pub enum DerivationPurpose {
   Legacy,
   Compatible,
   Native,
+  Encryption
 }
 impl Display for DerivationPurpose {
   fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -124,6 +125,7 @@ impl Display for DerivationPurpose {
       DerivationPurpose::Legacy => write!(f, "44"),
       DerivationPurpose::Compatible => write!(f, "49"),
       DerivationPurpose::Native => write!(f, "84"),
+      DerivationPurpose::Encryption => write!(f, "392"),
     }
   }
 }
