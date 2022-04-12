@@ -8,17 +8,16 @@ name = "stackmate"
 version = "0.8.0"
 
 [dependencies]
+aes-gcm = "0.9.4"
 base32 = "0.4.0"
 base64 = "0.13.0"
 bip39 = "1.0.1"
 hex = "0.4.3"
-libtor = "46.6.1+0.4.6.6"
-secp256k1 = {version = "0.22.0", features = ["rand", "bitcoin_hashes", "global-context", "rand-std"]}
+openssl = "*"
 serde = "1.0.126"
 serde_derive = "1.0.0"
 serde_json = "1.0.64"
 sha-1 = "0.10.0"
-aes-gcm = "0.9.4"
 
 [dependencies.bdk]
 features = ["compiler", "rpc", "electrum"]
@@ -28,45 +27,47 @@ version = "0.16.1"
 features = ["rand", "base64"]
 version = "0.27.1"
 
+[dependencies.secp256k1]
+features = ["rand", "bitcoin_hashes", "global-context", "rand-std"]
+version = "0.22.0"
+
 [lib]
 crate-type = ["staticlib", "cdylib"]
 name = "stackmate"
 
-# [profile]
-# [profile.release]
-# codegen-units = 1
-# lto = true
-# opt-level = "z"
-# panic = "abort"
+[release]
+codegen-units = 1
+lto = true
+opt-level = "z"
+panic = "abort"
 
-# [target.aarch64-linux-android.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
+[target]
+[target.aarch64-apple-ios]
+[target.aarch64-apple-ios.dependencies]
+[target.aarch64-apple-ios.dependencies.openssl]
+features = ["vendored"]
+version = "*"
 
-# [target.i686-linux-android.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
+[target.aarch64-linux-android]
+[target.aarch64-linux-android.dependencies]
+[target.aarch64-linux-android.dependencies.openssl]
+features = ["vendored"]
+version = "*"
 
-# [target.x84_64-linux-android.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
+[target.i686-linux-android]
+[target.i686-linux-android.dependencies]
+[target.i686-linux-android.dependencies.openssl]
+features = ["vendored"]
+version = "*"
 
-# [target.x86_64-apple-ios.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
+[target.x84_64-linux-android]
+[target.x84_64-linux-android.dependencies]
+[target.x84_64-linux-android.dependencies.openssl]
+features = ["vendored"]
+version = "*"
 
-# [target.aarch64-apple-ios.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
-
-# [target.armv7-apple-ios.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
-
-# [target.armv7s-apple-ios.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
-
-# [target.i386-apple-ios.dependencies.openssl]
-# features = ["vendored"]
-# version = "*"
+[target.x86_64-apple-ios]
+[target.x86_64-apple-ios.dependencies]
+[target.x86_64-apple-ios.dependencies.openssl]
+features = ["vendored"]
+version = "*"

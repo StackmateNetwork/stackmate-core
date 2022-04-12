@@ -44,6 +44,9 @@ ls $HOME/Android/Sdk/ndk
 
 # The tools we would need are specifically at the path below
 ls $HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin
+# macosx 
+~/Library/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/darwin-x86_64/bin
+
 ```
 
 Once you confirm the ndk is at the given path and that the bin folder contains a bunch of binaries, add this path to your `PATH` variable for cargo.
@@ -60,25 +63,50 @@ Make sure to substitute with the appropriate <version_number>
 
 ```toml
 [target.aarch64-linux-android]
-ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang"
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang"
 
 [target.armv7-linux-androideabi]
-ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang"
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi31-clang"
 
 [target.i686-linux-android]
-ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang"
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android31-clang"
 
 [target.x86_64-linux-android]
-ar = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "~/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android31-clang"
 
 [target.x86_64-apple-darwin]
 linker = "x86_64-apple-darwin14-clang"
-ar = "x86_64-apple-darwin14-ar"
+ar = "llvm-as"
 
+```
+
+## ON MAC
+Add the following to .zshrc
+```
+ANDROID_SDK="/path/to/sdk"
+ANDROID_NDK="/path/to/ndk"
+ANDROID_TOOLCHAIN="/path/to/toolchain"
+PATH="$PATH:$ANDROID_TOOLCHAIN/bin"
+export CC="$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang -target armv7-none-linux-androideabi -gcc-toolchain $NDK_TOOLCHAIN"
+export CXX="$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ -target armv7-none-linux-androideabi -gcc-toolchain $NDK_TOOLCHAIN"
+```
+
+PROBABLY NOT NEEDED
+```
+export HOMEBREW_NO_ANALYTICS=1
+
+brew update
+brew upgrade
+brew install gcc
+brew cleanup
+```
+
+```
+brew install nspr ant
 ```
 
 Finally, add toolchains for our build targets
@@ -197,6 +225,7 @@ test tests::test_mnemonic ... ok
 
 cargo can compile binaries for specific target hardware. Check the list of [Supported Platforms](https://doc.rust-lang.org/nightly/rustc/platform-support.html). Our targets are all under Tier 2.
 
+
 ```bash
 cd path/to/project
 cargo clean
@@ -205,6 +234,13 @@ cargo build --target armv7-linux-androideabi --release
 cargo build --target i686-linux-android --release
 cargo build --target x86_64-linux-android --release
 
+```
+
+## ON Mac
+
+```
+ANDROID_HOME=$ANDROID_SDK NDK_HOME=$ANDROID_NDK NDK_STANDALONE=$ANDROID_TOOLCHAIN cargo build --target aarch64-linux-android --release
+...
 ```
 
 ## Debugging tips

@@ -4,17 +4,29 @@
 # NOTE: THIS SCRIPT MUST BE RUN FROM WITHIN THIS DIRECTORY.
 # NOTE: AVOID USING RELATIVE PATH TO CHANGE THIS. USE CARGO MANIFEST DIR ENV VARIABLE?
 #
-export ANDROID_NDK_HOME=$HOME/Android/Sdk/ndk/22.1.7171670
 
-# AARCH64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android29-clang
-# I686_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android29-clang
-# X86_64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android29-clang
+# cargo install cargo-add
+# cargo add openssl
 
+# INSTALL ANDROID SDK AND NDK using Android Studio.
+ if [[ $(uname) == "Darwin" ]]; then
+    # cargo install cargo-lipo
+    # cargo install cbindgen
+    export ANDROID_NDK_HOME=~/Library/Android/Sdk/ndk/24.0.8215888
+    # PHASH=$(echo $admin_password | shasum -a 256)
+  else
+    export ANDROID_NDK_HOME=~/Android/Sdk/ndk/22.1.7171670
+fi
+
+export AARCH64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang
+export I686_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android31-clang
+export X86_64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android31-clang
+
+echo $AARCH64_LINKER
 rm -rf ../builds*
 # rm -rf ../target
 # cargo clean
-# cargo install cargo-add
-# cargo add openssl
+
 
 
 mkdir -p ../builds/x86_64-linux-android/release/
@@ -36,8 +48,7 @@ rustup target add aarch64-apple-ios armv7-apple-ios armv7s-apple-ios x86_64-appl
 
 # # ios
 
-cargo install cargo-lipo
-cargo install cbindgen
+
 
 # export PATH="$(pwd)/osxcross/target/bin:$PATH"
 # export CC=o64-clang
@@ -46,12 +57,11 @@ cargo install cbindgen
 # cargo build --release --target x86_64-apple-darwin
 
 # android
-# cargo build --release --target aarch64-linux-android
+ cargo build --release --target aarch64-linux-android
 # cargo build --release --target x86_64-linux-android
 # cargo build --release --target i686-linux-android
 
-
-cd .. && make android
+# cd .. && make android
 
 # cp ./target/aarch64-linux-android/release/libstackmate.so ../builds/aarch64-linux-android/release/
 # cp ./target/x86_64-linux-android/release/libstackmate.so ../builds/x86_64-linux-android/release/

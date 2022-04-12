@@ -54,7 +54,7 @@ use crate::wallet::psbt;
 pub mod network;
 use crate::network::fees;
 use crate::network::height;
-use crate::network::tor;
+// use crate::network::tor;
 
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
