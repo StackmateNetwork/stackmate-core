@@ -45,7 +45,7 @@ Our goal is to construct a methodology for script wallet backup that maintains t
 
 ## Encryption Standard
 
-We propose primarily supporting the simple ChaCha20Poly1305 cipher standard, with the requirement of a 24-bit initialization vector or nonce.
+We propose primarily supporting the simple ChaCha20Poly1305 cipher standard, with the initialization vector or nonce prefixed to the output ciphertext.
 
 Ciphertext is encoded in base64 to be as compact as possible.
 
