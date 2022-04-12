@@ -10,11 +10,21 @@
   Created: 2022-04-12
 </pre>
 
-==Abstract==
+## Table of Contents
+- [Abstract](#abstract)
+- [Motivation](#motivation)
+- [Key Derivation](#kd)
+- [Encryption Algorithm](#encryptalgo)
+- [Public Script Descriptor](#pubdes)
+- [Data Redundancy](#datared)
+- [Notes](#notes)
+- [Implementations](#implementations)
+
+## Abstract
 
 This BIP describes an encryption standard and a method of generating keys from a BIP39 mnemonic seed and BIP32 for key management.
 
-==Motivation==
+## Motivation
 
 Most users of Bitcoin are familiar with the mnemonic interface for key management and wallet recovery. For single signature wallets, this works for most cases, except where users use non-standard BIP32 derivation paths. Even considering non-standard paths, most single signature wallets can be recovered via brute force with the mnemonic alone. 
 
@@ -24,7 +34,7 @@ The primary use-case for encryption is to be able to encrypt all script data tha
 
 This maintains the familiar key management UI of holding just the mnemonic words and being able to recover ANY wallet.
 
-==Deriving the encryption key==
+## Key Derivation
 
 We propose using the following derivation scheme:
 
@@ -40,7 +50,7 @@ If this mnemonic is part of several different scripts, each will have their corr
 
 The key used will be a sha256 hash of the private key derived at the chosen path.
 
-==Encryption Algorithm==
+## Encryption Algorithm
 
 We propose primarily supporting the AES-256-CBC standard, with the requirement of a 16-bit initialization vector.
 
@@ -48,13 +58,13 @@ This is because it is the most commonly used standard for encryption.
 
 Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
 
-==Data==
+## Public Script Descriptor
 
-The data being encrypted is the public script descriptor. This will contain all the information required for an individual to recover their wallet. The corresponding private data can be extracted from the mnemonic at path `m/84'`, `m/49'` or `m/44'`.
+The data being encrypted is the public script descriptor; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
 
-We encourage not using private descriptors for better layered security, however, this is a tradeoff that wallets can decide to make for convenience.
+We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
 
-==Notes==
+## Data Redundancy
 
 Users must still be made aware of the fact that script wallets require external data that is not contained within their mnemonic.
 
@@ -62,7 +72,7 @@ The mnemonic only supports the external data in being redundant and highly avail
 
 Wallets must focus on creating redundant copies of encrypted wallet backups.
 
-==Reference Implementation==
+## Implementations
 
 `stackmate-core` - contains examples for 3 different script types.
 
