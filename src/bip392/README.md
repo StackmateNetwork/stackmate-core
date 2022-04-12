@@ -14,9 +14,10 @@
 - [Abstract](#abstract)
 - [Motivation](#motivation)
 - [Encryption Algorithm](#encryptalgo)
+- [Key Source Construction](#ksc)
+- [Derivation Scheme](#ds)
 - [External Recovery Data](#erd)
 - [Data Redundancy](#datared)
-- [Key Source Construction](#ksc)
 - [Implementations](#impl)
 - [Final Interface](#finint)
 
@@ -48,9 +49,9 @@ Other algorithms such as ChaChaPoly126 etc. can also be supported with very litt
 
 ## Key Source Construction
 
-The key used will be a `sha256(privatekey)` derived from the mnemonic seed based on a derivation scheme.
+The key used for encryption will be a `sha256(privatekey)` derived from the mnemonic seed based on a derivation scheme.
 
-Consensus is required only on the above key source construction.
+## Derivation Scheme
 
 We propose using the following derivation scheme:
 
