@@ -21,7 +21,7 @@
 
 ## Abstract
 
-This BIP describes an encryption standard and a method for handling script wallet backups using the familiar interface of BIP39 mnemonic seed, BIP32 key management and the concept of data redundancy.
+This BIP describes an encryption standard and a method for handling script wallet backups using the familiar interface of BIP39 mnemonic seed and BIP32 key management.
 
 ## Motivation
 
@@ -53,13 +53,15 @@ We encourage not using private descriptors as data; for better layered security.
 
 ## Data Redundancy
 
-Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic.
+Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic. 
 
 The mnemonic only supports the erd in being redundant and highly available; through encryption.
 
 Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
 
-`the-erd.musbe-red.`
+Since the erd is encrypted, more copies, makes recovery safer and easier.
+
+`the erd must be red`.
 
 ## Key Derivation
 
