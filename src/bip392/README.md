@@ -78,6 +78,12 @@ If this mnemonic is part of several different scripts, each will have their corr
 
 Wallets are free to use any path of their choice OR add more paths to proposed scheme. Wallets should allow users to input their own specified path, in the event that they have chosen to use another scheme.
 
+## Final Interface
+
+With such a methodology in place during wallet setup, the final interface for the user, is the same old mnemonic words with the addition of a bip392 tag, indicating that this seed is also part of scripts and requires some erd to recover more than just a single signature wallet. 
+
+Users of air-gapped hardware only require their hardware manufacturers to support encrypt/decrypt functions. The erd is then in the descriptor format which more wallets are beginning to adopt as the standard for script wallets.
+
 ## Implementations
 
 `stackmate-core` - contains examples for 3 different script types.
