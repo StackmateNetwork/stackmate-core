@@ -17,7 +17,8 @@
 - [External Recovery Data](#erd)
 - [Data Redundancy](#datared)
 - [Key Derivation](#kd)
-- [Implementations](#implementations)
+- [Implementations](#impl)?
+- [Final Interface](#finint)?
 
 ## Abstract
 
