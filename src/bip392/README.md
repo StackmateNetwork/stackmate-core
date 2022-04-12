@@ -46,22 +46,19 @@ This is because it is the most commonly used standard for encryption.
 Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
 
 ## External Recovery Data 
+Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic.
 
 The external recovery data (erd) being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
 
 We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
 
 ## Data Redundancy
-
-Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic. 
-
+ 
 The mnemonic only supports the erd in being redundant and highly available; through encryption.
 
 Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
 
-Since the erd is encrypted, more copies, makes recovery safer and easier.
-
-`the erd must be red`.
+Since the erd is encrypted, more copies makes recovery safer and easier.
 
 ## Key Derivation
 
