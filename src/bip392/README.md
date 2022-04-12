@@ -13,42 +13,29 @@
 ## Table of Contents
 - [Abstract](#abstract)
 - [Motivation](#motivation)
-- [Key Derivation](#kd)
 - [Encryption Algorithm](#encryptalgo)
 - [Public Script Descriptor](#pubdes)
 - [Data Redundancy](#datared)
-- [Notes](#notes)
+- [Key Derivation](#kd)
 - [Implementations](#implementations)
 
 ## Abstract
 
-This BIP describes an encryption standard and a method of generating keys from a BIP39 mnemonic seed and BIP32 for key management.
+This BIP describes an encryption standard and a method for handling script wallet backups using the familiar interface of BIP39 mnemonic seed and BIP32 key management.
 
 ## Motivation
 
-Most users of Bitcoin are familiar with the mnemonic interface for key management and wallet recovery. For single signature wallets, this works for most cases, except where users use non-standard BIP32 derivation paths. Even considering non-standard paths, most single signature wallets can be recovered via brute force with the mnemonic alone. 
+Most users of Bitcoin are comfortable with using a single mnemonic as an interface for key management and wallet recovery. For single signature wallets, this works for most cases, except where users use non-standard BIP32 derivation paths. Even considering non-standard paths, most single signature wallets can be recovered via brute force with the mnemonic alone. 
 
 Script wallets that require more than just a single key to satisfy i.e. contain information outside the mnemonic words that are required to recover the wallet, present an obstcle in the adoption of script wallets due to difficulty in backup and recovery.
 
-The primary use-case for encryption is to be able to encrypt all script data that is external to the mnemonic. Being encrypted, this data can be distributed across the internet for redundancy. 
+Several attempts have been made at the problem and no solution preserves the single mnemonic interface.
 
-This maintains the familiar key management UI of holding just the mnemonic words and being able to recover ANY wallet.
+Most solutions have realized that an encryption standard is required. 
 
-## Key Derivation
+The solutions differ in the key source used in encryption and most have either abandoned the mnemonic interface or added another layer that requires writing down another key in a different format to avoid confusion. Either way, still more data to keep secret.
 
-We propose using the following derivation scheme:
-
-1. Purpose(encryption): 392'
-2. Network(bitcoin): 0' 
-3. Account: *'
-
-Giving a standard derivation path of `m/392'/0'/*'` 
-
-Wallets are free to use any path of their choice OR add more paths to proposed scheme. Wallets should allow users to input their own specified path, in the event that they have chosen to use another scheme.
-
-If this mnemonic is part of several different scripts, each will have their corresponding account key.
-
-The key used will be a sha256 hash of the private key derived at the chosen path.
+Our goal is to construct a methodology for script wallet backup that maintains the single mnemonic interface to recover single signature AND script wallets with minimized trade-offs.
 
 ## Encryption Algorithm
 
@@ -71,6 +58,24 @@ Users must still be made aware of the fact that script wallets require external 
 The mnemonic only supports the external data in being redundant and highly available; through encryption.
 
 Wallets must focus on creating redundant copies of encrypted wallet backups.
+
+## Key Derivation
+
+The key used will be a sha256 hash of the private key derived from the mnemonic seed based on a derivation scheme.
+
+We propose using the following derivation scheme:
+
+1. Purpose(encryption): 392'
+2. Network(bitcoin): 0' 
+3. Account: *'
+
+Giving a standard derivation path of `m/392'/0'/*'` 
+
+All paths are hardened.
+
+If this mnemonic is part of several different scripts, each will have their corresponding * account' key.
+
+Wallets are free to use any path of their choice OR add more paths to proposed scheme. Wallets should allow users to input their own specified path, in the event that they have chosen to use another scheme.
 
 ## Implementations
 
