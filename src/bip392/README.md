@@ -56,9 +56,9 @@ We encourage not using private descriptors as data; for better layered security.
  
 The mnemonic only supports the erd in being redundant and highly available; through encryption.
 
-Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
-
 Since the erd is encrypted, more copies makes recovery safer and easier.
+
+Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
 
 ## Key Derivation
 
