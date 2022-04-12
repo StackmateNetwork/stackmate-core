@@ -87,17 +87,17 @@ Users and wallets must then focus on making and sharing as many copies of their 
 
 The final interface for the user:
 
-- Generate a mnemonic (on hardware?)
-- Write it down (on a seedplate?)
-- Tag it with `bip392` (on the same seedplate?)
+- Generate a mnemonic (on some hardware)
+- Write it down (on a seedplate? or in your head?)
+- Tag it with `bip392` (on the same seedplate or in your head.)
 
 This mnemonic is now ready to take part in scripts.
 
 To avoid confusion, it is encouraged not to tag a seed as bip392 compatible if only being used for single signature wallets.
 
-Whenever you use a public key from this mnemonic in a script, you create a dedicated account number for it and encrypt the public script descriptor as erd and create multiple copies of it.
+Whenever you use a public key from this mnemonic in a script, you create a dedicated account number for it and encrypt the `public script descriptor as erd` and create multiple copies of it.
 
-Users of air-gapped hardware only require their manufacturers to support the `key source construction and encrypt/decrypt functions` in order to facilitate much more reliable bitcoin scripting on the application layer.
+Users of air-gapped hardware only require their manufacturers to support the `encrypt/decrypt functions` in order to facilitate much more reliable bitcoin scripting on the application layer.
 
 ## Implementations
 
