@@ -105,7 +105,7 @@ Whenever you use a public key from this mnemonic in a script, you create a dedic
 
 Users of air-gapped hardware only require their manufacturers to support the `encrypt/decrypt functions` in order to facilitate much more reliable bitcoin scripting on the application layer.
 
-Similar to the process of psbt's being fed into hardware for signature, ERD can be fed into hardware for decryption.
+Similar to the process of a psbt being fed into hardware for signature, ERD can be fed into hardware for decryption.
 
 ## Implementations
 
