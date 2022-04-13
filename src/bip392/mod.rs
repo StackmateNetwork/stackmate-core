@@ -2,7 +2,6 @@
 
 #[cfg(test)]
 mod tests {
-  use std::str;
   use std::str::FromStr;
   use bitcoin::util::bip32::ExtendedPrivKey;
   use bitcoin::network::constants::Network;
