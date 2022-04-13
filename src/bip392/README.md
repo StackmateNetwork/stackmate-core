@@ -39,7 +39,7 @@ Several attempts have been made at the problem and no solution preserves the sin
 
 Most solutions have realized that an encryption standard is required. 
 
-The solutions differ in the key source used in encryption and most have either abandoned the mnemonic interface or added another layer that requires writing down another key in a different format to avoid confusion. Either way, still more data to keep secret.
+The solutions differ in the key source used in encryption and most have either abandoned the mnemonic interface or added another layer that requires writing down another key in a different format to avoid confusion.
 
 Our goal is to construct a methodology for script wallet backup that maintains the single mnemonic interface to recover single signature AND script wallets with minimized trade-offs.
 
@@ -79,7 +79,7 @@ Users must be made explicitly aware of the fact that script wallets require exte
 
 The ERD being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
 
-We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
+We discourage using private descriptors as data; for better layered security.
 
 ## Data Redundancy
  
@@ -95,7 +95,7 @@ The final interface for the user:
 
 - Generate a mnemonic (on some hardware)
 - Write it down (on a seedplate? or in your head?)
-- Tag it with `bip392` or names of the scripts it is part of. (on the same seedplate or in your head.)
+- Tag it with `bip392` or names of the scripts it is part of. (next to your mnemonic)
 
 This mnemonic is now ready to take part in scripts.
 
