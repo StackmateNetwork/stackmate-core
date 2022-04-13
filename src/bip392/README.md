@@ -109,5 +109,5 @@ Similar to the process of a psbt being fed into hardware for signature, ERD can 
 
 ## Implementations
 
-`stackmate-core` - contains examples for 3 different script types.
+`stackmate-core` - contains implementation of key source contruction and chacha20poly1307 encryption standard.
 
