@@ -10,14 +10,20 @@
   Created: 2022-04-12
 </pre>
 
+# Copyright
+
+This proposal is hereby placed in the public domain.
+
 ## Table of Contents
 - [Abstract](#abstract)
 - [Motivation](#motivation)
-- [Encryption Algorithm](#encryptalgo)
+- [Encryption Standard](#estd)
+- [Key Source Construction](#ksc)
+- [Derivation Scheme](#ds)
 - [External Recovery Data](#erd)
 - [Data Redundancy](#datared)
-- [Key Derivation](#kd)
-- [Implementations](#implementations)
+- [Implementations](#impl)
+- [Final Interface](#finint)
 
 ## Abstract
 
@@ -27,45 +33,31 @@ This BIP describes an encryption standard and a method for handling script walle
 
 Most users of Bitcoin are comfortable with using a single mnemonic as an interface for key management and wallet recovery. For single signature wallets, this works for most cases, except where users use non-standard BIP32 derivation paths. Even considering non-standard paths, most single signature wallets can be recovered via brute force with the mnemonic alone. 
 
-Script wallets that require more than just a single key to satisfy i.e. contain information outside the mnemonic words that are required to recover the wallet, present an obstcle in the adoption of script wallets due to difficulty in backup and recovery.
+Script wallets that require more than just a single key to satisfy i.e. contain information outside the mnemonic words (timelocks, hashlocks, counter-party pubkeys) that are required to recover the wallet, present an obstcle in the adoption of script wallets due to difficulty in backup and recovery.
 
 Several attempts have been made at the problem and no solution preserves the single mnemonic interface.
 
 Most solutions have realized that an encryption standard is required. 
 
-The solutions differ in the key source used in encryption and most have either abandoned the mnemonic interface or added another layer that requires writing down another key in a different format to avoid confusion. Either way, still more data to keep secret.
+The solutions differ in the key source used in encryption and most have either abandoned the mnemonic interface or added another layer that requires writing down another key in a different format to avoid confusion.
 
 Our goal is to construct a methodology for script wallet backup that maintains the single mnemonic interface to recover single signature AND script wallets with minimized trade-offs.
 
-## Encryption Algorithm
+## Encryption Standard
 
-We propose primarily supporting the AES-256-CBC standard, with the requirement of a 16-bit initialization vector.
+We propose primarily supporting the simple ChaCha20Poly1305 cipher standard, with the initialization vector or nonce prefixed to the output ciphertext.
 
-This is because it is the most commonly used standard for encryption.
+Ciphertext is encoded in base64 to be as compact as possible.
 
-Other algorithms such as ChaChaPoly126 etc. can also be supported with very little effort.
+Example : ```"ZXh0cmEgbG9uZyB1bmlxdWUgbm9uY2Uh":"+dj7i1ViaGhL/3PvsAewrqoIqZBv3D3ACDxPbQWaioGIrqYyqRHuyVybXlUmdHiVK3To38omnU/3ujE6xFfHCAo="```
 
-## External Recovery Data 
+Other algorithms such as AES256-CBC/GCM etc. can also be supported with very little effort.
 
-The external recovery data (erd) being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
+## Key Source Construction
 
-We encourage not using private descriptors as data; for better layered security. However, this is a tradeoff that wallets can decide to make for convenience or user experience.
+The key used for encryption will be a `sha256(privatekey)` derived from the mnemonic seed based on a derivation scheme.
 
-## Data Redundancy
-
-Users must be made explicitly aware of the fact that script wallets require external data (erd) that is not contained within their mnemonic. 
-
-The mnemonic only supports the erd in being redundant and highly available; through encryption.
-
-Users and wallets must then focus on making and sharing as many copies of their erd as part of the wallet backup process.
-
-Since the erd is encrypted, more copies, makes recovery safer and easier.
-
-`the erd must be red`.
-
-## Key Derivation
-
-The key used will be a sha256 hash of the private key derived from the mnemonic seed based on a derivation scheme.
+## Derivation Scheme
 
 We propose using the following derivation scheme:
 
@@ -81,7 +73,41 @@ If this mnemonic is part of several different scripts, each will have their corr
 
 Wallets are free to use any path of their choice OR add more paths to proposed scheme. Wallets should allow users to input their own specified path, in the event that they have chosen to use another scheme.
 
+## External Recovery Data 
+
+Users must be made explicitly aware of the fact that script wallets require external recovery data (ERD) that is not contained within their mnemonic.
+
+The ERD being encrypted is the `public script descriptor`; which contains all the information required for an individual to recover their script wallet. The corresponding private data can be extracted from the mnemonic.
+
+We discourage using private descriptors as data; for better layered security.
+
+## Data Redundancy
+ 
+The mnemonic only supports the ERD in being redundant and highly available; through encryption.
+
+Since the ERD is encrypted, more copies makes recovery safer and easier.
+
+Users and wallets must then focus on making and sharing as many copies of their ERD as part of the wallet backup process.
+
+## Final Interface
+
+The final interface for the user:
+
+- Generate a mnemonic (on some hardware)
+- Write it down (on a seedplate? or in your head?)
+- Tag it with `bip392` or names of the scripts it is part of. (next to your mnemonic)
+
+This mnemonic is now ready to take part in scripts.
+
+To avoid confusion, it is encouraged not to tag a seed as bip392 compatible if only being used for single signature wallets.
+
+Whenever you use a public key from this mnemonic in a script, you create a dedicated account number for it and encrypt the `public script descriptor as ERD` and create multiple copies of it.
+
+Users of air-gapped hardware only require their manufacturers to support the `encrypt/decrypt functions` in order to facilitate much more reliable bitcoin scripting on the application layer.
+
+Similar to the process of a psbt being fed into hardware for signature, ERD can be fed into hardware for decryption.
+
 ## Implementations
 
-`stackmate-core` - contains examples for 3 different script types.
+`stackmate-core` - contains implementation of key source contruction and chacha20poly1307 encryption standard.
 

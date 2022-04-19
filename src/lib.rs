@@ -34,28 +34,29 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::str;
 
-pub mod e;
+mod e;
 use e::{ErrorKind, S5Error};
 
 mod config;
 use crate::config::{WalletConfig, DEFAULT, DEFAULT_MAINNET_NODE, DEFAULT_TESTNET_NODE};
 
-pub mod key;
+mod key;
 use crate::key::derivation;
 use crate::key::ec;
 use crate::key::seed;
 
-pub mod wallet;
+mod wallet;
 use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
 
-pub mod network;
+mod network;
 use crate::network::fees;
 use crate::network::height;
 // use crate::network::tor;
 
+mod bip392;
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
 /// A master xprv is created from the mnemonic and passphrase.
 /// - *OUTPUT*
