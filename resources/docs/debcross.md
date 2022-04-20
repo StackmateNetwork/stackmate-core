@@ -86,6 +86,7 @@ export PATH=$ANDROID_HOME/platform-tools/:$PATH
 ```
 
 ### Installing android sdk and ndk
+
 ```
 sdkmanager
 ```
@@ -108,5 +109,53 @@ You will mainly need the sdk and ndk for stackmate-core.
 ```bash
 sdkmanager --install "platform-tools" "platforms;android-32" "build-tools;32.0.0" "emulator"
 ```
-### Configuring .cargo/config
+
+The NDK contains all the tools required to help us build our rust based C library for android targetted hardware.
+
+
+<b>Take note of the installation path and inspect it on the terminal:</b>
+
+```
+ls ~/android/sdk/ndk
+# The output should show you the <version_number> of ndk
+
+# The tools we would need are specifically at the path below
+ls ~/android/sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin
+
+```
+Once you confirm the ndk is at the given path and that the bin folder contains a bunch of binaries, add this path to your `PATH` variable in `.bashrc` for cargo to know where to find the binaries for the compiler and linker.
+
+```
+export PATH=$PATH:$HOME/android/sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin
+```
+
+It is safe to explicitly specify which specific linker to use per build target. 
+
+Add the following to your global cargo config @ `$HOME/.cargo/config` to point to the correct linker for each build target.
+
+Make sure to substitute with the appropriate <version_number>
+
+```toml
+[target.aarch64-linux-android]
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang"
+
+[target.armv7-linux-androideabi]
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi31-clang"
+
+[target.i686-linux-android]
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android31-clang"
+
+[target.x86_64-linux-android]
+ar = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-as"
+linker = "~/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android31-clang"
+
+[target.x86_64-apple-darwin]
+linker = "x86_64-apple-darwin14-clang"
+ar = "llvm-as"
+
+```
+
 ### Building binaries for android targets
