@@ -5,6 +5,9 @@
 # NOTE: AVOID USING RELATIVE PATH TO CHANGE THIS. USE CARGO MANIFEST DIR ENV VARIABLE?
 #
 
+# Android SDK without Android Studio
+# https://proandroiddev.com/how-to-setup-android-sdk-without-android-studio-6d60d0f2812a
+
 # cargo install cargo-add
 # cargo add openssl
 
@@ -17,7 +20,6 @@
   else
     export ANDROID_NDK_HOME=~/Android/Sdk/ndk/22.1.7171670
 fi
-
 export AARCH64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang
 export I686_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android31-clang
 export X86_64_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android31-clang
