@@ -9,11 +9,6 @@ ANDROID_ARMV7_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86
 ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android31-clang
 ANDROID_X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android31-clang
 
-CC_aarch64_linux_android=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang
-AR_aarch64_linux_android=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android31-clang
-X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android31-clang
-
 CC="/usr/bin/clang"
 CXX="/usr/bin/clang++"
 
@@ -41,7 +36,6 @@ init:
 	rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 	@if [ $$(uname) == "Darwin" ] ; then cargo install cargo-lipo ; fi
 	cargo install cbindgen
-
 ## :
 
 # ##############################################################################
@@ -62,10 +56,9 @@ target/universal/release/libstackmate.a: $(SOURCES) ndk-home
 	@echo "[DONE] $@"
 
 ## android: Compile the android targets (arm64, armv7 and i686)
-android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux-androideabi/release/libstackmate.so target/i686-linux-android/release/libstackmate.so target/x86_64-linux-android/release/libstackmate.so
+android: target/aarch64-linux-android/release/libstackmate.so
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
-	CC_aarch64_linux_android=$(ANDROID_AARCH64_LINKER) \
 	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
 	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)\ 
 		cargo build --target aarch64-linux-android --release
@@ -88,7 +81,7 @@ target/x86_64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_LINKER) \
 		cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
-		
+
 .PHONY: ndk-home
 ndk-home:
 	@if [ ! -d "${ANDROID_NDK_HOME}" ] ; then \

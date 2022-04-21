@@ -240,7 +240,7 @@ cargo build --target x86_64-linux-android --release
 
 ```
 ANDROID_HOME=$ANDROID_SDK NDK_HOME=$ANDROID_NDK NDK_STANDALONE=$ANDROID_TOOLCHAIN cargo build --target aarch64-linux-android --release
-...
+
 ```
 
 ## Debugging tips
@@ -255,7 +255,7 @@ cargo clean
 Check if you have the correct linker binaries by running them manually:
 
 ```bash
-$HOME/Android/Sdk/ndk/<version_number>/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang --version
+/media/stackmate/android/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android32-clang --version
 ```
 
 ## Part 2: Using Android builds with Dart-C FFI
