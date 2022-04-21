@@ -4,10 +4,10 @@ SOURCES=$(sort $(wildcard ./src/*.rs ./src/**/*.rs))
 OS_NAME=$(shell uname | tr '[:upper:]' '[:lower:]')
 PATH := $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin:$(PATH)
 
-ANDROID_AARCH64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/aarch64-linux-android31-clang
-ANDROID_ARMV7_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi31-clang
-ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android31-clang
-ANDROID_X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android31-clang
+ANDROID_AARCH64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/aarch64-linux-android30-clang
+ANDROID_ARMV7_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi30-clang
+ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
+ANDROID_X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
 CC="/usr/bin/clang"
 CXX="/usr/bin/clang++"
@@ -56,7 +56,7 @@ target/universal/release/libstackmate.a: $(SOURCES) ndk-home
 	@echo "[DONE] $@"
 
 ## android: Compile the android targets (arm64, armv7 and i686)
-android: target/aarch64-linux-android/release/libstackmate.so
+android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux-androideabi/release/libstackmate.so target/i686-linux-android/release/libstackmate.so target/x86_64-linux-android/release/libstackmate.so
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
@@ -65,19 +65,16 @@ target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	@echo "[DONE] $@"
 
 target/armv7-linux-androideabi/release/libstackmate.so: $(SOURCES) ndk-home
-	CC_armv7_linux_androideabi=$(ANDROID_ARMV7_LINKER) \
 	CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$(ANDROID_ARMV7_LINKER) \
 		cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
 
 target/i686-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
-	CC_i686_linux_android=$(ANDROID_I686_LINKER) \
 	CARGO_TARGET_I686_LINUX_ANDROID_LINKER=$(ANDROID_I686_LINKER) \
 		PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 cargo  build --target i686-linux-android --release 
 	@echo "[DONE] $@"
 
 target/x86_64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
-	CC_x86_64_linux_android=$(ANDROID_X86_64_LINKER) \
 	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_LINKER) \
 		cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"

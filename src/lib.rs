@@ -1100,7 +1100,8 @@ pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
     if ptr.is_null() {
         return;
     }
-    CString::from_raw(ptr);
+    let _owned = CString::from_raw(ptr);
+    ()
     // rust automatically deallocates the pointer after using it
     // here we just convert it to a CString so it is used and cleared
 }
