@@ -2,3 +2,4 @@ target
 Cargo.lock
 builds.zip
 builds
+releases
