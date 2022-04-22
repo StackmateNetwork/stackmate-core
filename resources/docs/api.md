@@ -249,7 +249,7 @@ Conditions are usually `keys: pk()`, `timelocks: after()/older()`, `hashlocks: h
 Where conditions involve `keys`, the extended key format is
 
 ```
-[source]xkey/*
+[source]xkey
 ```
 
 Key `source` tells us the parent `fingerprint` and the `hardened derivation path` used to reach this child key.
@@ -260,7 +260,7 @@ i.e.
 [fingerprint/purpose'/network'/account']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49
 finally, i.e.
 
-[6eg88e/84h/0h/1h]xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49
+[db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49
 ```
 
 A single sig policy for this account would just wrap the extended key in `pk()`
@@ -269,7 +269,7 @@ A single sig policy for this account would just wrap the extended key in `pk()`
 pk([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49)
 ```
 
-We add a `/*` to the end of the extended key just to indicate that this `policy` will require more keys derived from the given path onwards.
+We add a `/*` to the end of the extended key just to indicate that this `policy` will require more keys derived from the given path onwards. Just like linux paths.
 
 ```
 pk([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
