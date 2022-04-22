@@ -159,15 +159,13 @@ We start from `0h` and keep incrementing if we need to create more accounts.
 ##### Deposit(Change)
 * Clients and users do not need to worry about correctly setting change indexes. This is handled by the wallet.*
 
-Read on, only for curiosity.
-
 The first unhardened path is to specify the usecase of the next `index` path. 
 
-We use `0 for deposit` or `1 for change`.
+We use `0 for deposit` or `1 for change`. When we share address with people we use `0: deposit`, when we need an address to get back change, the wallet internall uses `1: change` in this path.
 
 ##### Index
 
-The last unhardened path is used to rotate keys. For every new address, we increment from `0` onwards.
+The last unhardened path is used to rotate keys for every new address.
 
 Clients must keep track of the last index they use to avoid address reuse. More on this in the `get_address` api.
 
