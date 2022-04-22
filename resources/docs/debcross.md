@@ -1,6 +1,6 @@
 # CC on Debian
 
-This document provides help on each of the major steps in setting up a fresh debian box as a `cross-compilation environment for stackmate-core android target binaries`.
+This document provides help on each of the major steps in setting up a fresh debian box as a `cross-compilation environment for stackmate-core android, ios, linux and mac target binaries`.
 
 It is recommended to add all environment variables to `~/.bashrc` to preserve them accross sessions and avoid having to keep initializing them with `export`.
 
@@ -159,6 +159,58 @@ git clone https://github.com/StackmateNetwork/stackmate-core.git
 cd stackmate-core
 
 # add rust targets
-rustup target add x86_64-apple-darwin aarch64-linux-android x86_64-linux-android i686-linux-android armv7-linux-androideabi
+rustup target add aarch64-linux-android x86_64-linux-android i686-linux-android armv7-linux-androideabi
 make android
+
+```
+
+### Building binaries for macos targets
+
+#### REFER: https://godot-rust.github.io/book/exporting/macosx.html
+
+```bash
+rustup target add x86_64-apple-darwin
+cargo build --target x86_64-apple-darwin
+
+sudo apt-get install llvm-dev libclang-dev clang libxml2-dev libz-dev
+export MACOSX_CROSS_COMPILER=$HOME/macosx-cross-compiler
+install -d $MACOSX_CROSS_COMPILER/osxcross
+install -d $MACOSX_CROSS_COMPILER/cross-compiler
+cd $MACOSX_CROSS_COMPILER
+git clone https://github.com/tpoechtrager/osxcross && cd osxcross
+
+# picked this version as they work well with godot-rust, feel free to change
+git checkout 7c090bd8cd4ad28cf332f1d02267630d8f333c19
+
+# move the file where osxcross expects it to be
+mv MacOSX10.10.sdk.tar.xz $MACOSX_CROSS_COMPILER/osxcross/tarballs/
+# build and install osxcross
+UNATTENDED=yes OSX_VERSION_MIN=10.7 TARGET_DIR=$MACOSX_CROSS_COMPILER/cross-compiler ./build.sh
+
+
+echo "[target.x86_64-apple-darwin]" >> $HOME/.cargo/config
+find $MACOSX_CROSS_COMPILER -name x86_64-apple-darwin14-cc -printf 'linker = "%p"\n' >> $HOME/.cargo/config
+echo >> $HOME/.cargo/config
+
+```
+
+
+Add to `~/.cargo/config`
+
+```
+[target.x86_64-apple-darwin]
+linker = "macosx-cross-compiler/cross-compiler/bin/x86_64-apple-darwin14-cc"
+```
+
+```
+C_INCLUDE_PATH=$MACOSX_CROSS_COMPILER/cross-compiler/SDK/MacOSX10.10.sdk/usr/include
+CC=$MACOSX_CROSS_COMPILER/cross-compiler/bin/x86_64-apple-darwin14-cc
+C_INCLUDE_PATH=$MACOSX_CROSS_COMPILER/cross-compiler/SDK/MacOSX10.10.sdk/usr/include CC=$MACOSX_CROSS_COMPILER/cross-compiler/bin/x86_64-apple-darwin14-cc cargo build --release --target x86_64-apple-darwin
+
+```
+
+
+```
+godot --export "Mac OSX" path/to/my.zip
+
 ```
