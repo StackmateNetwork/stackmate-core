@@ -169,8 +169,9 @@ The last unhardened path is used to rotate keys for every new address.
 
 Clients must keep track of the last index they use to avoid address reuse. More on this in the `get_address` api.
 
+##### Derive hardened account key
 
-libstackmate supports two different methods of deriving, suitable for different usecases. 
+*libstackmate supports two different methods of deriving, suitable for different usecases.* 
 
 For wallets, we recommend using `derive_wallet_account` since it defaults to standard for wallets.
 
@@ -189,13 +190,28 @@ derive_wallet_account(
 }
 ```
 
+
 The `ChildKeys` result will now be the `hardened account master key` for a segwit native account.
 
 More `ChildKeys` will be derived from this `xprv` or `xpub` by the wallet to use internally.
 
 The `master_xprv` can now also be discarded from memory.
 
-Ignore the following, key utilities.
+The following key utils are for non-wallet applications. Can be ignored for now.
+
+BIP32
+
+```
+derive_to_path(
+    master_xprv: *const c_char,
+    derivation_path: *const c_char*,
+)->ChildKeys {
+  fingerprint: String,
+  hardened_path: String,
+  xprv: String,
+  xpub: String
+}
+```
 
 ```
 xprv_to_ec(
@@ -203,12 +219,16 @@ xprv_to_ec(
 ) -> *mut c_char
 ```
 
+ECDH 
+
 ```
 shared_secret(
     local_secret: *const c_char,
     remote_pubkey: *const c_char,
 ) -> *mut c_char {
 ```
+
+Schnorr 
 
 ```
 sign_message(
@@ -223,8 +243,24 @@ verify_signature(
   message: *const c_char,
   pubkey: *const c_char,
 ) -> *mut c_char 
+
 ```
 
+ChaCha20Poly1305
+
+```
+encrypt(
+  plaintext: *const c_char,
+  seckey: *const c_char,
+) -> *mut c_char
+```
+
+```
+decrypt(
+  ciphertext: *const c_char,
+  seckey: *const c_char,
+) -> *mut c_char 
+```
 
 ### Policies and descriptors
 
