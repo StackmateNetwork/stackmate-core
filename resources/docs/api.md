@@ -6,11 +6,10 @@ The libstackmate api can be divided into 3 modules:
 
 1. key:
   - Create mnemonic seed phrase
-  - Convert seed phrase to root master key
   - Derive child keys from the root key
-  - Sign/verify messages
-  - Calculate ECDH shared secrets
-  - Encrypt/decrypt messages
+  - Schnorr sign/verify messages
+  - ECDH shared secrets
+  - ChaCha20Poly1305 encrypt/decrypt messages 
 
 2. fee: 
   - Get network fee rate
@@ -40,7 +39,7 @@ Regarding persistent of private key data, apps MUST:
 
 - encrypt all private data
 - only store descriptor strings
-- never store a seed/root key; only store derived `m/purpose'/network'/account'` master keys
+- never store a seed/root key; only store extended hardened account keys; derived upto `m/purpose'/network'/account'`
 
 
 ### Note on IO 
