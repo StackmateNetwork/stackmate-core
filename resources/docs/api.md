@@ -30,8 +30,7 @@ Can be further divided into 3 parts:
 
 libstackmate does not persist any wallet data. Applications that use libstackmate, will be required to implement their own storage for things like:
 
-- public descriptors
-- account keys
+- descriptors (encrypted)
 - used address indexes
 - transaction history/balance (for offline reference)
 
@@ -82,7 +81,7 @@ generate_master(
 }
 ```
 
-Or import a mnemonic and recover a wallet by specifying `network`, `mnemonic` and `passphrase`.
+Or import a mnemonic to recover your wallet by specifying `network`, `mnemonic` and `passphrase`.
 
 ```
 import_master(
@@ -98,11 +97,16 @@ import_master(
 
 Both these functions will output a stringified JSON MasterKey containing a 
 
-- `fingerprint`: an identifier for this seed. *only this is persistent*.
-- `mnemonic` : the seed phrase that will be displayed to the user. *never store. burn after reading.*
-- `xprv` : the root xprv for this seed from which account master keys can be derived. *never store. burn after deriving*
+- `fingerprint`: an identifier for this seed. *public data*.
+- `mnemonic` : the seed phrase that will be displayed to the user. *private. burn after reading.*
+- `xprv` : the root xprv for this seed from which account master keys can be derived. *private. burn after deriving.*
 
-After the user writes down and verifies their mnemonic; erase it from memory before the next step of key derivation.
+*After the user writes down and verifies their mnemonic; erase it from memory before the next step of key derivation.*
+
+*After the key derivation process, erase the root xprv from memory*
+
+
+#### Key Derivation
 
 The BIP32 standard for key derivation is: `m/purpose'/network'/account'/deposit/index`
 
@@ -114,11 +118,13 @@ At every path, there exists a key pair.
 
 A few rules about path based derivation:
 
-- An `xprv` can keep deriving down a path for both a child `xprv` and `xpub` BUT it cannot derive either `xprv` or `xpub` when traversing backwards. 
+- An `xprv` can keep deriving down a path for all child `xprv` and `xpub` BUT it cannot derive either `xprv` or `xpub` when traversing backwards. 
 
 eg. 
-TRUE `m/24/2` ->`m/24/2/2`
-FALSE `m/24/2/2` -> `m/24/2`
+
+TRUE `m/24'/2'` ->`m/24'/2'/2'`
+
+FALSE `m/24'/2'/2'` -> `m/24'/2'`
 
 *This is why a master key can sign for all children.*
 
@@ -126,15 +132,51 @@ FALSE `m/24/2/2` -> `m/24/2`
 
 *This is how watch-only wallets work.*
 
-The `'`represents a hardened path. It can also be represented as `h`. Hardened paths ensure that xpubs can also not derive child xpubs down the path. We always harden the first 3 paths in bitcoin and keep the last 2 normal. This gives privacy between accounts and convenience within accounts.
+The `'` represents a hardened path. It can also be represented as `h`. Hardened paths ensure that xpubs CANNOT derive child xpubs down the path. We always harden the first 3 paths in bitcoin and keep the last 2 normal. This gives privacy between accounts and convenience within accounts.
 
-The unhardened paths are used to create new addresses for `change` OR `deposit` at a new `index` per transaction.
+##### Purpose
+
+The first path indicates what type of Script this wallet uses. 
+
+The standard paths are :
+
+- `44h` : Legacy PK scripts which yield `1` addresses
+- `49h` : Compatible SH scripts which yield `3` addresses
+- `84h` : Native WSH scripts which yield `bc1` addresses
+
+If you want your wallet to support all three types, then technically, each wallet will have to contain 3 descriptors, which use 3 different master keys hardedened at the `purpose` path, derived from the same root.
+
+##### Network
+
+Network is `0h for Mainnet` and `1h for Testnet`.
+
+##### Account
+
+Account is where users can manage different wallets for different use cases.
+
+We start from `0h` and keep incrementing if we need to create more accounts.
+
+##### Deposit(Change)
+* Clients and users do not need to worry about correctly setting change indexes. This is handled by the wallet.*
+
+Read on, only for curiosity.
+
+The first unhardened path is to specify the usecase of the next `index` path. 
+
+We use `0 for deposit` or `1 for change`.
+
+##### Index
+
+The last unhardened path is used to rotate keys. For every new address, we increment from `0` onwards.
+
+Clients must keep track of the last index they use to avoid address reuse. More on this in the `get_address` api.
+
 
 libstackmate supports two different methods of deriving, suitable for different usecases. 
 
-For wallets, we recommend using `derive_wallet_account` since it defaults to standard values for wallet operations.
+For wallets, we recommend using `derive_wallet_account` since it defaults to standard for wallets.
 
-Given a `master_xprv`, `purpose=84` and `account=0`
+It only requires specifying the `purpose` and `account` number. Infact, even purpose currently locks into 84, even if other values are used. `purpose` only exists to eventually support taproot as an alternative.
 
 ```
 derive_wallet_account(
@@ -149,9 +191,9 @@ derive_wallet_account(
 }
 ```
 
-The `ChildKeys` result will now be the `Parent account key` for a segwit native account at the 0 index.
+The `ChildKeys` result will now be the `hardened account master key` for a segwit native account.
 
-More `ChildKeys` will be derived from this `xprv` or `xpub` for the wallet to use.
+More `ChildKeys` will be derived from this `xprv` or `xpub` by the wallet to use internally.
 
 The `master_xprv` can now also be discarded from memory.
 
@@ -186,12 +228,13 @@ verify_signature(
 ```
 
 
-Now that we have a parent account key to start a bitcoin wallet, we now move to the `wallet` module set of functions.
+### Policies and descriptors
+
+Now that we have a hardened account key to start a bitcoin wallet, we now move to the `wallet` module set of functions.
 
 Most wallet functions take a `descriptor` as a common input. 
 
 The client must first attempt to create a valid bitcoin policy using their keys and then `compile` it into a wallet `descriptor` string.
-
 
 The descriptor is a string, with the format:
 
@@ -211,7 +254,7 @@ Where conditions involve `keys`, the extended key format is
 [source]xkey/*
 ```
 
-Key `source` tells us the parent `fingerprint` and the `hardened derived path` used to reach this child key.
+Key `source` tells us the parent `fingerprint` and the `hardened derivation path` used to reach this child key.
 
 ```
 [fingerprint/hardened_path]xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49
@@ -225,12 +268,16 @@ finally, i.e.
 A single sig policy for this account would just wrap the extended key in `pk()`
 
 ```
+pk([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49)
+```
+
+We add a `/*` to the end of the extended key just to indicate that this `policy` will require more keys derived from the given path onwards.
+
+```
 pk([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
 ```
 
-We add a `/*` to the end of the extended key just to indicate that this `policy` will use more keys derived from the given path onwards.
-
-If we do not add this, then the wallet will only create a single key wallet, and only generate a single address everytime.
+If we do not add this, then a descriptor wallet will assume only create a single key wallet, and only generate a single address everytime.
 
 By adding this, the wallet will know to internally derive keys for itself no additional derivation is required by the client.
 
