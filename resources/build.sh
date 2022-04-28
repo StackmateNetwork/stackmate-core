@@ -35,9 +35,9 @@ cp $TARGET_DIRECTORY/x86_64-linux-android/release/libstackmate.so $BUILDS_DIRECT
 cp $TARGET_DIRECTORY/i686-linux-android/release/libstackmate.so $BUILDS_DIRECTORY/i686-linux-android/
 cp $TARGET_DIRECTORY/armv7-linux-androideabi/release/libstackmate.so $BUILDS_DIRECTORY/armv7-linux-androideabi/
 
-strip $BUILDS_DIRECTORY/aarch64-linux-android/release/libstackmate.so
-strip $BUILDS_DIRECTORY/x86_64-linux-android/release/libstackmate.so
-strip $BUILDS_DIRECTORY/i686-linux-android/release/libstackmate.so
-strip $BUILDS_DIRECTORY/armv7-linux-androideabi/release/libstackmate.so
+strip $BUILDS_DIRECTORY/aarch64-linux-android/libstackmate.so
+strip $BUILDS_DIRECTORY/x86_64-linux-android/libstackmate.so
+strip $BUILDS_DIRECTORY/i686-linux-android/libstackmate.so
+strip $BUILDS_DIRECTORY/armv7-linux-androideabi/libstackmate.so
 
 # zip -r ../builds.zip ../builds
