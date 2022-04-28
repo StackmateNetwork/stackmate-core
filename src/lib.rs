@@ -768,7 +768,7 @@ pub unsafe extern "C" fn build_tx(
         Err(_) => return S5Error::new(ErrorKind::Input, "To-Address").c_stringify(),
     };
 
-    let tx_outputs = match  psbt::TxOutput::from_json_str(tx_outputs_str) {
+    let tx_outputs = match psbt::TxOutput::vec_from_str(tx_outputs_str) {
         Ok(result) => result,
         Err(e) => return S5Error::new(ErrorKind::Input, &e.message).c_stringify(),
     };

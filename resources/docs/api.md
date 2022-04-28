@@ -315,6 +315,12 @@ If we do not add this, then a descriptor wallet will assume only create a single
 
 By adding this, the wallet will know to internally derive keys for itself no additional derivation is required by the client.
 
+The above policy will compile into the following descriptor:
+
+```
+wpkh([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
+```
+
 ```
 compile(
   policy: *const c_char, 
@@ -324,12 +330,6 @@ compile(
   descriptor: String
 }
 
-```
-
-The above provided `policy` will compile into the following descriptor:
-
-```
-wpkh([db7d25b5/84'/1'/6']xprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)
 ```
 
 Now all key data can be removed from memory and only the above descriptor needs to be stored as a `spender` wallet.

@@ -48,7 +48,7 @@ pub type TxOutputs = Vec<TxOutput>;
 
 impl TxOutput {
   /// outputs as a str is address:amount,address:amount,address:amount
-  pub fn from_str(str: &str) -> Result<TxOutputs, S5Error> {
+  pub fn vec_from_str(str: &str) -> Result<TxOutputs, S5Error> {
     let mut outputs: Vec<TxOutput> = Vec::new();
     for output in str.split(",") {
       let mut output_split = output.split(":");
@@ -71,7 +71,7 @@ impl TxOutput {
     }
     Ok(outputs)
   }
-  pub fn from_json_str(str: &str) -> Result<TxOutputs, S5Error> {
+  pub fn vec_from_json_str(str: &str) -> Result<TxOutputs, S5Error> {
     let outputs: TxOutputs = match serde_json::from_str(str) {
       Ok(result) => result,
       Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
@@ -374,6 +374,16 @@ mod tests {
   use crate::config::WalletConfig;
   use bitcoin::network::constants::Network;
 
+  #[test]
+  fn tx_outputs_deserialize(){
+    let stringified = "[{\"address\":\"adssd\",\"amount\":1232},{\"address\":\"gaffs\",\"amount\":9232}]";
+    let structured_from_json: TxOutputs = TxOutput::vec_from_json_str(stringified).unwrap();
+    let str_format = "adssd:1232,gaffs:9232";
+    let structured_from_str: TxOutputs = TxOutput::vec_from_str(str_format).unwrap();
+    assert!(structured_from_json[1].address==structured_from_str[1].address);
+    assert!(structured_from_json[1].address=="gaffs");
+    assert!(structured_from_json[0].amount.is_some())
+  }
   #[test]
   fn test_send() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
