@@ -1173,6 +1173,39 @@ mod tests {
     //         xprv: "tprv8ZgxMBicQKsPduTkddZgfGyk4ZJjtEEZQjofpyJg74LizJ469DzoF8nmU1YcvBFskXVKdoYmLoRuZZR1wuTeuAf8rNYR2zb1RvFns2Vs8hY",
     //     }
     //      */
+
+    #[test]
+    fn test_recovery_options(){
+        unsafe{
+            let mut data_dump = "panel across strong judge economy song loud valid regret fork consider bid rack young avoid soap plate injury snow crater beef alone stay clock";
+            let mut expected = format!("mnemonic:{}",data_dump);
+            let mut data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
+            
+            let mut result_ptr = recovery_options(data_dump_cstr);
+            let mut result_cstr = CStr::from_ptr(result_ptr);
+            let mut result: &str = result_cstr.to_str().unwrap();
+            assert_eq!(result, expected);
+
+            data_dump = "eb79e0ff";
+            expected = "None".to_string();
+            data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
+
+            result_ptr = recovery_options(data_dump_cstr);
+            result_cstr = CStr::from_ptr(result_ptr);
+            result = result_cstr.to_str().unwrap();
+            assert_eq!(result, &expected);
+
+            data_dump = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
+            expected = format!("descriptor:{}",data_dump);
+            data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
+
+            result_ptr = recovery_options(data_dump_cstr);
+            result_cstr = CStr::from_ptr(result_ptr);
+            result = result_cstr.to_str().unwrap();
+            assert_eq!(result, expected);
+
+        }
+    }
     #[test]
     fn test_ffi_child_ops() {
         unsafe {
