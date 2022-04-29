@@ -32,7 +32,7 @@ static A: System = System;
 use bitcoin::network::constants::Network;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use std::str;
+use std::str::FromStr;
 
 mod e;
 use e::{ErrorKind, S5Error};
@@ -50,6 +50,7 @@ use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
+use crate::wallet::recover::RecoveryOption;
 
 mod network;
 use crate::network::fees;
@@ -160,6 +161,25 @@ pub unsafe extern "C" fn import_master(
         Err(e) => e.c_stringify(),
     }
 }
+
+/// Checks if some dump data can recover a wallet
+/// If type is Mnemonic, use import, if type is a descriptor, use wallet functions directly.
+#[no_mangle]
+pub unsafe extern "C" fn recovery_options(
+    dump: *const c_char,
+) -> *mut c_char {
+    let dump_cstr = CStr::from_ptr(dump);
+    let dump: &str = match dump_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Data could not be parsed.").c_stringify(),
+    };
+
+    match RecoveryOption::from_str(dump) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 
 /// Derives hardened child keys from a master xprv.
 /// Follows the BIP32 standard of m/purpose'/network'/account'.
