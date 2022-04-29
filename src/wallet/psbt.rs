@@ -145,6 +145,7 @@ pub fn build(
 
   let (psbt, _) = {
     let mut builder = wallet.build_tx();
+    
     if sweep {
       builder
         .drain_wallet()
@@ -158,6 +159,7 @@ pub fn build(
       builder.policy_path(policy_path.clone().unwrap(), KeychainKind::External);
       builder.policy_path(policy_path.unwrap(), KeychainKind::Internal);
     }
+
     builder.enable_rbf();
     builder.fee_absolute(fee_absolute);
     match builder.finish() {
