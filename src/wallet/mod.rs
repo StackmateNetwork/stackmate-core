@@ -4,6 +4,7 @@ pub mod coldcard;
 pub mod policy;
 pub mod psbt;
 pub mod recover;
+pub mod utxo;
 // pub mod custom;
 
 

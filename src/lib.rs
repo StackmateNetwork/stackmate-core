@@ -50,6 +50,7 @@ use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
+use crate::wallet::utxo;
 use crate::wallet::recover::RecoveryOption;
 
 mod network;
@@ -523,6 +524,55 @@ pub unsafe extern "C" fn sync_history(
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
     match history::sync_history(config) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
+/// Syncs to a remote node and fetches utxos of a descriptor wallet.
+/// - *OUTPUT*
+/// ```
+///  WalletUtxo{
+///    utxos: Vec<WalletUtxo {
+///      txid: String,
+///      vout: u32,
+///      value: u64,
+///      script_pubkey: String,
+///      keychain: String,
+///    }>;
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn list_unspent(
+    descriptor: *const c_char,
+    node_address: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    let node_address_cstr = CStr::from_ptr(node_address);
+    let node_address: &str = match node_address_cstr.to_str() {
+        Ok(string) => {
+            if string.contains("electrum") || string.contains("http") {
+                string
+            } else {
+                DEFAULT
+            }
+        }
+        Err(_) => DEFAULT,
+    };
+
+    let config = match WalletConfig::new(descriptor, node_address, None) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    match utxo::list_unspent(config) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
