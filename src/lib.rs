@@ -1371,7 +1371,7 @@ mod tests {
             let network_cstr = CString::new("test").unwrap().into_raw();
 
             // more than 24 breaks
-            let conf_target = CString::new("28").unwrap().into_raw();
+            let conf_target = CString::new("21").unwrap().into_raw();
             let fees = estimate_network_fee(network_cstr, node_address_cstr, conf_target);
             let fees_str = CStr::from_ptr(fees).to_str().unwrap();
             let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();

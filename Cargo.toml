@@ -71,3 +71,6 @@ version = "*"
 [target.x86_64-apple-ios.dependencies.openssl]
 features = ["vendored"]
 version = "*"
+
+[build]
+profiler = true
