@@ -58,9 +58,9 @@ All documentation can be found in `resources/docs`.
 
 This library expects the client to build a policy (string) by themselves - refer to http://bitcoin.sipa.be/miniscript/ for more info.
 
-The FFI API is defined in `resources/docs/api.md`
+The FFI API is defined in `docs/api.md`
 
-Build support can be found in `resources/docs/build.md`
+Build support can be found in `docs/build.md`
 
 ## Contributions
 
@@ -73,8 +73,6 @@ We are looking for active contributions in the following areas:
 - Taproot support 
 
 - Neutrino support
-
-- Lightning support
 
 ## Community
 

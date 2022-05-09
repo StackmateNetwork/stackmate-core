@@ -17,7 +17,7 @@ use bitcoin::util::address::Address;
 use bitcoin::util::psbt::PartiallySignedTransaction;
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
-
+use bitcoin::hash_types::Txid;
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletPSBT {
@@ -181,6 +181,58 @@ pub fn build(
     is_finalized: false,
   })
 }
+pub fn build_fee_bump(
+  config: WalletConfig,
+  fee_absolute: u64,
+  txid: &str,
+) -> Result<WalletPSBT, S5Error> {
+  
+  let wallet = match Wallet::new(
+    &config.deposit_desc,
+    Some(&config.change_desc),
+    config.network,
+    MemoryDatabase::default(),
+    config.client.unwrap(),
+  ) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
+  };
+  match wallet.sync(noop_progress(), None) {
+    Ok(_) => (),
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
+  };
+
+  let txid = match Txid::from_str(txid){
+    Ok(result)=>result,
+    Err(e)=> return Err(S5Error::new(ErrorKind::Input, "Txid")),
+  };
+
+
+  let (psbt, _) = {
+    let mut builder = match wallet.build_fee_bump(txid){
+      Ok(result)=>result,
+      Err(e)=>return Err(S5Error::new(ErrorKind::Wallet, &e.to_string())),
+    };
+    builder.fee_absolute(fee_absolute);
+    match builder.finish() {
+      Ok(result) => result,
+      Err(e) => {
+        println!("{:?}", e);
+        return match e {
+          Error::SpendingPolicyRequired(_) => {
+            Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
+          }
+          e => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+        };
+      }
+    }
+  };
+
+  Ok(WalletPSBT {
+    psbt: psbt.to_string(),
+    is_finalized: false,
+  })
+}
 
 #[derive(Serialize, Debug, Clone)]
 pub struct DecodedTxIO {
@@ -317,10 +369,10 @@ pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Txid {
+pub struct TxidResponse {
   pub txid: String,
 }
-impl Txid {
+impl TxidResponse {
   pub fn c_stringify(&self) -> *mut c_char {
     let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
@@ -335,7 +387,7 @@ impl Txid {
   }
 }
 
-pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
+pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<TxidResponse, S5Error> {
   let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
@@ -365,7 +417,7 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<Txid, S5Error> {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
-  Ok(Txid {
+  Ok(TxidResponse {
     txid: txid.to_string(),
   })
 }

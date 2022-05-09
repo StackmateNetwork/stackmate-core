@@ -956,7 +956,7 @@ pub unsafe extern "C" fn sign_tx(
 /// Broadcasts a signed transaction to a remote node.
 /// - *OUTPUT*
 /// ```
-///  Txid {
+///  TxidResponse {
 ///    pub txid: String,
 ///  }
 /// ```
