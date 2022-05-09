@@ -874,27 +874,7 @@ pub unsafe extern "C" fn build_tx(
     }
 }
 
-/// Builds a transaction for a given descriptor wallet.
-/// Supports sending to multiple outputs.
-/// TxOutputs have to be provided as a stringified JSON array.
-/// ```
-/// TxOutput{
-///  address: String,
-///  amount: u64,
-/// }
-/// 
-/// TxOutputs = Vec<TxOutput>
-/// ```
-/// 
-/// If sweep is set to true, amount value is ignored and will default to None.
-/// Set amount to 0 for sweep.
-/// - *OUTPUT*
-/// ```
-///  WalletPSBT {
-///    pub psbt: String,
-///    pub is_finalized: bool,
-///  }
-/// ```
+/// Builds a fee bump transaction for a given txid belonging to the provided descriptor.
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
