@@ -447,6 +447,9 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
     let descriptor = format!("wpkh({}/*)", xkey);
     let sign_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let broadcast_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let bump_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;
     let fee_absolute = 420;
@@ -455,15 +458,18 @@ mod tests {
       amount: Some(amount),
     };
     let psbt_origin = build(config, vec![output], fee_absolute, None, false);
+    
     let decoded = decode(Network::Testnet, &psbt_origin.clone().unwrap().psbt);
     println!("Decoded: {:#?}", decoded.clone().unwrap());
     // assert_eq!(decoded.unwrap()[0].value, amount);
     let signed = sign(sign_config, &psbt_origin.clone().unwrap().psbt);
     println!("{:#?}", signed.clone().unwrap());
     assert_eq!(signed.clone().unwrap().is_finalized, true);
-    // let broadcasted = broadcast(config, &signed.unwrap().psbt);
-    println!("{:#?}", psbt_origin.clone().unwrap());
-    // assert_eq!(broadcasted.clone().unwrap().txid.len(), 64);
+    // let broadcasted = broadcast(broadcast_config, &signed.unwrap().psbt).unwrap();
+    // println!("{:#?}", psbt_origin.clone().unwrap());
+    // let bumped  = build_fee_bump(bump_config,&broadcasted.txid, fee_absolute+1_000);
+
+    // assert!(bumped.clone().unwrap().is_finalized);
   }
 
   #[test]
