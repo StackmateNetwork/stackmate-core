@@ -183,8 +183,8 @@ pub fn build(
 }
 pub fn build_fee_bump(
   config: WalletConfig,
-  fee_absolute: u64,
   txid: &str,
+  fee_absolute: u64,
 ) -> Result<WalletPSBT, S5Error> {
   
   let wallet = match Wallet::new(

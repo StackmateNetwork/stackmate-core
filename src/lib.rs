@@ -874,6 +874,82 @@ pub unsafe extern "C" fn build_tx(
     }
 }
 
+/// Builds a transaction for a given descriptor wallet.
+/// Supports sending to multiple outputs.
+/// TxOutputs have to be provided as a stringified JSON array.
+/// ```
+/// TxOutput{
+///  address: String,
+///  amount: u64,
+/// }
+/// 
+/// TxOutputs = Vec<TxOutput>
+/// ```
+/// 
+/// If sweep is set to true, amount value is ignored and will default to None.
+/// Set amount to 0 for sweep.
+/// - *OUTPUT*
+/// ```
+///  WalletPSBT {
+///    pub psbt: String,
+///    pub is_finalized: bool,
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn build_fee_bump(
+    descriptor: *const c_char,
+    node_address: *const c_char,
+    txid: *const c_char,
+    fee_absolute: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    let node_address_cstr = CStr::from_ptr(node_address);
+    let node_address: &str = match node_address_cstr.to_str() {
+        Ok(string) => {
+            if string.contains("electrum") || string.contains("http") {
+                string
+            } else {
+                DEFAULT
+            }
+        }
+        Err(_) => DEFAULT,
+    };
+
+    let config = match WalletConfig::new(descriptor, node_address, None) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+
+    let txid_cstr = CStr::from_ptr(txid);
+    let txid: &str = match txid_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "txid").c_stringify(),
+    };
+    
+    let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
+    let fee_absolute: u64 = match fee_absolute_cstr.to_str() {
+        Ok(string) => match string.parse::<u64>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "fee_absolute").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "fee_absolute").c_stringify(),
+    };
+
+    match psbt::build_fee_bump(config, txid, fee_absolute) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
+
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
 /// - *OUTPUT*
