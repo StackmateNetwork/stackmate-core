@@ -1381,7 +1381,7 @@ mod tests {
         }
     }
     #[test]
-    fn test_ffi_history() {
+    fn test_ffi_history_and_utxo() {
         unsafe {
             let descriptor = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
@@ -1391,6 +1391,14 @@ mod tests {
             let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
             // println!("{:#?}", history);
             assert_eq!(history.history.len()>0, true);
+            let descriptor =       "wpkh([8099ce1e/84h/1h/0h]tpubDCBjCC5aZ6wXLtZMSJDkBYZ3AFuors2YzzBhD5ZqP3uPqbzzH5YjD2CA9HDhUYNhrqq67v4XAN93KSbSL4bwa5hEvidkFuj7ycWA7EYzp41/*)";
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+
+            let utxos_ptr = list_unspent(descriptor_cstr, node_address_cstr);
+            let utxos_str = CStr::from_ptr(utxos_ptr).to_str().unwrap();
+            let utxos: utxo::WalletUtxos = serde_json::from_str(utxos_str).unwrap();
+            assert_eq!(utxos.utxos.len()>0, true);
+            
         }
     }
 

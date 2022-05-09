@@ -17,6 +17,7 @@ rustup target add aarch64-apple-ios x86_64-apple-ios
 # cargo build --release --target i686-linux-android
 
 cd .. && make android
+cargo build
 
 # rm -rf target/release
 
