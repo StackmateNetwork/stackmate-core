@@ -43,16 +43,16 @@ Test individual units with printing.
 
 ## Build
 
-Refer to `resources/docs/build.md` for pre-build configuration and considerations.
+Refer to `docs/build.md` for pre-build configuration and considerations.
 
-`bash resources/build.sh` 
+`bash scripts/build.sh` 
 
 Currently only supports android builds. 
 
-Binaries are zipped into `resources/builds.zip`.
+Binaries are placed in `builds`.
 
 ## Documentation
-All documentation can be found in `resources/docs`.
+All documentation can be found in `docs`.
 
 [Docs.rs](https://docs.rs/stackmate/0.7.0/stackmate/)
 
