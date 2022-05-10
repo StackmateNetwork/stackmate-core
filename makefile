@@ -4,12 +4,7 @@ SOURCES=$(sort $(wildcard ./src/*.rs ./src/**/*.rs))
 OS_NAME=$(shell uname | tr '[:upper:]' '[:lower:]')
 PATH := $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin:$(PATH)
 
-ANDROID_AARCH64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/aarch64-linux-android30-clang
-ANDROID_ARMV7_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi30-clang
-ANDROID_I686_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
-ANDROID_X86_64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
-
-CC=/usr/bin/gcc
+CC=/usr/bin/clang
 LOCAL_CXX=/usr/bin/g++
 
 LDFLAGS='--sysroot=$(ANDROID_NDK_HOME)/sysroot'

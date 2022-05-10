@@ -16,12 +16,10 @@ ANDROID_ARMV7_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_
 ANDROID_I686_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
 ANDROID_X86_64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
-
-export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
+export NDK=$HOME/android/ndk/21.4.7075529/
+export TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64
 export TARGET=aarch64-linux-android
-# Set this to your minSdkVersion.
 export API=30
-# Configure and build.
 export AR=$TOOLCHAIN/bin/llvm-ar
 export CC=$TOOLCHAIN/bin/$TARGET$API-clang
 export AS=$CC
@@ -29,7 +27,7 @@ export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
 export LD=$TOOLCHAIN/bin/ld
 export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
 export STRIP=$TOOLCHAIN/bin/llvm-strip
-
+ß
 REPO="/home/debian/stackmate-core"
 rustup target add x86_64-apple-darwin aarch64-linux-android x86_64-linux-android i686-linux-android armv7-linux-androideabi
 rustup target add aarch64-apple-ios x86_64-apple-ios
