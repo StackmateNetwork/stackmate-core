@@ -13,7 +13,7 @@ CC="/usr/bin/clang"
 CXX="/usr/bin/clang++"
 
 LD_LIBRARY_PATH=/usr/bin/gcc
-LDFLAGS='--sysroot=$ANDROID_NDK_HOME/sysroot'
+LDFLAGS='--sysroot=$(ANDROID_NDK_HOME)/sysroot'ß
 SHELL := /bin/bash
 
 # ##############################################################################
