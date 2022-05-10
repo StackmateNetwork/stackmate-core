@@ -10,7 +10,7 @@ ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_
 ANDROID_X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
 LD_LIBRARY_PATH=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/lib
-LDFLAGS=--sysroot=$(ANDROID_NDK_HOME)/sysroot, -L$(LD_LIBRARY_PATH)
+LDFLAGS=--sysroot=$(ANDROID_NDK_HOME)/sysroot
 
 SHELL := /bin/bash
 
