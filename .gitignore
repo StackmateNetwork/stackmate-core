@@ -4,3 +4,4 @@ builds.zip
 builds
 releases
 *.profraw
+.vscode
