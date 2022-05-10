@@ -62,7 +62,7 @@ target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	CC=$(CC) \
 	CC_aarch64_linux_android=$(ANDROID_AARCH64_CLANG) \
 	LD_LIBRARY_PATH=$(CC) \
-	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
+	PKG_CONFIG_ALLOW_CROSS=1 \
 		cargo build --target aarch64-linux-android --release
 	@echo "[DONE] $@"
 
