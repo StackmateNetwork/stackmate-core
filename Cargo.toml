@@ -17,7 +17,7 @@ serde_derive = "1.0.0"
 serde_json = "1.0.64"
 sha-1 = "0.10.0"
 chacha20poly1305 = { version = "0.9.0", features = ["stream"] }
-libtor = "46.5.0+0.4.6.5"
+# libtor = "46.5.0+0.4.6.5"
 
 [dependencies.secp256k1]
 features = ["rand", "bitcoin_hashes", "global-context", "rand-std"]
@@ -41,14 +41,14 @@ lto = true
 opt-level = "z"
 panic = "abort"
 
-[target.aarch64-linux-android.dependencies] 
- openssl-sys = { version = "*", features = ["vendored"] }
+# [target.aarch64-linux-android.dependencies] 
+#  openssl-sys = { version = "*", features = ["vendored"] }
 
-[target.i686-linux-android.dependencies] 
-openssl-sys = { version = "*", features = ["vendored"] }
+# [target.i686-linux-android.dependencies] 
+# openssl-sys = { version = "*", features = ["vendored"] }
 
-[target.x84_64-linux-android.dependencies] 
-openssl-sys = { version = "*", features = ["vendored"] }
+# [target.x84_64-linux-android.dependencies] 
+# openssl-sys = { version = "*", features = ["vendored"] }
 
 [build]
 profiler = true
