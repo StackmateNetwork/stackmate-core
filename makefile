@@ -10,7 +10,7 @@ ANDROID_I686_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_
 ANDROID_X86_64_LINKER=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
 LD_LIBRARY_PATH=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/lib
-LDFLAGS=--sysroot=$(ANDROID_NDK_HOME)/sysroot
+LDFLAGS=--sysroot=$(ANDROID_NDK_HOME)/sysroot, -L$(LD_LIBRARY_PATH)
 
 SHELL := /bin/bash
 
@@ -58,8 +58,7 @@ android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
-	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
-	CC=$(ANDROID_AARCH64_LINKER) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	CC=$(ANDROID_AARCH64_LINKER) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 		cargo build --target aarch64-linux-android --release
 	@echo "[DONE] $@"
