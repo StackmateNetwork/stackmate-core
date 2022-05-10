@@ -58,6 +58,7 @@ target/universal/release/libstackmate.a: $(SOURCES) ndk-home
 android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux-androideabi/release/libstackmate.so target/i686-linux-android/release/libstackmate.so target/x86_64-linux-android/release/libstackmate.so
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
+	LDFLAGS=$(LDFLAGS) \
 	CC=$(LOCAL_CC) \
 	CC_aarch64_linux_android=$(ANDROID_I686_CLANG) \
 	LD_LIBRARY_PATH=$(LOCAL_CC) \
