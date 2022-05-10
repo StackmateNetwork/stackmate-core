@@ -9,7 +9,7 @@ ANDROID_ARMV7_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_
 ANDROID_I686_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
 ANDROID_X86_64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
-CC=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/clang
+CC=/usr/bin/gcc
 LOCAL_CXX=/usr/bin/g++
 
 LDFLAGS='--sysroot=$(ANDROID_NDK_HOME)/sysroot'
