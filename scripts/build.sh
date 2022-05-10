@@ -7,6 +7,11 @@
 
 # Android SDK without Android Studio
 # https://proandroiddev.com/how-to-setup-android-sdk-without-android-studio-6d60d0f2812a
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
 REPO="/home/debian/stackmate-core"
 rustup target add x86_64-apple-darwin aarch64-linux-android x86_64-linux-android i686-linux-android armv7-linux-androideabi
 rustup target add aarch64-apple-ios x86_64-apple-ios
