@@ -59,7 +59,6 @@ android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
-	TARGET_CC=$(ANDROID_AARCH64_CLANG) \
 	CC=$(CC) \
 	LD_LIBRARY_PATH=$(CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 \
