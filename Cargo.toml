@@ -44,11 +44,11 @@ panic = "abort"
 [target.aarch64-linux-android.dependencies] 
  openssl-sys = { version = "*", features = ["vendored"] }
 
- [target.i686-linux-android.dependencies] 
- openssl-sys = { version = "*", features = ["vendored"] }
+[target.i686-linux-android.dependencies] 
+openssl-sys = { version = "*", features = ["vendored"] }
 
- [target.x84_64-linux-android.dependencies] 
- openssl-sys = { version = "*", features = ["vendored"] }
+[target.x84_64-linux-android.dependencies] 
+openssl-sys = { version = "*", features = ["vendored"] }
 
 [build]
 profiler = true
