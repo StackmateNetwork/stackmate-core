@@ -103,8 +103,8 @@ impl WalletConfig {
       })
     } else if node_address.contains("onion") {
       let parts: Vec<&str> = node_address.split("?auth=").collect();
-      let auth = if parts[1].is_empty() {
-        Auth::None
+      let auth = if parts.len() <= 1 {
+        return Err(S5Error::new(ErrorKind::Input, "Node address requires an authentication stirng. Add ?auth=uname:pass"))
       } else {
         Auth::UserPass {
           username: parts[1].split(':').collect::<Vec<&str>>()[0].to_string(),

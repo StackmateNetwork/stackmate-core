@@ -175,12 +175,17 @@ mod tests {
     sleep(duration);
     println!("{:#?}", bootstrap_progress(&control_key).unwrap());
     sleep(duration);
+    sleep(duration);
     println!("{:#?}", bootstrap_progress(&control_key).unwrap());
+    sleep(duration);
+    sleep(duration);
+    sleep(duration);
+    sleep(duration);
     sleep(duration);
     println!("{:#?}", bootstrap_progress(&control_key).unwrap());
     
-    let deposit_desc = "/0/*";
-    let ishi_cyphernode = "https://6amei7a4woutmpgxyg7ylrwbqniofajq5yhdatcv2o76k5sh2zrsg3yd.onion:18332";
+    let deposit_desc = "wpkh([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/*)";
+    let ishi_cyphernode = "https://6amei7a4woutmpgxyg7ylrwbqniofajq5yhdatcv2o76k5sh2zrsg3yd.onion:18332?auth=stackmate:typercuz";
     let config = WalletConfig::new(
       deposit_desc,
       ishi_cyphernode,
@@ -188,6 +193,7 @@ mod tests {
     )
     .unwrap();
     let fees = fees::estimate_rate(config, 6).unwrap();
+    println!("{:#?}", fees );
     assert!(fees.rate > 0.1);
 
     assert!( circuit_established(&control_key).unwrap());
