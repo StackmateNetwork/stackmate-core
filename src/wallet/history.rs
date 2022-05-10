@@ -1,10 +1,9 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 use serde::{Deserialize, Serialize};
-use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::TransactionDetails;
-use bdk::Wallet;
+use bdk::{SyncOptions,Wallet};
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
 /**
@@ -22,7 +21,7 @@ use crate::e::{ErrorKind, S5Error};
 pub struct Transaction {
   pub timestamp: u64,
   pub height: u32,
-  pub verified: bool,
+  pub confirmation_time: u64,
   pub txid: String,
   pub received: u64,
   pub sent: u64,
@@ -35,11 +34,14 @@ impl Transaction {
         Some(time) => time.timestamp,
         None => 0,
       },
-      height: match txdetail.confirmation_time {
+      height: match txdetail.confirmation_time.clone() {
         Some(time) => time.height,
         None => 0,
       },
-      verified: txdetail.verified,
+      confirmation_time: match txdetail.confirmation_time{
+        Some(time)=>time.timestamp,
+        None=>0
+      },
       txid: txdetail.txid.to_string(),
       received: txdetail.received,
       sent: txdetail.sent,
@@ -73,7 +75,6 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(e) => {
@@ -82,7 +83,7 @@ pub fn sync_history(config: WalletConfig) -> Result<WalletHistory, S5Error> {
     }
   };
 
-  match wallet.sync(noop_progress(), None) {
+  match wallet.sync(&config.client.unwrap(), SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
@@ -123,7 +124,6 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(e) => {
@@ -131,7 +131,7 @@ pub fn sync_balance(config: WalletConfig) -> Result<WalletBalance, S5Error> {
       return Err(S5Error::new(ErrorKind::Internal, &e.to_string()));
     }
   };
-  match wallet.sync(noop_progress(), None) {
+  match wallet.sync(&config.client.unwrap(), SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };

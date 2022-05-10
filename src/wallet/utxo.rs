@@ -5,7 +5,7 @@ use std::os::raw::c_char;
 use serde::{Deserialize, Serialize};
 use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
-use bdk::Wallet;
+use bdk::{Wallet,SyncOptions};
 use bdk::LocalUtxo;
 use bitcoin::util::address::Address;
 use bitcoin::network::constants::Network;
@@ -63,7 +63,6 @@ pub fn list_unspent(config: WalletConfig) -> Result<WalletUtxos, S5Error> {
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(e) => {
@@ -72,7 +71,7 @@ pub fn list_unspent(config: WalletConfig) -> Result<WalletUtxos, S5Error> {
     }
   };
 
-  match wallet.sync(noop_progress(), None) {
+  match wallet.sync(&config.client.unwrap(), SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };

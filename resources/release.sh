@@ -1,8 +1,7 @@
 #!/bin/bash
 RELEASE_TAG=v0.8.3
-cd ../releases
+cd ..
 
-rm -rf $RELEASE_TAG.tar
-tar -cf $RELEASE_TAG.tar ../builds
-# tar –xf $RELEASE_TAG.tar $RELEASsE_TAGs
+rm -rf releases/$RELEASE_TAG.tar
+tar -czf releases/$RELEASE_TAG.tar.gz builds
 

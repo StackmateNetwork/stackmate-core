@@ -30,6 +30,7 @@ mkdir -p $BUILDS_DIRECTORY/armv7-linux-androideabi
 mkdir -p $BUILDS_DIRECTORY/x86_64-linux-android
 mkdir -p $BUILDS_DIRECTORY/aarch64-linux-android
 mkdir -p $BUILDS_DIRECTORY/i686-linux-android
+mkdir -p $BUILDS_DIRECTORY/x86_64-apple-darwin
 
 cp $TARGET_DIRECTORY/aarch64-linux-android/release/libstackmate.so $BUILDS_DIRECTORY/aarch64-linux-android/
 cp $TARGET_DIRECTORY/x86_64-linux-android/release/libstackmate.so $BUILDS_DIRECTORY/x86_64-linux-android/

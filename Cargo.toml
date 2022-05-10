@@ -27,8 +27,8 @@ features = ["rand", "base64"]
 version = "0.27.1"
 
 [dependencies.bdk]
-features = ["compiler", "rpc", "electrum"]
-version = "0.16.1"
+features = ["compiler", "rpc", "electrum", "sqlite"]
+version = "0.18.0"
 
 
 [lib]

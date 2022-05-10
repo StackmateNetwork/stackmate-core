@@ -3,12 +3,12 @@ use std::collections::BTreeMap;
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::FromStr;
-use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::descriptor::Descriptor;
 use bdk::miniscript::DescriptorTrait;
+use bdk::blockchain::{Blockchain};
 use bdk::Error;
-use bdk::{KeychainKind, SignOptions, Wallet};
+use bdk::{KeychainKind, SignOptions,SyncOptions, Wallet};
 use bitcoin::base64;
 use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::consensus::deserialize;
@@ -114,12 +114,11 @@ pub fn build(
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
-  match wallet.sync(noop_progress(), None) {
+  match wallet.sync(&config.client.unwrap(),SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
@@ -192,12 +191,11 @@ pub fn build_fee_bump(
     Some(&config.change_desc),
     config.network,
     MemoryDatabase::default(),
-    config.client.unwrap(),
   ) {
     Ok(result) => result,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
-  match wallet.sync(noop_progress(), None) {
+  match wallet.sync(&config.client.unwrap(), SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
   };
@@ -344,7 +342,7 @@ pub fn get_weight(deposit_desc: &str, psbt: &str) -> Result<TransactionWeight, S
 }
 
 pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
-  let wallet = match Wallet::new_offline(
+  let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
     config.network,
@@ -388,21 +386,6 @@ impl TxidResponse {
 }
 
 pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<TxidResponse, S5Error> {
-  let wallet = match Wallet::new(
-    &config.deposit_desc,
-    Some(&config.change_desc),
-    config.network,
-    MemoryDatabase::default(),
-    config.client.unwrap(),
-  ) {
-    Ok(result) => result,
-    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
-  };
-
-  match wallet.sync(noop_progress(), None) {
-    Ok(_) => (),
-    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
-  };
 
   let decoded_psbt = match base64::decode(&psbt) {
     Ok(result) => result,
@@ -413,12 +396,12 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<TxidResponse, S5Err
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Deserialize")),
   };
   let tx = psbt_struct.extract_tx();
-  let txid = match wallet.broadcast(&tx) {
+  let txid = match config.client.unwrap().broadcast(&tx) {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
   Ok(TxidResponse {
-    txid: txid.to_string(),
+    txid: "success".to_string(),
   })
 }
 

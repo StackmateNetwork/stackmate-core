@@ -1,0 +1,637 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# This program built for i386-apple-darwin11.3.0
+ 
+
+# Make data base, printed on Tue May 10 06:50:26 2022
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+VSCODE_LOG_NATIVE = false
+ 
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# automatic
+@F = $(notdir $@)
+# makefile
+CURDIR := /Users/i5hi/Code/stackmate/backend/stackmate-core
+# makefile (from `makefile', line 17)
+SHELL := /bin/bash
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
+# environment
+_ = /usr/bin/make
+# makefile (from `makefile', line 7)
+ANDROID_AARCH64_LINKER = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/aarch64-linux-android30-clang
+# makefile (from `makefile', line 1)
+MAKEFILE_LIST :=  makefile
+# makefile (from `makefile', line 3)
+SOURCES = $(sort $(wildcard ./src/*.rs ./src/**/*.rs))
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# environment
+__CFBundleIdentifier = com.microsoft.VSCode
+# environment
+INFOPATH = /opt/homebrew/share/info:
+# environment
+P9K_SSH = 0
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-90197d30-8a85-4826-9a9a-01102c6eb65a.sock
+# environment
+VSCODE_CWD = /
+# makefile (from `makefile', line 5)
+PATH := /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/i5hi/.cargo/bin:/Users/i5hi/.yarn/bin:/Users/i5hi/Library/Android/sdk/ndk/24.0.8215888/bin:/Users/i5hi/Code/flutter/bin
+# makefile (from `makefile', line 4)
+OS_NAME = $(shell uname | tr '[:upper:]' '[:lower:]')
+# environment
+LSCOLORS = Gxfxcxdxbxegedabagacad
+# environment
+VSCODE_LOG_STACK = false
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
+# environment
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.RpBVAZo0EM/Listeners
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+PWD = /Users/i5hi/Code/stackmate/backend/stackmate-core
+# environment
+HOMEBREW_CELLAR = /opt/homebrew/Cellar
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+MANPATH = /opt/homebrew/share/man::
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /Users/i5hi
+# makefile (from `makefile', line 15)
+LD_LIBRARY_PATH = /usr/bin/gcc
+# environment
+CC_aarch64_linux_android = /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang
+# default
+MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
+# environment
+VSCODE_CODE_CACHE_PATH = /Users/i5hi/Library/Application Support/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
+# environment
+LOGNAME = i5hi
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+ZSH = /Users/i5hi/.oh-my-zsh
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+XPC_FLAGS = 0x0
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+ANDROID_NDK_HOME = /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888
+# environment
+SHLVL = 1
+# makefile (from `makefile', line 12)
+CC = "/usr/bin/clang"
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = i5hi
+# makefile (from `makefile', line 1)
+.DEFAULT_GOAL := help
+# environment
+LESS = -R
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# makefile (from `makefile', line 10)
+ANDROID_X86_64_LINKER = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
+# default
+MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
+# default
+.VARIABLES := 
+# environment
+TMPDIR = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/
+# automatic
+*F = $(notdir $*)
+# environment
+VSCODE_IPC_HOOK = /Users/i5hi/Library/Application Support/Code/1.67.0-main.sock
+# makefile
+MAKEFLAGS = Rrqp
+# environment
+MFLAGS = -Rrqp
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.5276341.5276347
+# environment
+HOMEBREW_PREFIX = /opt/homebrew
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# automatic
++F = $(notdir $+)
+# environment
+HOMEBREW_REPOSITORY = /opt/homebrew
+# environment
+__CF_USER_TEXT_ENCODING = 0x1F5:0x0:0x0
+# environment
+COMMAND_MODE = unix2003
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# makefile (from `makefile', line 8)
+ANDROID_ARMV7_LINKER = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi30-clang
+# makefile (from `makefile', line 13)
+CXX = "/usr/bin/clang++"
+# makefile (from `makefile', line 2)
+PROJECTNAME = $(shell basename "$(PWD)")
+# environment
+PAGER = less
+# environment
+LC_ALL = C
+# makefile (from `makefile', line 9)
+ANDROID_I686_LINKER = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
+# automatic
+^F = $(notdir $^)
+# default
+SUFFIXES := 
+# environment
+MAKELEVEL := 0
+# environment
+LANG = C
+# environment
+VSCODE_PID = 37557
+# variable set hash-table stats:
+# Load=83/1024=8%, Rehash=0, Collisions=2/125=2%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# ./src/config.rs (device 16777234, inode 1867827): could not be opened.
+# ./src/network (device 16777234, inode 1867837): 7 files, no impossibilities.
+# . (device 16777234, inode 1867616): 20 files, no impossibilities.
+# ./src/lib.rs (device 16777234, inode 3335321): could not be opened.
+# ./src (device 16777234, inode 1867826): 9 files, no impossibilities.
+# ./src/e.rs (device 16777234, inode 1867828): could not be opened.
+# ./src/wallet (device 16777234, inode 1867843): 11 files, no impossibilities.
+# ./src/bip392 (device 16777234, inode 2834575): 4 files, no impossibilities.
+# ./src/key (device 16777234, inode 1867829): 8 files, no impossibilities.
+
+# 59 files, no impossibilities in 9 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/3=0%
+#  commands to execute (from `makefile', line 52):
+	@if [ $$(uname) == "Darwin" ] ; then \
+	cargo lipo --release ; \
+	else echo "Skipping iOS compilation on $$(uname)" ; \
+	fi
+	@echo "[DONE] $@"
+ 
+	
+
+# Not a target:
+src/network/exchange.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/key/seed.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/key/mod.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-19 23:25:37
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+all: ios android bindings
+#  Command-line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/3=0%
+
+.PHONY: help init ndk-home clean test
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/wallet/recover.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-29 21:59:50
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/bip392/mod.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-19 23:25:37
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 78):
+	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_LINKER) \
+	cargo build --target x86_64-linux-android --release
+	@echo "[DONE] $@"
+	
+
+# Not a target:
+src/key/encoding.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 73):
+	CARGO_TARGET_I686_LINUX_ANDROID_LINKER=$(ANDROID_I686_LINKER) \
+	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 cargo  build --target i686-linux-android --release 
+	@echo "[DONE] $@"
+	
+
+# Not a target:
+src/network/mod.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:55:01
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/wallet/mod.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-04 00:52:12
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+test:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 111):
+	cargo test
+	
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-21 22:08:34
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux-androideabi/release/libstackmate.so target/i686-linux-android/release/libstackmate.so target/x86_64-linux-android/release/libstackmate.so
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/wallet/history.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+bindings: target/bindings.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/wallet/address.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/wallet/policy.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+help: makefile
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 25):
+	@echo
+	@echo " Available actions in "$(PROJECTNAME)":"
+	@echo
+	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+	@echo
+	
+
+# Not a target:
+src/network/height.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+ndk-home:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: `'
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := ndk-home
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := 
+# automatic
+# | := 
+# automatic
+# < := 
+# automatic
+ 
+# ^ := 
+# automatic
+# ? := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=2/11=18%
+#  commands to execute (from `makefile', line 84):
+	@if [ ! -d "${ANDROID_NDK_HOME}" ] ; then \
+	echo "Error: Please, set the ANDROID_NDK_HOME env variable to point to your NDK folder" ; \
+	exit 1 ; \
+	fi
+	
+
+# Not a target:
+src/wallet/psbt.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 09:15:51
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/network/fees.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/key/ec.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/network/tor.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:55:01
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 105):
+	cargo clean
+	rm -f target/bindings.h target/bindings.src.h
+	
+
+target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 93):
+	cbindgen $^ -c cbindgen.toml | grep -v \#include | uniq > $@
+	@echo "[DONE] $@"
+	
+
+init:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 34):
+	rustup target add aarch64-apple-ios x86_64-apple-ios
+	#rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios ## deprecated
+	rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+	@if [ $$(uname) == "Darwin" ] ; then cargo install cargo-lipo ; fi
+	cargo install cbindgen
+	
+
+# Not a target:
+src/wallet/custom.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-21 19:05:54
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+target/aarch64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 62):
+	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
+	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)\ 
+	cargo build --target aarch64-linux-android --release
+	@echo "[DONE] $@"
+	
+
+# Not a target:
+src/wallet/coldcard.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `makefile', line 68):
+	CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$(ANDROID_ARMV7_LINKER) \
+	cargo build --target armv7-linux-androideabi --release
+	@echo "[DONE] $@"
+	
+
+# Not a target:
+src/wallet/utxo.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-04 01:33:53
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/config.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/key/derivation.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-21 19:08:29
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/lib.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 09:17:30
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# Not a target:
+src/key/encryption.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-19 23:26:04
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+ios: target/universal/release/libstackmate.a
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/3=0%
+
+# Not a target:
+src/e.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-04-11 17:54:32
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+# files hash-table stats:
+# Load=43/1024=4%, Rehash=0, Collisions=14/225=6%
+# VPATH Search Paths
+
+# No `vpath' search paths.
+
+# No general (`VPATH' variable) search path.
+
+# # of strings in strcache: 1
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+
+# Finished Make data base on Tue May 10 06:50:26 2022
+
+ 

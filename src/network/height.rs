@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::WalletConfig;
 use bdk::blockchain::Blockchain;
+use bdk::blockchain::GetHeight;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BlockHeight {
