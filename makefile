@@ -9,7 +9,7 @@ ANDROID_ARMV7_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_
 ANDROID_I686_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/i686-linux-android30-clang
 ANDROID_X86_64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/x86_64-linux-android30-clang
 
-CC=/usr/bin/gcc
+CC=/usr/bin/clang
 LOCAL_CXX=/usr/bin/g++
 
 LDFLAGS='--sysroot=$(ANDROID_NDK_HOME)/sysroot'
@@ -60,6 +60,8 @@ android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
 	CC=$(CC) \
+	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_CLANG) \
+
 	LD_LIBRARY_PATH=$(CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 \
 		cargo build --target aarch64-linux-android --release
