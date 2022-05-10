@@ -12,7 +12,6 @@ ANDROID_X86_64_CLANG=$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86
 LOCAL_CC=/usr/bin/gcc
 LOCAL_CXX=/usr/bin/g++
 
-
 LDFLAGS='--sysroot=$(ANDROID_NDK_HOME)/sysroot'
 SHELL := /bin/bash
 
@@ -60,14 +59,15 @@ android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux
 
 target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	CC=$(LOCAL_CC) \
-	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_I686_CLANG) \
+	CC_aarch64-linux-android=$(ANDROID_I686_CLANG) \
+	LD_LIBRARY_PATH=$(LOCAL_CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 		cargo build --target aarch64-linux-android --release
 	@echo "[DONE] $@"
 
 target/armv7-linux-androideabi/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	LD_LIBRARY_PATH=$(LOCAL_CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 		cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
@@ -75,7 +75,7 @@ target/armv7-linux-androideabi/release/libstackmate.so: $(SOURCES) ndk-home
 target/i686-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
 	CARGO_TARGET_I686_LINUX_ANDROID_LINKER=$(ANDROID_I686_CLANG) \
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	LD_LIBRARY_PATH=$(LOCAL_CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 		cargo  build --target i686-linux-android --release 
 	@echo "[DONE] $@"
@@ -83,7 +83,7 @@ target/i686-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 target/x86_64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	LDFLAGS=$(LDFLAGS) \
 	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_CLANG) \
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	LD_LIBRARY_PATH=$(LOCAL_CC) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 		cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
