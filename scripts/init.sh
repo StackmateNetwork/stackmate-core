@@ -1,8 +1,16 @@
 #!/bin/bash
 
+# sudo locale-gen en_US en_US.UTF-8
+# sudo dpkg-reconfigure locales 
+
+# source /etc/default/locale 
+
+# sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+# source /etc/default/locale
+
 sudo apt-get update --allow-releaseinfo-change
 sudo apt-get install -y build-essential cmake apt-transport-https ca-certificates curl gnupg2 software-properties-common dirmngr unzip openssl libssl-dev git expect jq lsb-release tree default-jdk pkg-config autoconf pkgconf libtool
-    
+
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 export PATH="$HOME/.cargo/bin:$PATH"
