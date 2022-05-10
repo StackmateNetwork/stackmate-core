@@ -4,10 +4,10 @@ use bdk::blockchain::rpc::{Auth, RpcConfig};
 use bdk::wallet::wallet_name_from_descriptor;
 use bdk::blockchain::{Blockchain, ConfigurableBlockchain, ElectrumBlockchain, RpcBlockchain};
 use bdk::electrum_client::Error as ElectrumError;
-use bitcoin::network::constants::Network;
+use bdk::bitcoin::Network;
 use std::fmt::Debug;
 use std::fmt::Formatter;
-use bitcoin::secp256k1::Secp256k1;
+use bdk::bitcoin::secp256k1::Secp256k1;
 
 use crate::e::{ErrorKind, S5Error};
 
@@ -275,7 +275,6 @@ mod tests {
   use super::*;
   use crate::config::WalletConfig;
   use bdk::blockchain::Blockchain;
-  use bitcoin::network::constants::Network;
   #[test]
   fn test_default_electrum_config() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
@@ -303,18 +302,12 @@ mod tests {
     let node_address = "http://172.18.0.2:18332?auth=satsbank:typercuz";
     let config = WalletConfig::new(&descriptor, node_address, None).unwrap();
     match config.client.unwrap() {
-      AnyBlockchain::Electrum(client) => {
+      AnyBlockchain::Rpc(client) => {
         let fee = client.estimate_fee(8);
         assert_eq!((fee.unwrap().as_sat_vb() > 0.0), true);
       }
       _ => println!("Should not reach."),
     };
-
-    let change_desc = format!("wpkh({}/1/*)", xkey);
-    let network = Network::Testnet;
-    assert_eq!(config.change_desc, change_desc);
-    assert_eq!(config.network, network);
-    // println!("Connect a local node and then remove ignore macro.")
   }
 
   #[test]

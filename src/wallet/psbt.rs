@@ -6,7 +6,7 @@ use std::str::FromStr;
 use bdk::database::MemoryDatabase;
 use bdk::descriptor::Descriptor;
 use bdk::miniscript::DescriptorTrait;
-use bdk::blockchain::{Blockchain};
+use bdk::blockchain::Blockchain;
 use bdk::Error;
 use bdk::{KeychainKind, SignOptions,SyncOptions, Wallet};
 use bitcoin::base64;
@@ -14,10 +14,10 @@ use bitcoin::blockdata::transaction::Transaction;
 use bitcoin::consensus::deserialize;
 use bitcoin::network::constants::Network;
 use bitcoin::util::address::Address;
-use bitcoin::util::psbt::PartiallySignedTransaction;
+use bdk::bitcoin::util::psbt::PartiallySignedTransaction;
 use crate::config::WalletConfig;
 use crate::e::{ErrorKind, S5Error};
-use bitcoin::hash_types::Txid;
+use bdk::bitcoin::Txid;
 /// FFI Output
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletPSBT {
@@ -205,7 +205,6 @@ pub fn build_fee_bump(
     Err(e)=> return Err(S5Error::new(ErrorKind::Input, "Txid")),
   };
 
-
   let (psbt, _) = {
     let mut builder = match wallet.build_fee_bump(txid){
       Ok(result)=>result,
@@ -351,7 +350,7 @@ pub fn sign(config: WalletConfig, psbt: &str) -> Result<WalletPSBT, S5Error> {
     Ok(result) => result,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
-  let mut final_psbt = match deserialize(&base64::decode(psbt).unwrap()) {
+  let mut final_psbt: PartiallySignedTransaction = match deserialize(&base64::decode(psbt).unwrap()) {
     Ok(psbt) => psbt,
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Psbt-Error")),
   };

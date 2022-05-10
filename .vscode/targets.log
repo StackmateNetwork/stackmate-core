@@ -8,17 +8,17 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Tue May 10 06:50:26 2022
+# Make data base, printed on Tue May 10 08:17:45 2022
 
 # Variables
 
 # automatic
+ 
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
 # environment
 VSCODE_LOG_NATIVE = false
- 
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
@@ -48,7 +48,7 @@ INFOPATH = /opt/homebrew/share/info:
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-90197d30-8a85-4826-9a9a-01102c6eb65a.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-60a4ce4e-c082-4cc5-9eef-708ad2a0b380.sock
 # environment
 VSCODE_CWD = /
 # makefile (from `makefile', line 5)
@@ -219,7 +219,6 @@ target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.r
 	else echo "Skipping iOS compilation on $$(uname)" ; \
 	fi
 	@echo "[DONE] $@"
- 
 	
 
 # Not a target:
@@ -233,6 +232,7 @@ src/network/exchange.rs:
 
 # Not a target:
 src/key/seed.rs:
+ 
 #  Implicit rule search has been done.
 #  Last modified 2022-04-11 17:54:32
 #  File has been updated.
@@ -313,7 +313,7 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 # Not a target:
 src/network/mod.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-04-11 17:55:01
+#  Last modified 2022-05-10 08:01:25
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -360,7 +360,7 @@ android: target/aarch64-linux-android/release/libstackmate.so target/armv7-linux
 # Not a target:
 src/wallet/history.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-04-11 17:54:32
+#  Last modified 2022-05-10 07:21:17
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -405,7 +405,7 @@ help: makefile
 # Not a target:
 src/network/height.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-04-11 17:54:32
+#  Last modified 2022-05-10 07:20:18
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -431,7 +431,6 @@ ndk-home:
 # automatic
 # < := 
 # automatic
- 
 # ^ := 
 # automatic
 # ? := 
@@ -447,7 +446,7 @@ ndk-home:
 # Not a target:
 src/wallet/psbt.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-09 09:15:51
+#  Last modified 2022-05-10 07:22:38
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -480,7 +479,7 @@ src/key/ec.rs:
 # Not a target:
 src/network/tor.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-04-11 17:55:01
+#  Last modified 2022-05-10 08:11:28
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -496,6 +495,7 @@ clean:
 	rm -f target/bindings.h target/bindings.src.h
 	
 
+ 
 target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -560,7 +560,7 @@ target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/co
 # Not a target:
 src/wallet/utxo.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-04 01:33:53
+#  Last modified 2022-05-10 07:07:07
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -569,7 +569,7 @@ src/wallet/utxo.rs:
 # Not a target:
 src/config.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-04-11 17:54:32
+#  Last modified 2022-05-10 08:05:08
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -632,6 +632,6 @@ src/e.rs:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue May 10 06:50:26 2022
+# Finished Make data base on Tue May 10 08:17:45 2022
 
  
