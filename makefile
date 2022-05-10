@@ -63,7 +63,7 @@ target/aarch64-linux-android/release/libstackmate.so: $(SOURCES) ndk-home
 	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
 	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
-		cargo build --target aarch64-linux-android --release
+		cargo build --target aarch64-linux-android --feature vendored-openssl --release
 	@echo "[DONE] $@"
 
 target/armv7-linux-androideabi/release/libstackmate.so: $(SOURCES) ndk-home
