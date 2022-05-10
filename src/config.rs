@@ -139,7 +139,7 @@ impl WalletConfig {
         client: Some(client),
       })
     } else {
-      Err(S5Error::new(ErrorKind::Internal, "Invalid Node Address."))
+      Err(S5Error::new(ErrorKind::Internal, "Core RPC requires an onion address."))
     }
     // let config = if socks5.is_none() {
     //   ElectrumBlockchainConfig {

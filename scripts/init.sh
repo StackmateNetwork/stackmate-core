@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo apt-get update --allow-releaseinfo-change
-sudo apt-get install -y build-essential cmake apt-transport-https ca-certificates curl gnupg2 software-properties-common dirmngr unzip openssl libssl-dev git expect jq lsb-release tree default-jdk pkg-config
+sudo apt-get install -y build-essential cmake apt-transport-https ca-certificates curl gnupg2 software-properties-common dirmngr unzip openssl libssl-dev git expect jq lsb-release tree default-jdk pkg-config autoconf
     
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
