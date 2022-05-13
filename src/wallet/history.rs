@@ -152,11 +152,10 @@ mod tests {
   }
   #[test]
   fn test_history() {
-    //   let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
-    //   let descriptor = format!("wpkh({}/0/*)", xkey);
     let descriptor = "wpkh([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/*)";
     let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
     let history = sync_history(config).unwrap();
-    println!("{:#?}", history);
+    assert!((history.history.len()>0));
+    // println!("{:#?}", history);
   }
 }
