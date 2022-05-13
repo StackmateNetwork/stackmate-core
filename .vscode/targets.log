@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Tue May 10 14:43:11 2022
+# Make data base, printed on Fri May 13 17:36:01 2022
 
 # Variables
 
@@ -18,16 +18,16 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 ?F = $(notdir $?)
 # environment
 VSCODE_LOG_NATIVE = false
+ 
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # automatic
 @F = $(notdir $@)
- 
 # makefile
 CURDIR := /Users/i5hi/Code/stackmate/backend/stackmate-core
-# makefile (from `makefile', line 17)
+# makefile (from `makefile', line 15)
 SHELL := /bin/bash
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
@@ -48,7 +48,7 @@ INFOPATH = /opt/homebrew/share/info:
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-2a9abc91-2d8e-43b0-a878-e86e34abfb63.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-f5ff0011-83a8-4ca7-ab19-508da1110ef4.sock
 # environment
 VSCODE_CWD = /
 # makefile (from `makefile', line 5)
@@ -61,8 +61,8 @@ LSCOLORS = Gxfxcxdxbxegedabagacad
 VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
-# makefile (from `makefile', line 16)
-LDFLAGS = '--sysroot=$(ANDROID_NDK_HOME)/sysroot'
+# makefile (from `makefile', line 13)
+LDFLAGS = --sysroot=$(ANDROID_NDK_HOME)/sysroot
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
@@ -83,8 +83,8 @@ MANPATH = /opt/homebrew/share/man::
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 HOME = /Users/i5hi
-# makefile (from `makefile', line 15)
-LD_LIBRARY_PATH = /usr/bin/gcc
+# makefile (from `makefile', line 12)
+LD_LIBRARY_PATH = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/lib
 # environment
 CC_aarch64_linux_android = /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android31-clang
 # default
@@ -111,8 +111,8 @@ MAKECMDGOALS := all
 ANDROID_NDK_HOME = /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888
 # environment
 SHLVL = 1
-# makefile (from `makefile', line 12)
-CC = "/usr/bin/clang"
+# environment
+CC = /usr/bin/clang
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -161,8 +161,8 @@ MAKEFILES :=
 <F = $(notdir $<)
 # makefile (from `makefile', line 8)
 ANDROID_ARMV7_LINKER = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS_NAME)-x86_64/bin/armv7a-linux-androideabi30-clang
-# makefile (from `makefile', line 13)
-CXX = "/usr/bin/clang++"
+# environment
+CXX = /usr/bin/clang++
 # makefile (from `makefile', line 2)
 PROJECTNAME = $(shell basename "$(PWD)")
 # environment
@@ -182,7 +182,7 @@ LANG = C
 # environment
 VSCODE_PID = 37557
 # variable set hash-table stats:
-# Load=84/1024=8%, Rehash=0, Collisions=2/126=2%
+# Load=84/1024=8%, Rehash=0, Collisions=2/124=2%
 
 # Pattern-specific Variable Values
 
@@ -215,7 +215,7 @@ target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.r
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/3=0%
-#  commands to execute (from `makefile', line 52):
+#  commands to execute (from `makefile', line 50):
 	@if [ $$(uname) == "Darwin" ] ; then \
 	cargo lipo --release ; \
 	else echo "Skipping iOS compilation on $$(uname)" ; \
@@ -268,11 +268,11 @@ all: ios android bindings
 src/wallet/recover.rs:
 #  Implicit rule search has been done.
 #  Last modified 2022-05-10 11:45:51
+ 
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
- 
 
 # Not a target:
 src/bip392/mod.rs:
@@ -287,10 +287,10 @@ target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/confi
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 86):
+#  commands to execute (from `makefile', line 83):
 	LDFLAGS=$(LDFLAGS) \
 	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_LINKER) \
-	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	CC=$(ANDROID_X86_64_LINKER) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 	cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
@@ -309,10 +309,10 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 78):
+#  commands to execute (from `makefile', line 75):
 	LDFLAGS=$(LDFLAGS) \
 	CARGO_TARGET_I686_LINUX_ANDROID_LINKER=$(ANDROID_I686_LINKER) \
-	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	CC=$(ANDROID_I686_LINKER) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 	cargo  build --target i686-linux-android --release 
 	@echo "[DONE] $@"
@@ -321,7 +321,7 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 # Not a target:
 src/network/mod.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 08:01:25
+#  Last modified 2022-05-10 18:23:58
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -347,14 +347,14 @@ test:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 122):
+#  commands to execute (from `makefile', line 119):
 	cargo test
 	
 
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 12:31:51
+#  Last modified 2022-05-10 19:04:05
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -402,7 +402,7 @@ help: makefile
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 25):
+#  commands to execute (from `makefile', line 23):
 	@echo
 	@echo " Available actions in "$(PROJECTNAME)":"
 	@echo
@@ -444,7 +444,7 @@ ndk-home:
 # ? := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=2/11=18%
-#  commands to execute (from `makefile', line 95):
+#  commands to execute (from `makefile', line 92):
 	@if [ ! -d "${ANDROID_NDK_HOME}" ] ; then \
 	echo "Error: Please, set the ANDROID_NDK_HOME env variable to point to your NDK folder" ; \
 	exit 1 ; \
@@ -487,7 +487,7 @@ src/key/ec.rs:
 # Not a target:
 src/network/tor.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 09:56:12
+#  Last modified 2022-05-10 18:23:54
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -498,7 +498,7 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 116):
+#  commands to execute (from `makefile', line 113):
 	cargo clean
 	rm -f target/bindings.h target/bindings.src.h
 	
@@ -507,7 +507,7 @@ target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.r
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 104):
+#  commands to execute (from `makefile', line 101):
 	cbindgen $^ -c cbindgen.toml | grep -v \#include | uniq > $@
 	@echo "[DONE] $@"
 	
@@ -515,11 +515,11 @@ target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.r
 init:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
+ 
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 34):
+#  commands to execute (from `makefile', line 32):
 	rustup target add aarch64-apple-ios x86_64-apple-ios
- 
 	#rustup target add armv7-apple-ios armv7s-apple-ios i386-apple-ios ## deprecated
 	rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 	@if [ $$(uname) == "Darwin" ] ; then cargo install cargo-lipo ; fi
@@ -539,10 +539,9 @@ target/aarch64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/conf
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 62):
+#  commands to execute (from `makefile', line 60):
 	LDFLAGS=$(LDFLAGS) \
-	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
-	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	CC=$(ANDROID_AARCH64_LINKER) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 	cargo build --target aarch64-linux-android --release
 	@echo "[DONE] $@"
@@ -561,10 +560,10 @@ target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/co
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `makefile', line 70):
+#  commands to execute (from `makefile', line 67):
 	LDFLAGS=$(LDFLAGS) \
 	CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$(ANDROID_ARMV7_LINKER) \
-	CC=$(CC) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
+	CC=$(ANDROID_ARMV7_LINKER) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) \
 	PKG_CONFIG_ALLOW_CROSS=1 OPENSSL_STATIC=1 \
 	cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
@@ -600,7 +599,7 @@ src/key/derivation.rs:
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 10:05:14
+#  Last modified 2022-05-10 18:24:23
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -645,6 +644,6 @@ src/e.rs:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue May 10 14:43:11 2022
+# Finished Make data base on Fri May 13 17:36:01 2022
 
  

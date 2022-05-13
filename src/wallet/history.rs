@@ -21,7 +21,6 @@ use crate::e::{ErrorKind, S5Error};
 pub struct Transaction {
   pub timestamp: u64,
   pub height: u32,
-  pub confirmation_time: u64,
   pub txid: String,
   pub received: u64,
   pub sent: u64,
@@ -37,10 +36,6 @@ impl Transaction {
       height: match txdetail.confirmation_time.clone() {
         Some(time) => time.height,
         None => 0,
-      },
-      confirmation_time: match txdetail.confirmation_time{
-        Some(time)=>time.timestamp,
-        None=>0
       },
       txid: txdetail.txid.to_string(),
       received: txdetail.received,
