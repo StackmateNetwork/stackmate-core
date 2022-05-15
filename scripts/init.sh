@@ -33,7 +33,7 @@ ls ~/android/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin
 echo "[*] Installed Android SDK+NDK Tools"
 
 export ANDROID_SDK_HOME=~/android
-export ANDROID_NDK_HOME=$ANDROID_SDK_HOME/ndk/21.4.7075529
+export sdkmanager --install "platform-tools"
 export PATH=$PATH:~/android/sdk/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin
 # for now we have to make hacky copies of llvm-ar for each build
 # cp $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar
