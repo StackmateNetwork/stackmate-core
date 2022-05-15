@@ -24,13 +24,10 @@ RUN cd ${ANDROID_HOME} &&  unzip commandlinetools-linux-8092744_latest.zip && \
     rm -rf commandlinetools-linux-8092744_latest.zip && \
     cd cmdline-tools && mkdir ../tools  && mv * ../tools && mv ../tools .
 
-ENV PATH=/bin:/usr/bin:/usr/local/bin:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tools:$PATH
-
-RUN sdkmanager
+ENV ANDROID_NDK_HOME=$ANDROID_HOME/ndk/23.0.7599858
+ENV PATH=/bin:/usr/bin:/usr/local/bin:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/sysroot:$PATH
 RUN yes | sdkmanager --install "platform-tools" "platforms;android-32" "build-tools;32.0.0" "ndk;23.0.7599858"
 RUN yes | sdkmanager --licenses
-
-ENV ANDROID_NDK_HOME=$ANDROID_HOME/ndk/23.0.7599858
 
 VOLUME ["$HOME/stackmate-core"]
 COPY docker-entrypoint.sh /usr/bin
