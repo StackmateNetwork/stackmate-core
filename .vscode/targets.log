@@ -8,11 +8,12 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Sun May 15 14:49:39 2022
+# Make data base, printed on Sun May 22 00:29:56 2022
 
 # Variables
 
 # automatic
+ 
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
@@ -47,7 +48,7 @@ INFOPATH = /opt/homebrew/share/info:
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-66c8fc32-ebf3-4a8b-a8ac-eca58deac6a7.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-495c80f7-0c39-482d-9d44-1deeba3aacb3.sock
 # environment
 VSCODE_CWD = /
 # makefile (from `makefile', line 5)
@@ -89,7 +90,7 @@ CC_aarch64_linux_android = /Users/i5hi/Library/Android/sdk/ndk/24.0.8215888/tool
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/i5hi/Library/Application Support/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
+VSCODE_CODE_CACHE_PATH = /Users/i5hi/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
 # environment
 LOGNAME = i5hi
 # environment
@@ -133,7 +134,7 @@ TMPDIR = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/i5hi/Library/Application Support/Code/1.67.0-main.sock
+VSCODE_IPC_HOOK = /Users/i5hi/Library/Application Support/Code/1.67.2-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -141,7 +142,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.5276341.5276347
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.6609572.6609578
 # environment
 HOMEBREW_PREFIX = /opt/homebrew
 # automatic
@@ -179,7 +180,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 37557
+VSCODE_PID = 28866
 # variable set hash-table stats:
 # Load=84/1024=8%, Rehash=0, Collisions=2/124=2%
 
@@ -191,7 +192,7 @@ VSCODE_PID = 37557
 
 # ./src/config.rs (device 16777234, inode 1867827): could not be opened.
 # ./src/network (device 16777234, inode 1867837): 7 files, no impossibilities.
-# . (device 16777234, inode 1867616): 22 files, no impossibilities.
+# . (device 16777234, inode 1867616): 23 files, no impossibilities.
 # ./src/lib.rs (device 16777234, inode 3335321): could not be opened.
 # ./src (device 16777234, inode 1867826): 9 files, no impossibilities.
 # ./src/e.rs (device 16777234, inode 1867828): could not be opened.
@@ -199,7 +200,7 @@ VSCODE_PID = 37557
 # ./src/bip392 (device 16777234, inode 2834575): 4 files, no impossibilities.
 # ./src/key (device 16777234, inode 1867829): 8 files, no impossibilities.
 
-# 61 files, no impossibilities in 9 directories.
+# 62 files, no impossibilities in 9 directories.
 
 # Implicit Rules
 
@@ -230,6 +231,7 @@ src/network/exchange.rs:
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+ 
 
 # Not a target:
 src/key/seed.rs:
@@ -260,7 +262,6 @@ all: ios android bindings
 
 .PHONY: help init ndk-home clean test
 #  Implicit rule search has not been done.
- 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -443,6 +444,7 @@ ndk-home:
 # Load=8/32=25%, Rehash=0, Collisions=2/11=18%
 #  commands to execute (from `makefile', line 89):
 	@if [ ! -d "${ANDROID_NDK_HOME}" ] ; then \
+ 
 	echo "Error: Please, set the ANDROID_NDK_HOME env variable to point to your NDK folder" ; \
 	exit 1 ; \
 	fi
@@ -451,7 +453,7 @@ ndk-home:
 # Not a target:
 src/wallet/psbt.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 08:37:23
+#  Last modified 2022-05-17 13:25:11
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -513,7 +515,6 @@ init:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
- 
 #  File has not been updated.
 #  commands to execute (from `makefile', line 32):
 	rustup target add aarch64-apple-ios x86_64-apple-ios
@@ -582,6 +583,7 @@ src/config.rs:
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+ 
 
 # Not a target:
 src/key/derivation.rs:
@@ -640,6 +642,6 @@ src/e.rs:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Sun May 15 14:49:39 2022
+# Finished Make data base on Sun May 22 00:29:56 2022
 
  

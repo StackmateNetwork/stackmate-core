@@ -72,7 +72,7 @@ impl WalletConfig {
     };
 
 
-    if node_address.contains("electrum") {
+    if node_address.contains("electrum") || node_address.contains("onion") {
       let config = if socks5.is_none() {
         ElectrumBlockchainConfig {
         url: node_address.to_string(),
@@ -86,7 +86,7 @@ impl WalletConfig {
           url: node_address.to_string(),
           socks5,
           retry: 1,
-          timeout: None,
+          timeout: Some(9),
           stop_gap: 1000,
         }
       };
@@ -101,7 +101,7 @@ impl WalletConfig {
         network:network,
         client: Some(client),
       })
-    } else if node_address.contains("onion") {
+    } else if node_address.contains("?auth=") {
       let parts: Vec<&str> = node_address.split("?auth=").collect();
       let auth = if parts.len() <= 1 {
         return Err(S5Error::new(ErrorKind::Input, "Node address requires an authentication stirng. Add ?auth=uname:pass"))

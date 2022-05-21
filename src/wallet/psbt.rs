@@ -395,7 +395,7 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<TxidResponse, S5Err
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "PSBT-Deserialize")),
   };
   let tx = psbt_struct.extract_tx();
-  let txid = match config.client.unwrap().broadcast(&tx) {
+  let _txid = match config.client.unwrap().broadcast(&tx) {
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };

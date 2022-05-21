@@ -3,6 +3,7 @@ make: Entering directory `/Users/i5hi/Code/stackmate/backend/stackmate-core'
 echo
 echo " Available actions in "stackmate-core":"
 echo
+ 
 sed -n 's/^##//p' makefile | column -t -s ':' |  sed -e 's/^/ /'
 echo
 make: Leaving directory `/Users/i5hi/Code/stackmate/backend/stackmate-core'

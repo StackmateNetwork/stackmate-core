@@ -449,6 +449,7 @@ pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
 pub unsafe extern "C" fn sync_balance(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
@@ -467,8 +468,18 @@ pub unsafe extern "C" fn sync_balance(
         }
         Err(_) => DEFAULT,
     };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
 
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -500,6 +511,7 @@ pub unsafe extern "C" fn sync_balance(
 pub unsafe extern "C" fn sync_history(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
@@ -518,8 +530,18 @@ pub unsafe extern "C" fn sync_history(
         }
         Err(_) => DEFAULT,
     };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
 
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -549,6 +571,7 @@ pub unsafe extern "C" fn sync_history(
 pub unsafe extern "C" fn list_unspent(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
     let descriptor: &str = match descriptor_cstr.to_str() {
@@ -568,7 +591,17 @@ pub unsafe extern "C" fn list_unspent(
         Err(_) => DEFAULT,
     };
 
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -639,6 +672,7 @@ pub unsafe extern "C" fn get_address(
 pub unsafe extern "C" fn estimate_network_fee(
     network: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
     conf_target: *const c_char,
 ) -> *mut c_char {
     let conf_target_cstr = CStr::from_ptr(conf_target);
@@ -673,8 +707,18 @@ pub unsafe extern "C" fn estimate_network_fee(
             _ => DEFAULT_TESTNET_NODE,
         },
     };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
 
-    let config = match WalletConfig::new("*", node_address, None) {
+    let config = match WalletConfig::new("*", node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -804,6 +848,7 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
 pub unsafe extern "C" fn build_tx(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
     tx_outputs: *const c_char,
     fee_absolute: *const c_char,
     policy_path: *const c_char,
@@ -826,8 +871,17 @@ pub unsafe extern "C" fn build_tx(
         }
         Err(_) => DEFAULT,
     };
-
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -882,6 +936,8 @@ pub unsafe extern "C" fn build_tx(
 pub unsafe extern "C" fn build_fee_bump(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
+
     txid: *const c_char,
     fee_absolute: *const c_char,
 ) -> *mut c_char {
@@ -903,7 +959,18 @@ pub unsafe extern "C" fn build_fee_bump(
         Err(_) => DEFAULT,
     };
 
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
+
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -928,7 +995,6 @@ pub unsafe extern "C" fn build_fee_bump(
         Err(e) => e.c_stringify(),
     }
 }
-
 
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
@@ -1023,6 +1089,7 @@ pub unsafe extern "C" fn sign_tx(
 pub unsafe extern "C" fn broadcast_tx(
     descriptor: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
     signed_psbt: *const c_char,
 ) -> *mut c_char {
     let descriptor_cstr = CStr::from_ptr(descriptor);
@@ -1042,8 +1109,17 @@ pub unsafe extern "C" fn broadcast_tx(
         }
         Err(_) => DEFAULT,
     };
-
-    let config = match WalletConfig::new(descriptor, node_address, None) {
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return e.c_stringify(),
     };
@@ -1097,6 +1173,7 @@ pub unsafe extern "C" fn check_xpub(xpub: *const c_char) -> *mut c_char {
 pub unsafe extern "C" fn get_height(
     network: *const c_char,
     node_address: *const c_char,
+    socks5: *const c_char,
 ) -> *mut c_char {
     let network_cstr = CStr::from_ptr(network);
     let network: &str = match network_cstr.to_str() {
@@ -1124,8 +1201,18 @@ pub unsafe extern "C" fn get_height(
             _ => DEFAULT_TESTNET_NODE,
         },
     };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == ""
+            {None}
+            else
+            {Some(string.to_string())}
+                }
+        Err(_) => None,
+    };
 
-    let config = match WalletConfig::new("*", node_address, None) {
+    let config = match WalletConfig::new("*", node_address, socks5_option) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -1142,7 +1229,7 @@ pub unsafe extern "C" fn get_height(
 ///    height: u32,
 ///  }
 /// ```
-/// # Safety
+/// # Safety”
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
@@ -1412,7 +1499,11 @@ mod tests {
 
             let descriptor = format!("wsh(pk({}/*))", xkey);
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
-            let balance_ptr = sync_balance(descriptor_cstr, node_address_cstr);
+            
+            let socks5 = "none";
+            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
+
+            let balance_ptr = sync_balance(descriptor_cstr, node_address_cstr, socks5_cstr);
             let balance_str = CStr::from_ptr(balance_ptr).to_str().unwrap();
             let balance: history::WalletBalance = serde_json::from_str(balance_str).unwrap();
             assert_eq!(balance.balance, 10_000);
@@ -1428,7 +1519,7 @@ mod tests {
 
             // more than 24 breaks
             let conf_target = CString::new("21").unwrap().into_raw();
-            let fees = estimate_network_fee(network_cstr, node_address_cstr, conf_target);
+            let fees = estimate_network_fee(network_cstr, node_address_cstr,socks5_cstr, conf_target);
             let fees_str = CStr::from_ptr(fees).to_str().unwrap();
             let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();
             println!("{:#?}",fees_struct);
@@ -1442,15 +1533,20 @@ mod tests {
             let descriptor = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
             let node_address_cstr = CString::new("default").unwrap().into_raw();
-            let history_ptr = sync_history(descriptor_cstr, node_address_cstr);
+            let socks5 = "none";
+            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
+
+            let history_ptr = sync_history(descriptor_cstr, node_address_cstr, socks5_cstr);
             let history_str = CStr::from_ptr(history_ptr).to_str().unwrap();
             let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
             // println!("{:#?}", history);
             assert_eq!(history.history.len()>0, true);
             let descriptor =       "wpkh([8099ce1e/84h/1h/0h]tpubDCBjCC5aZ6wXLtZMSJDkBYZ3AFuors2YzzBhD5ZqP3uPqbzzH5YjD2CA9HDhUYNhrqq67v4XAN93KSbSL4bwa5hEvidkFuj7ycWA7EYzp41/*)";
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+            let socks5 = "none";
+            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
 
-            let utxos_ptr = list_unspent(descriptor_cstr, node_address_cstr);
+            let utxos_ptr = list_unspent(descriptor_cstr, node_address_cstr,socks5_cstr);
             let utxos_str = CStr::from_ptr(utxos_ptr).to_str().unwrap();
             let utxos: utxo::WalletUtxos = serde_json::from_str(utxos_str).unwrap();
             assert_eq!(utxos.utxos.len()>0, true);
