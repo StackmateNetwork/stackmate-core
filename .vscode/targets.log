@@ -8,12 +8,11 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Sun May 22 00:29:56 2022
+# Make data base, printed on Sun May 22 03:13:54 2022
 
 # Variables
 
 # automatic
- 
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
@@ -48,7 +47,7 @@ INFOPATH = /opt/homebrew/share/info:
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-495c80f7-0c39-482d-9d44-1deeba3aacb3.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/1h/fkyc7tks6559lb4k053x7r_h0000gn/T/vscode-ipc-324ac030-c36e-4240-95de-52362084d2fe.sock
 # environment
 VSCODE_CWD = /
 # makefile (from `makefile', line 5)
@@ -180,7 +179,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 28866
+VSCODE_PID = 42697
 # variable set hash-table stats:
 # Load=84/1024=8%, Rehash=0, Collisions=2/124=2%
 
@@ -231,7 +230,6 @@ src/network/exchange.rs:
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
- 
 
 # Not a target:
 src/key/seed.rs:
@@ -262,6 +260,7 @@ all: ios android bindings
 
 .PHONY: help init ndk-home clean test
 #  Implicit rule search has not been done.
+ 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -444,7 +443,6 @@ ndk-home:
 # Load=8/32=25%, Rehash=0, Collisions=2/11=18%
 #  commands to execute (from `makefile', line 89):
 	@if [ ! -d "${ANDROID_NDK_HOME}" ] ; then \
- 
 	echo "Error: Please, set the ANDROID_NDK_HOME env variable to point to your NDK folder" ; \
 	exit 1 ; \
 	fi
@@ -515,6 +513,7 @@ init:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
 #  File has not been updated.
 #  commands to execute (from `makefile', line 32):
 	rustup target add aarch64-apple-ios x86_64-apple-ios
@@ -578,12 +577,11 @@ src/wallet/utxo.rs:
 # Not a target:
 src/config.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 10:46:07
+#  Last modified 2022-05-22 00:51:37
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
- 
 
 # Not a target:
 src/key/derivation.rs:
@@ -597,13 +595,14 @@ src/key/derivation.rs:
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-10 18:24:23
+#  Last modified 2022-05-22 00:48:35
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # Not a target:
+ 
 src/key/encryption.rs:
 #  Implicit rule search has been done.
 #  Last modified 2022-04-19 23:26:04
@@ -642,6 +641,6 @@ src/e.rs:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Sun May 22 00:29:56 2022
+# Finished Make data base on Sun May 22 03:13:54 2022
 
  

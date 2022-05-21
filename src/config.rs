@@ -86,7 +86,7 @@ impl WalletConfig {
           url: node_address.to_string(),
           socks5,
           retry: 1,
-          timeout: Some(9),
+          timeout: None,
           stop_gap: 1000,
         }
       };
