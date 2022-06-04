@@ -50,8 +50,8 @@ use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
-use crate::wallet::utxo;
 use crate::wallet::recover::RecoveryOption;
+use crate::wallet::utxo;
 
 mod network;
 use crate::network::fees;
@@ -166,9 +166,7 @@ pub unsafe extern "C" fn import_master(
 /// Checks if some dump data can recover a wallet
 /// If type is Mnemonic, use import, if type is a descriptor, use wallet functions directly.
 #[no_mangle]
-pub unsafe extern "C" fn recovery_options(
-    dump: *const c_char,
-) -> *mut c_char {
+pub unsafe extern "C" fn recovery_options(dump: *const c_char) -> *mut c_char {
     let dump_cstr = CStr::from_ptr(dump);
     let dump: &str = match dump_cstr.to_str() {
         Ok(string) => string,
@@ -180,7 +178,6 @@ pub unsafe extern "C" fn recovery_options(
         Err(e) => e.c_stringify(),
     }
 }
-
 
 /// Derives hardened child keys from a master xprv.
 /// Follows the BIP32 standard of m/purpose'/network'/account'.
@@ -396,9 +393,7 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
 
     let script_type_cstr = CStr::from_ptr(script_type);
     let script_type_str: policy::ScriptType = match script_type_cstr.to_str() {
-        Ok(string) => {
-            policy::ScriptType::from_str(string)
-        }
+        Ok(string) => policy::ScriptType::from_str(string),
         Err(_) => policy::ScriptType::WPKH,
     };
 
@@ -413,7 +408,7 @@ pub unsafe extern "C" fn compile(policy: *const c_char, script_type: *const c_ch
 /// ```
 /// String,String
 /// ```
-/// First string is whether specifying a policy id is required. 
+/// First string is whether specifying a policy id is required.
 /// Second string is the policy id.
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -430,7 +425,9 @@ pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
     match policy::id(config) {
-        Ok(result) => CString::new(format!("{},{}",result.0,result.1)).unwrap().into_raw(),
+        Ok(result) => CString::new(format!("{},{}", result.0, result.1))
+            .unwrap()
+            .into_raw(),
         Err(e) => e.c_stringify(),
     }
 }
@@ -471,11 +468,12 @@ pub unsafe extern "C" fn sync_balance(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
 
@@ -533,11 +531,12 @@ pub unsafe extern "C" fn sync_history(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
 
@@ -594,11 +593,12 @@ pub unsafe extern "C" fn list_unspent(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
     let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
@@ -710,11 +710,12 @@ pub unsafe extern "C" fn estimate_network_fee(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
 
@@ -828,10 +829,10 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
 ///  address: String,
 ///  amount: u64,
 /// }
-/// 
+///
 /// TxOutputs = Vec<TxOutput>
 /// ```
-/// 
+///
 /// If sweep is set to true, amount value is ignored and will default to None.
 /// Set amount to 0 for sweep.
 /// - *OUTPUT*
@@ -874,11 +875,12 @@ pub unsafe extern "C" fn build_tx(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
     let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
@@ -962,11 +964,12 @@ pub unsafe extern "C" fn build_fee_bump(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
 
@@ -980,7 +983,7 @@ pub unsafe extern "C" fn build_fee_bump(
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "txid").c_stringify(),
     };
-    
+
     let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
     let fee_absolute: u64 = match fee_absolute_cstr.to_str() {
         Ok(string) => match string.parse::<u64>() {
@@ -1112,11 +1115,12 @@ pub unsafe extern "C" fn broadcast_tx(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
     let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
@@ -1204,11 +1208,12 @@ pub unsafe extern "C" fn get_height(
     let socks5_cstr = CStr::from_ptr(socks5);
     let socks5_option = match socks5_cstr.to_str() {
         Ok(string) => {
-            if string.to_lowercase() == "none" || string == ""
-            {None}
-            else
-            {Some(string.to_string())}
-                }
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
         Err(_) => None,
     };
 
@@ -1255,14 +1260,33 @@ pub unsafe extern "C" fn days_to_blocks(days: *const c_char) -> *mut c_char {
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_start(tmp_path: *mut c_char) -> *mut c_char {
+pub unsafe extern "C" fn tor_start(
+    tmp_path: *mut c_char,
+    socks5_port: *mut c_char,
+    http_port: *mut c_char,
+) -> *mut c_char {
     let tmp_path_cstr = CStr::from_ptr(tmp_path);
     let tmp_path: &str = match tmp_path_cstr.to_str() {
         Ok(string) => string,
         Err(_) => "/tmp",
     };
-
-    let control_key = tor::start(tmp_path);
+    let socks5_port_cstr = CStr::from_ptr(socks5_port);
+    let socks5_port: u16 = match socks5_port_cstr.to_str() {
+        Ok(string) => match string.parse::<u16>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Socks5 Port").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "Socks5 Port").c_stringify(),
+    };
+    let http_port_cstr = CStr::from_ptr(http_port);
+    let http_port: u16 = match http_port_cstr.to_str() {
+        Ok(string) => match string.parse::<u16>() {
+            Ok(i) => i,
+            Err(_) => 80,
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "Http Port").c_stringify(),
+    };
+    let control_key = tor::start(tmp_path, socks5_port, http_port);
     CString::new(control_key).unwrap().into_raw()
 }
 
@@ -1272,13 +1296,24 @@ pub unsafe extern "C" fn tor_start(tmp_path: *mut c_char) -> *mut c_char {
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_progress(control_key: *mut c_char) -> *mut c_char {
+pub unsafe extern "C" fn tor_progress(
+    control_port: *mut c_char,
+    control_key: *mut c_char,
+) -> *mut c_char {
     let control_key_cstr = CStr::from_ptr(control_key);
     let control_key: &str = match control_key_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
     };
-    match tor::bootstrap_progress(control_key) {
+    let control_port_cstr = CStr::from_ptr(control_port);
+    let control_port: u16 = match control_port_cstr.to_str() {
+        Ok(string) => match string.parse::<u16>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
+    };
+    match tor::bootstrap_progress(control_port, control_key) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
@@ -1290,14 +1325,24 @@ pub unsafe extern "C" fn tor_progress(control_key: *mut c_char) -> *mut c_char {
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
-pub unsafe extern "C" fn tor_stop(control_key: *mut c_char) -> *mut c_char {
+pub unsafe extern "C" fn tor_stop(
+    control_port: *mut c_char,
+    control_key: *mut c_char,
+) -> *mut c_char {
     let control_key_cstr = CStr::from_ptr(control_key);
     let control_key: &str = match control_key_cstr.to_str() {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
     };
-
-    match tor::shutdown(control_key) {
+    let control_port_cstr = CStr::from_ptr(control_port);
+    let control_port: u16 = match control_port_cstr.to_str() {
+        Ok(string) => match string.parse::<u16>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
+    };
+    match tor::shutdown(control_port, control_key) {
         Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
         Err(e) => e.c_stringify(),
     }
@@ -1366,14 +1411,13 @@ mod tests {
     //         xprv: "tprv8ZgxMBicQKsPduTkddZgfGyk4ZJjtEEZQjofpyJg74LizJ469DzoF8nmU1YcvBFskXVKdoYmLoRuZZR1wuTeuAf8rNYR2zb1RvFns2Vs8hY",
     //     }
     //      */
-
     #[test]
-    fn test_recovery_options(){
-        unsafe{
+    fn test_recovery_options() {
+        unsafe {
             let mut data_dump = "panel across strong judge economy song loud valid regret fork consider bid rack young avoid soap plate injury snow crater beef alone stay clock";
-            let mut expected = format!("mnemonic:{}",data_dump);
+            let mut expected = format!("mnemonic:{}", data_dump);
             let mut data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
-            
+
             let mut result_ptr = recovery_options(data_dump_cstr);
             let mut result_cstr = CStr::from_ptr(result_ptr);
             let mut result: &str = result_cstr.to_str().unwrap();
@@ -1389,14 +1433,13 @@ mod tests {
             assert_eq!(result, &expected);
 
             data_dump = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
-            expected = format!("descriptor:{}",data_dump);
+            expected = format!("descriptor:{}", data_dump);
             data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
 
             result_ptr = recovery_options(data_dump_cstr);
             result_cstr = CStr::from_ptr(result_ptr);
             result = result_cstr.to_str().unwrap();
             assert_eq!(result, expected);
-
         }
     }
     #[test]
@@ -1487,7 +1530,7 @@ mod tests {
                 CString::new(alice_ec_pair.pubkey).unwrap().into_raw(),
             ));
             let verification = verification_cstr.to_str().unwrap();
-            assert_eq!(verification,"true");
+            assert_eq!(verification, "true");
         }
     }
 
@@ -1499,11 +1542,11 @@ mod tests {
 
             let descriptor = format!("wsh(pk({}/*))", xkey);
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
-            
-            let socks5 = "none";
-            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
 
-            let balance_ptr = sync_balance(descriptor_cstr, node_address_cstr, socks5_cstr);
+            let socks5 = "none";
+            let control_port_cstr = CString::new(socks5).unwrap().into_raw();
+
+            let balance_ptr = sync_balance(descriptor_cstr, node_address_cstr, control_port_cstr);
             let balance_str = CStr::from_ptr(balance_ptr).to_str().unwrap();
             let balance: history::WalletBalance = serde_json::from_str(balance_str).unwrap();
             assert_eq!(balance.balance, 10_000);
@@ -1519,10 +1562,15 @@ mod tests {
 
             // more than 24 breaks
             let conf_target = CString::new("21").unwrap().into_raw();
-            let fees = estimate_network_fee(network_cstr, node_address_cstr,socks5_cstr, conf_target);
+            let fees = estimate_network_fee(
+                network_cstr,
+                node_address_cstr,
+                control_port_cstr,
+                conf_target,
+            );
             let fees_str = CStr::from_ptr(fees).to_str().unwrap();
             let fees_struct: fees::NetworkFee = serde_json::from_str(fees_str).unwrap();
-            println!("{:#?}",fees_struct);
+            println!("{:#?}", fees_struct);
 
             assert!(fees_struct.rate >= 1.0);
         }
@@ -1540,17 +1588,16 @@ mod tests {
             let history_str = CStr::from_ptr(history_ptr).to_str().unwrap();
             let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
             // println!("{:#?}", history);
-            assert_eq!(history.history.len()>0, true);
+            assert_eq!(history.history.len() > 0, true);
             let descriptor =       "wpkh([8099ce1e/84h/1h/0h]tpubDCBjCC5aZ6wXLtZMSJDkBYZ3AFuors2YzzBhD5ZqP3uPqbzzH5YjD2CA9HDhUYNhrqq67v4XAN93KSbSL4bwa5hEvidkFuj7ycWA7EYzp41/*)";
             let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
             let socks5 = "none";
             let socks5_cstr = CString::new(socks5).unwrap().into_raw();
 
-            let utxos_ptr = list_unspent(descriptor_cstr, node_address_cstr,socks5_cstr);
+            let utxos_ptr = list_unspent(descriptor_cstr, node_address_cstr, socks5_cstr);
             let utxos_str = CStr::from_ptr(utxos_ptr).to_str().unwrap();
             let utxos: utxo::WalletUtxos = serde_json::from_str(utxos_str).unwrap();
-            assert_eq!(utxos.utxos.len()>0, true);
-            
+            assert_eq!(utxos.utxos.len() > 0, true);
         }
     }
 
