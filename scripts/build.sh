@@ -4,11 +4,11 @@
 if (( $EUID == 0 )); then
     REPO="/stackmate-core"
 else
-    REPO="$HOME/stackmate-core"
+    REPO="$HOME/StackmateNetwork/stackmate-core"
 fi
 
 cd $REPO && make android
-cargo build
+cargo build --release
 
 TARGET_DIRECTORY="$REPO/target"
 BUILDS_DIRECTORY="$REPO/builds"
@@ -26,5 +26,6 @@ cp $TARGET_DIRECTORY/aarch64-linux-android/release/libstackmate.so $BUILDS_DIREC
 cp $TARGET_DIRECTORY/x86_64-linux-android/release/libstackmate.so $BUILDS_DIRECTORY/x86_64-linux-android/
 cp $TARGET_DIRECTORY/i686-linux-android/release/libstackmate.so $BUILDS_DIRECTORY/i686-linux-android/
 cp $TARGET_DIRECTORY/armv7-linux-androideabi/release/libstackmate.so $BUILDS_DIRECTORY/armv7-linux-androideabi/
+cp $TARGET_DIRECTORY/release/libstackmate.so $BUILDS_DIRECTORY/x86_64-linux-unknown/
 
 exit

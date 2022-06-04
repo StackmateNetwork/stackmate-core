@@ -176,7 +176,7 @@ pub fn compile(policy: &str, script_type: ScriptType) -> Result<String, S5Error>
 
 /// Checks wether a wallet needs to specify policy path and returns the root policy node id.
 pub fn id(config: WalletConfig) -> Result<(bool,String), S5Error> {
-  let wallet = match Wallet::new_offline(
+  let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
     config.network,

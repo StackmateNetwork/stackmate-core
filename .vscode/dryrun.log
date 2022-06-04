@@ -1,10 +1,9 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory `/Users/i5hi/Code/stackmate/backend/stackmate-core'
+make: Entering directory '/home/i5hi/StackmateNetwork/stackmate-core'
 echo
 echo " Available actions in "stackmate-core":"
 echo
 sed -n 's/^##//p' makefile | column -t -s ':' |  sed -e 's/^/ /'
 echo
- 
-make: Leaving directory `/Users/i5hi/Code/stackmate/backend/stackmate-core'
+make: Leaving directory '/home/i5hi/StackmateNetwork/stackmate-core'
  

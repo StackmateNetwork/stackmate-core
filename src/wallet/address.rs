@@ -27,7 +27,7 @@ pub fn generate(
   config: WalletConfig,
   index: u32,
 ) -> Result<WalletAddress, S5Error> {
-  let wallet = match Wallet::new_offline(
+  let wallet = match Wallet::new(
     &config.deposit_desc,
     Some(&config.change_desc),
     config.network,
