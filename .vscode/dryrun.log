@@ -1,5 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
 make: Entering directory '/home/i5hi/StackmateNetwork/stackmate-core'
+ 
 echo
 echo " Available actions in "stackmate-core":"
 echo

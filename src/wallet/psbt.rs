@@ -169,7 +169,7 @@ pub fn build(
           Error::SpendingPolicyRequired(_) => {
             Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
           }
-          _ => Err(S5Error::new(ErrorKind::Internal, "Transaction-Build")),
+          e=> Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
         };
       }
     }

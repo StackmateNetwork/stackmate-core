@@ -30,22 +30,23 @@ fn _tor_salted_password_hash(password: &str) -> String {
     }
 }
 
-pub fn start(tmp_path: &str, socks5_port: u16, http_port: u16) -> String {
-    let tmp_path = Path::new(tmp_path);
-    let exists = tmp_path.exists();
-    let tmp_path = if exists {
-        tmp_path.join("tor-rust")
+pub fn start(data_dir: &str, socks5_port: u16, http_proxy: u16) -> String {
+  let is_not_root = data_dir.clone() != "/";  
+  let data_dir = Path::new(data_dir);
+    let exists = data_dir.exists()  && is_not_root;
+    let data_dir = if exists {
+        data_dir.join("libstackmate-tor")
     } else {
         eprintln!("Bad base path! using /tmp");
-        Path::new("/tmp/tor-rust").to_path_buf()
+        Path::new("/tmp/libstackmate-tor").to_path_buf()
     };
 
     // let control_key = aes::keygen();
     // let _hash = tor_salted_password_hash(&control_key);
 
-    Tor::new()
+    match Tor::new()
         .flag(TorFlag::DataDirectory(
-            tmp_path.to_string_lossy().to_string(),
+            data_dir.to_string_lossy().to_string(),
         ))
         .flag(TorFlag::SocksPort(socks5_port))
         .flag(TorFlag::ControlPort(socks5_port - 100))
@@ -60,8 +61,10 @@ pub fn start(tmp_path: &str, socks5_port: u16, http_port: u16) -> String {
         //   TorAddress::Port(8000),
         //   None.into(),
         // ))
-        .start_background();
-    "control_key".to_string()
+        .start(){
+            Ok(number)=>number.to_string(),
+            Err(e)=>e.to_string(),
+        }
 }
 
 pub fn bootstrap_progress(control_port: u16, _control_key: &str) -> Result<usize, S5Error> {
@@ -164,15 +167,17 @@ pub fn shutdown(control_port: u16, _control_key: &str) -> Result<bool, S5Error> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::thread::sleep;
+    use std::thread::{spawn, sleep};
     use std::time;
     /// This test might require more than 10 seconds of sleep duration if running for the first time.
     /// Default uses 4 sleep cycles in total for CI. Comment out the last 2 if you have run this before locally.
     #[test]
     fn test_tor() {
         let socks5_port = 31500;
-        let http_port = 80;
-        let control_key = start("/Users/i5hi", socks5_port, http_port);
+        let http_proxy = 80;
+        let control_key = "control_key";
+        
+        spawn(move|| start("", socks5_port, http_proxy));
         // handle.join().unwrap();
         let duration = time::Duration::from_secs(2);
         sleep(duration);

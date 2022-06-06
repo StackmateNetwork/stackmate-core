@@ -1261,12 +1261,12 @@ pub unsafe extern "C" fn days_to_blocks(days: *const c_char) -> *mut c_char {
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
 #[no_mangle]
 pub unsafe extern "C" fn tor_start(
-    tmp_path: *mut c_char,
+    data_dir: *mut c_char,
     socks5_port: *mut c_char,
-    http_port: *mut c_char,
+    http_proxy: *mut c_char,
 ) -> *mut c_char {
-    let tmp_path_cstr = CStr::from_ptr(tmp_path);
-    let tmp_path: &str = match tmp_path_cstr.to_str() {
+    let data_dir_cstr = CStr::from_ptr(data_dir);
+    let data_dir: &str = match data_dir_cstr.to_str() {
         Ok(string) => string,
         Err(_) => "/tmp",
     };
@@ -1278,15 +1278,15 @@ pub unsafe extern "C" fn tor_start(
         },
         Err(_) => return S5Error::new(ErrorKind::Input, "Socks5 Port").c_stringify(),
     };
-    let http_port_cstr = CStr::from_ptr(http_port);
-    let http_port: u16 = match http_port_cstr.to_str() {
+    let http_proxy_cstr = CStr::from_ptr(http_proxy);
+    let http_proxy: u16 = match http_proxy_cstr.to_str() {
         Ok(string) => match string.parse::<u16>() {
             Ok(i) => i,
             Err(_) => 80,
         },
         Err(_) => return S5Error::new(ErrorKind::Input, "Http Port").c_stringify(),
     };
-    let control_key = tor::start(tmp_path, socks5_port, http_port);
+    let control_key = tor::start(data_dir, socks5_port, http_proxy);
     CString::new(control_key).unwrap().into_raw()
 }
 
@@ -1614,6 +1614,22 @@ mod tests {
             let blocks_str = CStr::from_ptr(blocks_ptr).to_str().unwrap();
             let blocks: height::BlockHeight = serde_json::from_str(blocks_str).unwrap();
             assert_eq!(blocks.height, 52560);
+        }
+    }
+
+    #[test]
+    fn test_tor_ffi() {
+        unsafe {
+            let path = "/tmp";
+            let path_cstr = CString::new(path).unwrap().into_raw();
+            let socks5 = "19050";
+            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
+            let http_proxy_str = "";
+            let http_proxy_cstr = CString::new(socks5).unwrap().into_raw();
+
+            let status = tor_start(path_cstr, socks5_cstr, http_proxy_cstr);
+            println!("{:#?}", status);
+
         }
     }
 }
