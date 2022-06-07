@@ -41,6 +41,7 @@ pub enum ScriptType {
   WSH,
   SHWSH,
   SH,
+  TR,
 }
 impl Display for ScriptType {
   fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -49,6 +50,8 @@ impl Display for ScriptType {
       ScriptType::WSH => write!(f, "wsh"),
       ScriptType::SHWSH => write!(f, "sh-wsh"),
       ScriptType::SH => write!(f, "sh"),
+      ScriptType::TR => write!(f, "tr"),
+
     }
   }
 }
@@ -60,6 +63,7 @@ impl ScriptType {
       "wsh" => ScriptType::WSH,
       "sh-wsh" => ScriptType::SHWSH,
       "sh" => ScriptType::SH,
+      "tr" => ScriptType::TR,
       _ => ScriptType::WPKH,
     }
   }
@@ -77,12 +81,12 @@ pub fn compile(policy: &str, script_type: ScriptType) -> Result<String, S5Error>
     Ok(result) => result,
     Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
   };
-
   let descriptor = match script_type {
     ScriptType::WPKH => policy.replace("pk", "wpkh"),
     ScriptType::SH => Descriptor::new_sh(legacy_policy).unwrap().to_string(),
     ScriptType::WSH => Descriptor::new_wsh(segwit_policy).unwrap().to_string(),
     ScriptType::SHWSH => Descriptor::new_sh_wsh(segwit_policy).unwrap().to_string(),
+    ScriptType::TR => policy.replace("pk", "tr"),
   };
   Ok(descriptor.split('#').collect::<Vec<&str>>()[0].to_string())
 }
@@ -193,6 +197,7 @@ pub fn id(config: WalletConfig) -> Result<(bool,String), S5Error> {
 mod tests {
   use super::*;
   use crate::config::{WalletConfig, DEFAULT_TESTNET_NODE};
+  use crate::wallet::address::{WalletAddress,generate};
   // use bdk::descriptor::policy::BuildSatisfaction;
   // use bdk::descriptor::ExtractPolicy;
   // use bitcoin::secp256k1::Secp256k1;
@@ -218,12 +223,13 @@ mod tests {
     let expected_raft_wsh = "wsh(or_d(pk([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*),and_v(v:pk([66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*),after(595600))))";
     let single_result_bech32 = compile(&single_policy, ScriptType::WPKH).unwrap();
     let expected_single_wpkh = "wpkh([db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)";
+
     let escrow_result = compile(&escrow_policy, ScriptType::WSH).unwrap();
     let expected_escrow_wsh = "wsh(multi(2,[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*,[a90a3a81/84'/0'/0']tprv8g3FKkLE9gRHDYeedikuNRXMhZyQ6bsgnMxYk8dRPKg15BCsimrbw2zjA97gwu4Brw9XtVVdgyuUSSZd7ckjSbbwpGjAyVjonCXGKg2gE2D/*,[66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*))";
     assert_eq!(&raft_result_bech32, expected_raft_wsh);
     assert_eq!(&single_result_bech32, expected_single_wpkh);
     assert_eq!(&escrow_result, expected_escrow_wsh);
-
+ 
     let raft_config: WalletConfig =
       WalletConfig::new(&raft_result_bech32, DEFAULT_TESTNET_NODE, None).unwrap();
     let escrow_config: WalletConfig =
@@ -237,8 +243,23 @@ mod tests {
     assert_eq!(escrow_id.1,expected_escrow_id);
     assert!(raft_id.0);
     assert!(!escrow_id.0);
+
+
   }
 
+
+  #[test]
+  fn test_taproot_policy(){
+    let alice_xprv = "[db7d25b5/86'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*";
+    let single_policy = format!("pk({})", alice_xprv);
+    let single_result_taproot = compile(&single_policy, ScriptType::TR).unwrap();
+    let expected_single_tr = "tr([db7d25b5/86'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)";
+    assert_eq!(&single_result_taproot, expected_single_tr);
+    let taproot_config: WalletConfig =
+      WalletConfig::new(&single_result_taproot, DEFAULT_TESTNET_NODE, None).unwrap();
+    let address0 = generate(taproot_config, 0).unwrap();
+    assert_eq!(address0.address, "tb1pyky6jtr8amxr726he4qejpcdrq9yh86kq3vqjvmfguw8ty6hwf8s5y0zdj");
+  }
   use bdk::descriptor;
   use bdk::keys::DerivableKey;
   use bdk::keys::{DescriptorKey, ExtendedKey};

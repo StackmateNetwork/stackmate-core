@@ -117,6 +117,7 @@ pub enum DerivationPurpose {
   Legacy,
   Compatible,
   Native,
+  Taproot,
   _Encryption
 }
 impl Display for DerivationPurpose {
@@ -125,6 +126,7 @@ impl Display for DerivationPurpose {
       DerivationPurpose::Legacy => write!(f, "44"),
       DerivationPurpose::Compatible => write!(f, "49"),
       DerivationPurpose::Native => write!(f, "84"),
+      DerivationPurpose::Taproot => write!(f, "86"),
       DerivationPurpose::_Encryption => write!(f, "392"),
     }
   }

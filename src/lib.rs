@@ -211,6 +211,7 @@ pub unsafe extern "C" fn derive_wallet_account(
     let purpose: derivation::DerivationPurpose = match purpose_cstr.to_str() {
         Ok(string) => match string.parse::<usize>() {
             Ok(value) => match value {
+                86 => derivation::DerivationPurpose::Taproot,
                 84 => derivation::DerivationPurpose::Native,
                 49 => derivation::DerivationPurpose::Compatible,
                 44 => derivation::DerivationPurpose::Legacy,

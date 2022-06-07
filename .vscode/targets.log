@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jun  7 22:45:15 2022
+# Make data base, printed on Tue Jun  7 23:55:00 2022
 
 # Variables
 
@@ -21,7 +21,7 @@ SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-1ae448b0-d0b1-46ea-9312-90799f463c4e.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4ceb3a1a-acf9-41f0-8efc-962b3597c587.sock
 # environment
 MANDATORY_PATH = /usr/share/gconf/pop.mandatory.path
 # environment
@@ -51,6 +51,7 @@ VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
 # environment
+ 
 VSCODE_CODE_CACHE_PATH = /home/i5hi/.config/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
 # makefile (from 'makefile', line 2)
 PROJECTNAME = $(shell basename "$(PWD)")
@@ -249,9 +250,8 @@ GDMSESSION = pop
 # Not a target:
 src/wallet/policy.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:42:27.043129448
+#  Last modified 2022-06-07 22:48:00.720020912
 #  File has been updated.
- 
 #  Successfully updated.
 
 # Not a target:
@@ -292,6 +292,7 @@ src/wallet/custom.rs:
 # Not a target:
 src/e.rs:
 #  Implicit rule search has been done.
+ 
 #  Last modified 2022-05-28 20:57:37.657255199
 #  File has been updated.
 #  Successfully updated.
@@ -364,7 +365,7 @@ src/bip392/mod.rs:
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:42:03.257290294
+#  Last modified 2022-06-07 22:55:12.554462071
 #  File has been updated.
 #  Successfully updated.
 
@@ -420,6 +421,7 @@ bindings: target/bindings.h
 target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'makefile', line 64):
 	cargo build --target x86_64-linux-android --release
@@ -479,7 +481,7 @@ help: makefile
 # Not a target:
 src/network/tor.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:42:21.687608642
+#  Last modified 2022-06-07 22:48:36.774147822
 #  File has been updated.
 #  Successfully updated.
 
@@ -528,8 +530,8 @@ ndk-home:
 # automatic
 # ? := 
 # automatic
- 
 # | := 
+ 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=6/12=50%
 #  recipe to execute (from 'makefile', line 69):
@@ -606,7 +608,8 @@ src/wallet/utxo.rs:
 
 # strcache performance: lookups = 281 / hit rate = 65%
 # hash-table stats:
+ 
 # Load=97/8192=1%, Rehash=0, Collisions=0/281=0%
-# Finished Make data base on Tue Jun  7 22:45:15 2022
+# Finished Make data base on Tue Jun  7 23:55:00 2022
 
  
