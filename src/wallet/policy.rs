@@ -22,7 +22,7 @@ pub struct WalletPolicy {
   pub descriptor: String,
 }
 impl WalletPolicy {
-  pub fn c_stringify(&self) -> *mut c_char {
+  pub fn _c_stringify(&self) -> *mut c_char {
     let stringified = match serde_json::to_string(self) {
       Ok(result) => result,
       Err(_) => {
@@ -230,7 +230,7 @@ mod tests {
       WalletConfig::new(&escrow_result, DEFAULT_TESTNET_NODE, None).unwrap();
    
     let raft_id = id(raft_config).unwrap();
-    let expected_raft_id = "see3u7x7";
+    let expected_raft_id = "hgl9rs6e";
     let escrow_id = id(escrow_config).unwrap();
     let expected_escrow_id = "s4wk2rav";
     assert_eq!(raft_id.1,expected_raft_id);
@@ -262,4 +262,6 @@ mod tests {
     println!("{:#?}", desc.to_string());
 
   }
+
+  
 }

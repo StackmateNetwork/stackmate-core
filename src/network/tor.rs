@@ -30,7 +30,7 @@ fn _tor_salted_password_hash(password: &str) -> String {
     }
 }
 
-pub fn start(data_dir: &str, socks5_port: u16, http_proxy: u16) -> String {
+pub fn start(data_dir: &str, socks5_port: u16, _http_proxy: u16) -> String {
   let is_not_root = data_dir.clone() != "/";  
   let data_dir = Path::new(data_dir);
     let exists = data_dir.exists()  && is_not_root;
@@ -49,7 +49,7 @@ pub fn start(data_dir: &str, socks5_port: u16, http_proxy: u16) -> String {
             data_dir.to_string_lossy().to_string(),
         ))
         .flag(TorFlag::SocksPort(socks5_port))
-        .flag(TorFlag::ControlPort(socks5_port - 100))
+        .flag(TorFlag::ControlPort(socks5_port + 1))
         .flag(TorFlag::LogTo(
             log::LogLevel::Err,
             log::LogDestination::Stderr,
@@ -107,7 +107,7 @@ pub fn bootstrap_progress(control_port: u16, _control_key: &str) -> Result<usize
     Ok(progress_value)
 }
 
-pub fn circuit_established(control_port: u16, _control_key: &str) -> Result<bool, S5Error> {
+pub fn _circuit_established(control_port: u16, _control_key: &str) -> Result<bool, S5Error> {
     let mut stream = match TcpStream::connect("127.0.0.1:".to_string() + &control_port.to_string())
     {
         Ok(result) => result,
@@ -171,7 +171,7 @@ mod tests {
     use std::time;
     /// This test might require more than 10 seconds of sleep duration if running for the first time.
     /// Default uses 4 sleep cycles in total for CI. Comment out the last 2 if you have run this before locally.
-    #[test]
+    #[test] #[ignore]
     fn test_tor() {
         let socks5_port = 31500;
         let http_proxy = 80;
@@ -216,7 +216,7 @@ mod tests {
             "{:#?}",
             bootstrap_progress(socks5_port - 100, &control_key).unwrap()
         );
-        assert!(circuit_established(socks5_port - 100, &control_key).unwrap());
+        assert!(_circuit_established(socks5_port - 100, &control_key).unwrap());
         assert!(shutdown(socks5_port - 100, &control_key).unwrap());
     }
 }

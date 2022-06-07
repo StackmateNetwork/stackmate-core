@@ -1363,8 +1363,9 @@ pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
     // rust automatically deallocates the pointer after using it
     // here we just convert it to a CString so it is used and cleared
 }
+
 #[cfg(test)]
-mod tests {
+mod ffi {
     use super::*;
 
     #[test]
@@ -1440,6 +1441,66 @@ mod tests {
             result_cstr = CStr::from_ptr(result_ptr);
             result = result_cstr.to_str().unwrap();
             assert_eq!(result, expected);
+        }
+    }
+    #[test]
+
+    fn test_alt_purpose_wallet() {
+        unsafe {
+            let xkey = "[db7d25b5/44'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+
+            let descriptor = format!("pkh({}/*)", xkey);
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+
+            let index_cstr = CString::new("0").unwrap().into_raw();
+            let address_ptr = get_address(descriptor_cstr, index_cstr);
+            let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
+            let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
+            assert_eq!(
+                address.address,
+                "mran8TW3ex97VSANhiwrRWqWM6XQ1ZoxkX"
+            );
+            
+            let xkey = "[db7d25b5/49'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+
+            let descriptor = format!("sh(pk({}/*))", xkey);
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+
+            let index_cstr = CString::new("0").unwrap().into_raw();
+            let address_ptr = get_address(descriptor_cstr, index_cstr);
+            let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
+            let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
+            assert_eq!(
+                address.address,
+                "2MvWazupEQxP8RTeY3eUD2a37Htj3w8rc1d"
+            );
+
+            let xkey = "[db7d25b5/49'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+
+            let descriptor = format!("sh(wsh(pk({}/*)))", xkey);
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+
+            let index_cstr = CString::new("3").unwrap().into_raw();
+            let address_ptr = get_address(descriptor_cstr, index_cstr);
+            let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
+            let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
+            assert_eq!(
+                address.address,
+                "2NFVgrQK9yfMgZc44BfUY5tf5BoqzmJaN5L"
+            );
+            let xkey = "[db7d25b5/49'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+
+            let descriptor = format!("tr({}/*)", xkey);
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+
+            let index_cstr = CString::new("3").unwrap().into_raw();
+            let address_ptr = get_address(descriptor_cstr, index_cstr);
+            let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
+            let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
+            assert_eq!(
+                address.address,
+                "tb1pa6npp2p5s2x5vf44yuxzm2hnx25hyjxvwttl8zf3xhm68vcdvxcqupcp8d"
+            );
         }
     }
     #[test]
@@ -1617,15 +1678,15 @@ mod tests {
         }
     }
 
-    #[test]
+    #[test] #[ignore]
     fn test_tor_ffi() {
         unsafe {
             let path = "/tmp";
             let path_cstr = CString::new(path).unwrap().into_raw();
             let socks5 = "19050";
             let socks5_cstr = CString::new(socks5).unwrap().into_raw();
-            let http_proxy_str = "";
-            let http_proxy_cstr = CString::new(socks5).unwrap().into_raw();
+            let _http_proxy_str = "";
+            let http_proxy_cstr = CString::new(_http_proxy_str).unwrap().into_raw();
 
             let status = tor_start(path_cstr, socks5_cstr, http_proxy_cstr);
             println!("{:#?}", status);

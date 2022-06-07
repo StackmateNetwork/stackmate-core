@@ -3,14 +3,14 @@ use std::str;
 use chacha20poly1305::{XChaCha20Poly1305, Key, XNonce};
 use chacha20poly1305::aead::{Aead, NewAead};
 
-pub fn cc20p1305_encrypt(plaintext:&[u8], key: &[u8])->Result<String,String>{
+pub fn _cc20p1305_encrypt(plaintext:&[u8], key: &[u8])->Result<String,String>{
     let encryption_key = Key::from_slice(key); // 32-bytes
     let aead = XChaCha20Poly1305::new(encryption_key);
     let nonce = XNonce::from_slice(b"extra long unique nonce!"); // 24-bytes; unique
     let ciphertext = aead.encrypt(nonce, plaintext).expect("encryption failure!");
     Ok(format!("{}:{}",base64::encode(nonce),base64::encode(&ciphertext).to_string()))
 }
-pub fn cc20p1305_decrypt(ciphertext:&str, key: &[u8])->Result<String,String>{
+pub fn _cc20p1305_decrypt(ciphertext:&str, key: &[u8])->Result<String,String>{
     let encryption_key = Key::from_slice(key); // 32-bytes
     let aead = XChaCha20Poly1305::new(encryption_key);
     let iter:Vec<&str> = ciphertext.split(":").collect();
@@ -34,8 +34,8 @@ mod tests {
   fn test_encryption() {
     let message = "thresh(2,wpkh([fingerprint/h/d/path]xpub/*),*,*))";
     let key = Key::from_slice(b"an example very very secret key."); // 32-bytes
-    let ciphertext = cc20p1305_encrypt(message.as_bytes(), &key).unwrap();
-    let plaintext = cc20p1305_decrypt(&ciphertext, key).unwrap();
+    let ciphertext = _cc20p1305_encrypt(message.as_bytes(), &key).unwrap();
+    let plaintext = _cc20p1305_decrypt(&ciphertext, key).unwrap();
     println!("{}",plaintext);
     assert_eq!(&plaintext, message);
   }

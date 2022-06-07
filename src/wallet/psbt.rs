@@ -71,7 +71,7 @@ impl TxOutput {
     }
     Ok(outputs)
   }
-  pub fn vec_from_json_str(str: &str) -> Result<TxOutputs, S5Error> {
+  pub fn _vec_from_json_str(str: &str) -> Result<TxOutputs, S5Error> {
     let outputs: TxOutputs = match serde_json::from_str(str) {
       Ok(result) => result,
       Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid tx outputs string")),
@@ -202,7 +202,7 @@ pub fn build_fee_bump(
 
   let txid = match Txid::from_str(txid){
     Ok(result)=>result,
-    Err(e)=> return Err(S5Error::new(ErrorKind::Input, "Txid")),
+    Err(_)=> return Err(S5Error::new(ErrorKind::Input, "Txid")),
   };
 
   let (psbt, _) = {
@@ -269,7 +269,7 @@ pub fn decode(network: Network, psbt: &str) -> Result<DecodedTx, S5Error> {
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Deserialize-Error")),
   };
 
-  let outputs = &psbt_struct.global.unsigned_tx.output;
+  let outputs = &psbt_struct.unsigned_tx.output;
   let mut decoded_outputs: Vec<DecodedTxIO> = vec![];
   let mut total_out_value = 0;
   for output in outputs {
@@ -336,7 +336,7 @@ pub fn get_weight(deposit_desc: &str, psbt: &str) -> Result<TransactionWeight, S
   let satisfaction_weight = desc.max_satisfaction_weight().unwrap();
 
   Ok(TransactionWeight {
-    weight: transaction.get_weight() + satisfaction_weight,
+    weight: transaction.weight() + satisfaction_weight,
   })
 }
 
@@ -413,7 +413,7 @@ mod tests {
   #[test]
   fn tx_outputs_deserialize(){
     let stringified = "[{\"address\":\"adssd\",\"amount\":1232},{\"address\":\"gaffs\",\"amount\":9232}]";
-    let structured_from_json: TxOutputs = TxOutput::vec_from_json_str(stringified).unwrap();
+    let structured_from_json: TxOutputs = TxOutput::_vec_from_json_str(stringified).unwrap();
     let str_format = "adssd:1232,gaffs:9232";
     let structured_from_str: TxOutputs = TxOutput::vec_from_str(str_format).unwrap();
     assert!(structured_from_json[1].address==structured_from_str[1].address);
@@ -429,8 +429,8 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
     let descriptor = format!("wpkh({}/*)", xkey);
     let sign_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
-    let broadcast_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
-    let bump_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let _broadcast_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let _bump_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
 
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;

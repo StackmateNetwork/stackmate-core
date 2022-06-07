@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jun  7 01:08:15 2022
+# Make data base, printed on Tue Jun  7 22:45:15 2022
 
 # Variables
 
@@ -15,23 +15,18 @@ GDK_BACKEND = x11
 # environment
 LC_ALL = C
 # environment
-NO_AT_BRIDGE = 1
-# environment
 GNOME_SHELL_SESSION_MODE = pop
 # environment
 SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
-CMD_DURATION_MS = 0
-# environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-c0ff25e9-4ccf-4a0d-992b-1dddf12969d8.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-1ae448b0-d0b1-46ea-9312-90799f463c4e.sock
 # environment
 MANDATORY_PATH = /usr/share/gconf/pop.mandatory.path
 # environment
-VSCODE_CWD = /home/i5hi/StackmateNetwork/stackmate-core
+VSCODE_CWD = /home/i5hi
 # environment
- 
 WINDOWPATH = 2
 # default
 MAKE_COMMAND := make
@@ -49,8 +44,6 @@ PWD = /home/i5hi/StackmateNetwork/stackmate-core
 %D = $(patsubst %/,%,$(dir $%))
 # environment
 XDG_DATA_DIRS = /usr/share/pop:/home/i5hi/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/
-# environment
-OLDPWD = /home/i5hi/StackmateNetwork
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
@@ -71,8 +64,6 @@ XAUTHORITY = /run/user/1000/gdm/Xauthority
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
 # makefile (from 'makefile', line 4)
 OS_NAME = $(shell uname | tr '[:upper:]' '[:lower:]')
-# environment
-GNOME_TERMINAL_SERVICE = :1.100
 # makefile
 MAKEFLAGS = pqrR
 # environment
@@ -106,13 +97,13 @@ MAKEFILE_LIST := makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 2465
+VSCODE_PID = 30502
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/1729,unix/pop-os:/tmp/.ICE-unix/1729
+SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/2159,unix/pop-os:/tmp/.ICE-unix/2159
 # automatic
 *F = $(notdir $*)
 # environment
@@ -138,13 +129,9 @@ XMODIFIERS = @im=ibus
 # environment
 GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # environment
-SHLVL = 1
-# environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/21478272_4280_4545_9612_81e56803cd97
+SHLVL = 0
 # environment
 MAKELEVEL := 0
-# environment
-LAST_EXIT_CODE = 0
 # default
 MAKE = $(MAKE_COMMAND)
 # makefile (from 'makefile', line 5)
@@ -154,7 +141,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 79c2988fe46c4c349c96561d0aee1b42
+INVOCATION_ID = dad0e94fea3d46829a0d931f7772c032
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -170,7 +157,7 @@ GTK_IM_MODULE = ibus
 # environment
 XDG_CURRENT_DESKTOP = Unity
 # environment
-LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+LS_COLORS = 
 # automatic
 +F = $(notdir $+)
 # environment
@@ -198,19 +185,17 @@ MAKE_VERSION := 4.3
 # 'override' directive
 .SHELLSTATUS := 0
 # environment
-MANAGERPID = 1501
+MANAGERPID = 1657
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2465
+GIO_LAUNCHED_DESKTOP_FILE_PID = 30502
 # environment
-_ = /home/i5hi/.cargo/bin/nu
+_ = /usr/share/code/code
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-COLORTERM = truecolor
-# environment
-JOURNAL_STREAM = 8:37949
+JOURNAL_STREAM = 8:38117
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -223,22 +208,12 @@ QT_IM_MODULE = ibus
 ELECTRON_RUN_AS_NODE = 1
 # environment
 VSCODE_IPC_HOOK = /run/user/1000/vscode-6d2aa317-1.67.2-main.sock
-# environment
-TERM = xterm-256color
 # default
 .RECIPEPREFIX := 
 # automatic
 <F = $(notdir $<)
 # default
 SUFFIXES := 
-# environment
-NUSHELL_CURRENT_SHELL = 0
-# environment
-VSCODE_CLI = 1
-# environment
-ELECTRON_NO_ATTACH_CONSOLE = 1
-# environment
-VTE_VERSION = 6203
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # makefile (from 'makefile', line 3)
@@ -248,7 +223,7 @@ XDG_MENU_PREFIX = gnome-
 # environment
 GDMSESSION = pop
 # variable set hash-table stats:
-# Load=118/1024=12%, Rehash=0, Collisions=11/166=7%
+# Load=106/1024=10%, Rehash=0, Collisions=4/154=3%
 
 # Pattern-specific Variable Values
 
@@ -274,14 +249,14 @@ GDMSESSION = pop
 # Not a target:
 src/wallet/policy.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:16:29.153857007
+#  Last modified 2022-06-07 22:42:27.043129448
 #  File has been updated.
+ 
 #  Successfully updated.
 
 # Not a target:
 src/wallet/history.rs:
 #  Implicit rule search has been done.
- 
 #  Last modified 2022-06-04 05:07:06.470301508
 #  File has been updated.
 #  Successfully updated.
@@ -289,7 +264,7 @@ src/wallet/history.rs:
 # Not a target:
 src/wallet/recover.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.470301508
+#  Last modified 2022-06-07 22:44:24.3936085
 #  File has been updated.
 #  Successfully updated.
 
@@ -345,7 +320,7 @@ target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.r
 # Not a target:
 src/key/encryption.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-06-07 22:41:50.578477219
 #  File has been updated.
 #  Successfully updated.
 
@@ -382,21 +357,21 @@ clean:
 # Not a target:
 src/bip392/mod.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-06-07 22:41:34.82798688
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 14:29:25.185956622
+#  Last modified 2022-06-07 22:42:03.257290294
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 src/key/derivation.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-06-07 22:41:21.417303856
 #  File has been updated.
 #  Successfully updated.
 
@@ -433,7 +408,7 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 # Not a target:
 src/wallet/psbt.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-06 19:07:50.777705092
+#  Last modified 2022-06-07 22:43:31.933643754
 #  File has been updated.
 #  Successfully updated.
 
@@ -449,7 +424,6 @@ target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/confi
 #  recipe to execute (from 'makefile', line 64):
 	cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
- 
 
 # Not a target:
 .DEFAULT:
@@ -477,7 +451,7 @@ init:
 # Not a target:
 src/config.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-06-07 22:37:43.035578639
 #  File has been updated.
 #  Successfully updated.
 
@@ -505,7 +479,7 @@ help: makefile
 # Not a target:
 src/network/tor.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 14:41:22.620255004
+#  Last modified 2022-06-07 22:42:21.687608642
 #  File has been updated.
 #  Successfully updated.
 
@@ -554,6 +528,7 @@ ndk-home:
 # automatic
 # ? := 
 # automatic
+ 
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=6/12=50%
@@ -573,7 +548,7 @@ src/wallet/address.rs:
 # Not a target:
 src/key/ec.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-06-07 22:39:21.202541416
 #  File has been updated.
 #  Successfully updated.
 
@@ -586,7 +561,6 @@ src/key/ec.rs:
 # Not a target:
 src/key/mod.rs:
 #  Implicit rule search has been done.
- 
 #  Last modified 2022-05-28 20:57:37.657255199
 #  File has been updated.
 #  Successfully updated.
@@ -615,7 +589,7 @@ target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.r
 # Not a target:
 src/wallet/utxo.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.470301508
+#  Last modified 2022-06-07 22:44:30.853134394
 #  File has been updated.
 #  Successfully updated.
 
@@ -633,6 +607,6 @@ src/wallet/utxo.rs:
 # strcache performance: lookups = 281 / hit rate = 65%
 # hash-table stats:
 # Load=97/8192=1%, Rehash=0, Collisions=0/281=0%
-# Finished Make data base on Tue Jun  7 01:08:15 2022
+# Finished Make data base on Tue Jun  7 22:45:15 2022
 
  

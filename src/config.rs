@@ -206,7 +206,7 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig) -> Result<AnyBlockc
           e_error => return Err(S5Error::new(ErrorKind::Internal, &e_error.to_string())),
         },
       };
-      Ok(AnyBlockchain::Electrum(client))
+      Ok(AnyBlockchain::Electrum(Box::new(client)))
     }
     AnyBlockchainConfig::Rpc(conf) => {
       let client = match RpcBlockchain::from_config(&conf) {
@@ -221,7 +221,7 @@ pub fn create_blockchain_client(config: AnyBlockchainConfig) -> Result<AnyBlockc
           r_error => return Err(S5Error::new(ErrorKind::Internal, &r_error.to_string())),
         },
       };
-      Ok(AnyBlockchain::Rpc(client))
+      Ok(AnyBlockchain::Rpc(Box::new(client)))
     }
   }
 }

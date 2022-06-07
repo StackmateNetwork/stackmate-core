@@ -3,7 +3,6 @@ use std::str;
 
 use std::os::raw::c_char;
 use serde::{Deserialize, Serialize};
-use bdk::blockchain::noop_progress;
 use bdk::database::MemoryDatabase;
 use bdk::{Wallet,SyncOptions};
 use bdk::LocalUtxo;

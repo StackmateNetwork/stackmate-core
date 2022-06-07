@@ -22,11 +22,11 @@ mod tests {
     ).unwrap();
     let encryption_key_source = derivation::to_hardened_account(
         &seed.xprv, 
-        derivation::DerivationPurpose::Encryption, 
+        derivation::DerivationPurpose::_Encryption, 
         0)
     .unwrap();
     let encryption_xkey = ExtendedPrivKey::from_str(&encryption_key_source.xprv).unwrap();
-    let encryption_key_pre_image: &[u8] = &encryption_xkey.private_key.to_bytes();
+    let encryption_key_pre_image: &[u8] = &encryption_xkey.private_key.secret_bytes();
     let encryption_key = Message::from_hashed_data::<sha256::Hash>(encryption_key_pre_image);
     let key = Key::from_slice(encryption_key.as_ref()); // 32-bytes
     let aead = XChaCha20Poly1305::new(key);

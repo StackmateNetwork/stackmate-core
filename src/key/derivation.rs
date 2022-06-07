@@ -30,7 +30,7 @@ impl ChildKeys {
 
     CString::new(stringified).unwrap().into_raw()
   }
-  pub fn from_hardened_account(
+  pub fn _from_hardened_account(
     master_xprv: &str,
     purpose: DerivationPurpose,
     account: u64,
@@ -70,7 +70,7 @@ impl ChildKeys {
       Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
     };
   
-    let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
+    let child_xpub = ExtendedPubKey::from_priv(&secp, &child_xprv);
   
     Ok(ChildKeys {
       fingerprint: fingerprint.to_string(),
@@ -79,7 +79,7 @@ impl ChildKeys {
       xpub: child_xpub.to_string(),
     })
   }
-  pub fn from_path_str(master_xprv: &str, derivation_path: &str) -> Result<ChildKeys, S5Error> {
+  pub fn _from_path_str(master_xprv: &str, derivation_path: &str) -> Result<ChildKeys, S5Error> {
     let secp = Secp256k1::new();
     let root = match ExtendedPrivKey::from_str(master_xprv) {
       Ok(xprv) => xprv,
@@ -94,7 +94,7 @@ impl ChildKeys {
       Ok(xprv) => xprv,
       Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
     };
-    let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
+    let child_xpub = ExtendedPubKey::from_priv(&secp, &child_xprv);
   
     Ok(ChildKeys {
       fingerprint: fingerprint.to_string(),
@@ -103,10 +103,10 @@ impl ChildKeys {
       xpub: child_xpub.to_string(),
     })
   }
-  pub fn to_extended_xprv_str(&self)->String{
+  pub fn _to_extended_xprv_str(&self)->String{
     format!("[{}]{}/*",self.hardened_path.replace("m",&self.fingerprint),self.xprv)
   }
-  pub fn to_extended_xpub_str(&self)->String{
+  pub fn _to_extended_xpub_str(&self)->String{
     format!("[{}]{}/*",self.hardened_path.replace("m",&self.fingerprint),self.xpub)
   }
   
@@ -117,7 +117,7 @@ pub enum DerivationPurpose {
   Legacy,
   Compatible,
   Native,
-  Encryption
+  _Encryption
 }
 impl Display for DerivationPurpose {
   fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -125,7 +125,7 @@ impl Display for DerivationPurpose {
       DerivationPurpose::Legacy => write!(f, "44"),
       DerivationPurpose::Compatible => write!(f, "49"),
       DerivationPurpose::Native => write!(f, "84"),
-      DerivationPurpose::Encryption => write!(f, "392"),
+      DerivationPurpose::_Encryption => write!(f, "392"),
     }
   }
 }
@@ -169,7 +169,7 @@ pub fn to_hardened_account(
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
 
-  let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
+  let child_xpub = ExtendedPubKey::from_priv(&secp, &child_xprv);
 
   Ok(ChildKeys {
     fingerprint: fingerprint.to_string(),
@@ -193,7 +193,7 @@ pub fn to_path_str(master_xprv: &str, derivation_path: &str) -> Result<ChildKeys
     Ok(xprv) => xprv,
     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
   };
-  let child_xpub = ExtendedPubKey::from_private(&secp, &child_xprv);
+  let child_xpub = ExtendedPubKey::from_priv(&secp, &child_xprv);
 
   Ok(ChildKeys {
     fingerprint: fingerprint.to_string(),

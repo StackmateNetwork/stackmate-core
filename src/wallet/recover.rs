@@ -99,13 +99,8 @@ mod tests {
     assert_eq!(options[5],RecoveryOption::None);
 
   }
-  fn try_recover_muun_emergency_kit(){
+  fn _try_recover_muun_emergency_kit(){
     // let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     // path.push("resources/muun_rkit.pdf");
-
-    let exp_first_key="4Sms7161JcXMTE456Wa3DPMbWDtxXaMPK8QjoPYXvsoCnedBxPx3 KbThMBzdzGJkaa4hNHNfxVDtEb8UPbfb4TCXRJFXQgNhySREcqa4cb axwjwYoAGhCS42PuaamQtZmANt5FQEWvcRXqdqrYV";
-    let exp_second_key="
-    4Sms7QH8oGEGzrz3vABK2i3iVro5zBqk4dK5wdFhAKCVrtQbuSyzoHg 8623zULQFSzjHfUUgvZi4WBz4yPy9BPsjm4yTxMRwZfMDiWdCXEgNJ Zir1wisKB67tmXU5uqGAJoydEvA8t2Cz1tSHmw";
-
   }
 }
