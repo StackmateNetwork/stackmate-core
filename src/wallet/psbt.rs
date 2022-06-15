@@ -403,6 +403,23 @@ pub fn broadcast(config: WalletConfig, psbt: &str) -> Result<TxidResponse, S5Err
     txid: "success".to_string(),
   })
 }
+pub fn broadcast_hex(config: WalletConfig, tx_hex: &str) -> Result<TxidResponse, S5Error> {
+  let decoded_tx_hex = match hex::decode(&tx_hex) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Transaction-Hex-Decode")),
+  };
+  let transaction_struct: Transaction = match deserialize(&decoded_tx_hex) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Transaction-Hex-Deserialize")),
+  };
+  let _txid = match config.client.unwrap().broadcast(&transaction_struct) {
+    Ok(result) => result,
+    Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+  };
+  Ok(TxidResponse {
+    txid: "success".to_string(),
+  })
+}
 
 #[cfg(test)]
 mod tests {
@@ -452,6 +469,7 @@ mod tests {
     // let bumped  = build_fee_bump(bump_config,&broadcasted.txid, fee_absolute+1_000);
 
     // assert!(bumped.clone().unwrap().is_finalized);
+
   }
 
   #[test]

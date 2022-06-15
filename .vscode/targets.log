@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jun  7 23:55:00 2022
+# Make data base, printed on Wed Jun 15 16:31:18 2022
 
 # Variables
 
@@ -15,13 +15,14 @@ GDK_BACKEND = x11
 # environment
 LC_ALL = C
 # environment
+ 
 GNOME_SHELL_SESSION_MODE = pop
 # environment
 SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4ceb3a1a-acf9-41f0-8efc-962b3597c587.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f737bb22-5128-471a-bafb-b11f61b7e47b.sock
 # environment
 MANDATORY_PATH = /usr/share/gconf/pop.mandatory.path
 # environment
@@ -51,7 +52,6 @@ VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
 # environment
- 
 VSCODE_CODE_CACHE_PATH = /home/i5hi/.config/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
 # makefile (from 'makefile', line 2)
 PROJECTNAME = $(shell basename "$(PWD)")
@@ -74,7 +74,7 @@ CURDIR := /home/i5hi/StackmateNetwork/stackmate-core
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # automatic
@@ -98,13 +98,13 @@ MAKEFILE_LIST := makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 30502
+VSCODE_PID = 2154
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/2159,unix/pop-os:/tmp/.ICE-unix/2159
+SESSION_MANAGER = local/pop-os:@/tmp/.ICE-unix/1742,unix/pop-os:/tmp/.ICE-unix/1742
 # automatic
 *F = $(notdir $*)
 # environment
@@ -142,7 +142,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = dad0e94fea3d46829a0d931f7772c032
+INVOCATION_ID = 38c732312fd846be96d398c5c60fc77d
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -186,9 +186,9 @@ MAKE_VERSION := 4.3
 # 'override' directive
 .SHELLSTATUS := 0
 # environment
-MANAGERPID = 1657
+MANAGERPID = 1512
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 30502
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2154
 # environment
 _ = /usr/share/code/code
 # environment
@@ -196,7 +196,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-JOURNAL_STREAM = 8:38117
+JOURNAL_STREAM = 8:31388
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -234,12 +234,13 @@ GDMSESSION = pop
 
 # ./src/key (device 64769, inode 16002535): 8 files, no impossibilities.
 # ./src/bip392 (device 64769, inode 16002530): 4 files, no impossibilities.
-# . (device 64769, inode 15991228): 23 files, no impossibilities.
+ 
+# . (device 64769, inode 15991228): 24 files, no impossibilities.
 # ./src/network (device 64769, inode 16002543): 7 files, no impossibilities.
 # ./src/wallet (device 64769, inode 16002549): 11 files, no impossibilities.
 # ./src (device 64769, inode 16002529): 9 files, no impossibilities.
 
-# 62 files, no impossibilities in 6 directories.
+# 63 files, no impossibilities in 6 directories.
 
 # Implicit Rules
 
@@ -250,7 +251,7 @@ GDMSESSION = pop
 # Not a target:
 src/wallet/policy.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:48:00.720020912
+#  Last modified 2022-06-08 00:16:54.877890217
 #  File has been updated.
 #  Successfully updated.
 
@@ -292,7 +293,6 @@ src/wallet/custom.rs:
 # Not a target:
 src/e.rs:
 #  Implicit rule search has been done.
- 
 #  Last modified 2022-05-28 20:57:37.657255199
 #  File has been updated.
 #  Successfully updated.
@@ -310,6 +310,7 @@ target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.r
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
+ 
 # Load=0/32=0%, Rehash=0, Collisions=0/4=0%
 #  recipe to execute (from 'makefile', line 42):
 	@if [ $$(uname) == "Darwin" ] ; then \
@@ -365,14 +366,15 @@ src/bip392/mod.rs:
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:55:12.554462071
+ 
+#  Last modified 2022-06-08 00:18:22.544186528
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 src/key/derivation.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:41:21.417303856
+#  Last modified 2022-06-08 00:18:45.401894232
 #  File has been updated.
 #  Successfully updated.
 
@@ -409,6 +411,7 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 # Not a target:
 src/wallet/psbt.rs:
 #  Implicit rule search has been done.
+ 
 #  Last modified 2022-06-07 22:43:31.933643754
 #  File has been updated.
 #  Successfully updated.
@@ -421,7 +424,6 @@ bindings: target/bindings.h
 target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
- 
 #  File has not been updated.
 #  recipe to execute (from 'makefile', line 64):
 	cargo build --target x86_64-linux-android --release
@@ -474,6 +476,7 @@ help: makefile
 #  recipe to execute (from 'makefile', line 15):
 	@echo
 	@echo " Available actions in "$(PROJECTNAME)":"
+ 
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
@@ -526,12 +529,12 @@ ndk-home:
 # automatic
 # % := 
 # automatic
+ 
 # ^ := 
 # automatic
 # ? := 
 # automatic
 # | := 
- 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=6/12=50%
 #  recipe to execute (from 'makefile', line 69):
@@ -572,6 +575,7 @@ src/key/mod.rs:
 #  Modification time never checked.
 #  File has not been updated.
 
+ 
 target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -603,13 +607,12 @@ src/wallet/utxo.rs:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 97 / storage = 1314 B / avg = 13 B
-# current buf: size = 8162 B / used = 1314 B / count = 97 / avg = 13 B
+# strcache buffers: 1 (0) / strings = 98 / storage = 1329 B / avg = 13 B
+# current buf: size = 8162 B / used = 1329 B / count = 98 / avg = 13 B
 
-# strcache performance: lookups = 281 / hit rate = 65%
+# strcache performance: lookups = 282 / hit rate = 65%
 # hash-table stats:
- 
-# Load=97/8192=1%, Rehash=0, Collisions=0/281=0%
-# Finished Make data base on Tue Jun  7 23:55:00 2022
+# Load=98/8192=1%, Rehash=0, Collisions=0/282=0%
+# Finished Make data base on Wed Jun 15 16:31:18 2022
 
  

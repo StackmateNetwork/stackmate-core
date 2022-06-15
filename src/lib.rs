@@ -1141,6 +1141,68 @@ pub unsafe extern "C" fn broadcast_tx(
     }
 }
 
+/// Broadcasts a signed transaction to a remote node.
+/// - *OUTPUT*
+/// ```
+///  TxidResponse {
+///    pub txid: String,
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn broadcast_hex(
+    descriptor: *const c_char,
+    node_address: *const c_char,
+    socks5: *const c_char,
+    signed_tx_hex: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    let node_address_cstr = CStr::from_ptr(node_address);
+    let node_address: &str = match node_address_cstr.to_str() {
+        Ok(string) => {
+            if string.contains("electrum") || string.contains("http") {
+                string
+            } else {
+                DEFAULT
+            }
+        }
+        Err(_) => DEFAULT,
+    };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
+        Err(_) => None,
+    };
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+        Ok(conf) => conf,
+        Err(e) => return e.c_stringify(),
+    };
+
+    let hex_cstr = CStr::from_ptr(signed_tx_hex);
+    let signed_hex: &str = match hex_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    match psbt::broadcast_hex(config, signed_hex) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 /// Checks if an extended public key is valid.
 /// Do not use the key source while checking an xpub i.e. remove [fingerprint/derivation/path/values] and only provide the xpub/tpub.
 /// - *OUTPUT*
