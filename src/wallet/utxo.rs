@@ -96,7 +96,7 @@ mod tests {
   #[test]
   fn test_utxo() {
     let descriptor = "wpkh([8c0a6143/84h/1h/0h]tpubDDjEawrHcboLRccFyt3hcebjhUBPbkueturmkp2EZv3gtaLQLWFeyPVBXVMYt2F5vZcmrwEihVb9axivcQ5QHNnsWgLhmrZyVmq7gHnS4no/*)";
-    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,None).unwrap();
     let utxos = list_unspent(config).unwrap();
     println!("{:#?}", utxos);
   }

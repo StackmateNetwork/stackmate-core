@@ -7,6 +7,7 @@ use bdk::electrum_client::Error as ElectrumError;
 use bdk::bitcoin::Network;
 use std::fmt::Debug;
 use std::fmt::Formatter;
+use std::path::Path;
 use bdk::bitcoin::secp256k1::Secp256k1;
 
 use crate::e::{ErrorKind, S5Error};
@@ -21,6 +22,7 @@ pub struct WalletConfig {
   pub change_desc: String,
   pub network: Network,
   pub client: Option<AnyBlockchain>,
+  pub db_path: Option<String>
 }
 impl Debug for WalletConfig {
   fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -30,7 +32,7 @@ impl Debug for WalletConfig {
           AnyBlockchain::Electrum(ref _config) => f.debug_struct("WalletConfig")
           .field("deposit_descriptor", &self.deposit_desc)
           .field("network", &self.network)
-          .field("backend", &"Electrum".to_string())
+          .field("backend", &"Electrum: ".to_string())
           .finish(),
           AnyBlockchain::Rpc(ref _config) =>f.debug_struct("WalletConfig")
           .field("deposit_descriptor", &self.deposit_desc)
@@ -52,6 +54,7 @@ impl WalletConfig {
     descriptor: &str,
     node_address: &str,
     socks5: Option<String>,
+    db_path: Option<String>
   ) -> Result<Self, S5Error> {
     let deposit_desc: &str = &descriptor.replace("/*", "/0/*");
     let change_desc: &str = &descriptor.replace("/*", "/1/*");
@@ -100,6 +103,7 @@ impl WalletConfig {
         change_desc: change_desc.to_string(),
         network:network,
         client: Some(client),
+        db_path: db_path
       })
     } else if node_address.contains("?auth=") {
       let parts: Vec<&str> = node_address.split("?auth=").collect();
@@ -137,6 +141,7 @@ impl WalletConfig {
         change_desc: change_desc.to_string(),
         network,
         client: Some(client),
+        db_path: db_path
       })
     } else {
       Err(S5Error::new(ErrorKind::Internal, "Core RPC requires an onion address."))
@@ -171,7 +176,7 @@ impl WalletConfig {
     // })
   }
 
-  pub fn new_offline(descriptor: &str) -> Result<Self, S5Error> {
+  pub fn new_offline(descriptor: &str, db_path: Option<String>) -> Result<Self, S5Error> {
     let deposit_desc: &str = &descriptor.replace("/*", "/0/*");
     let change_desc: &str = &descriptor.replace("/*", "/1/*");
     let network = if <&str>::clone(&descriptor).contains("xpub")
@@ -187,6 +192,7 @@ impl WalletConfig {
       change_desc: change_desc.to_string(),
       network,
       client: None,
+      db_path: db_path
     })
   }
 }
@@ -279,7 +285,7 @@ mod tests {
   fn test_default_electrum_config() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
-    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,None).unwrap();
     match config.client.unwrap() {
       AnyBlockchain::Electrum(client) => {
         let fee = client.estimate_fee(8);
@@ -300,7 +306,7 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
     let node_address = "http://172.18.0.2:18332?auth=satsbank:typercuz";
-    let config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let config = WalletConfig::new(&descriptor, node_address, None,None).unwrap();
     match config.client.unwrap() {
       AnyBlockchain::Rpc(client) => {
         let fee = client.estimate_fee(8);
@@ -315,7 +321,7 @@ mod tests {
   fn test_config_errors() {
     let descriptor = "[fingerprint/h/d/path]xprv/*";
     let node_address = "ssl://electrum.blockstream.info:5002";
-    let config_error = WalletConfig::new(&descriptor, node_address, None)
+    let config_error = WalletConfig::new(&descriptor, node_address, None,None)
       .err()
       .unwrap();
     println!("{:#?}", config_error);

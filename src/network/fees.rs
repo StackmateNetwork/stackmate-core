@@ -62,7 +62,7 @@ mod tests {
   #[test]
   fn test_estimate_fee() {
     let descriptor = "[fingerprint/h/d/path]xprv/*";
-    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None,None).unwrap();
     let network_fee = estimate_rate(config, 1).unwrap();
     println!("{:#?}", network_fee);
   }

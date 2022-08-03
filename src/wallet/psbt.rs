@@ -442,12 +442,12 @@ mod tests {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
     let node_address = "ssl://electrum.blockstream.info:60002";
-    let config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let config = WalletConfig::new(&descriptor, node_address, None,None).unwrap();
     let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
     let descriptor = format!("wpkh({}/*)", xkey);
-    let sign_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
-    let _broadcast_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
-    let _bump_config = WalletConfig::new(&descriptor, node_address, None).unwrap();
+    let sign_config = WalletConfig::new(&descriptor, node_address, None,None).unwrap();
+    let _broadcast_config = WalletConfig::new(&descriptor, node_address, None,None).unwrap();
+    let _bump_config = WalletConfig::new(&descriptor, node_address, None,None).unwrap();
 
     let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
     let amount = 5_000;

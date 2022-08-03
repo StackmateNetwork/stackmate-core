@@ -145,7 +145,7 @@ mod tests {
   fn test_balance() {
     let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
     let descriptor = format!("wpkh({}/*)", xkey);
-    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,None).unwrap();
     let balance = sync_balance(config).unwrap();
     let zero: u64 = 0;
     assert_eq!(balance.balance>=zero, true)
@@ -153,7 +153,7 @@ mod tests {
   #[test]
   fn test_history() {
     let descriptor = "wpkh([db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe/*)";
-    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,None).unwrap();
     let history = sync_history(config).unwrap();
     assert!((history.history.len()>0));
     // println!("{:#?}", history);

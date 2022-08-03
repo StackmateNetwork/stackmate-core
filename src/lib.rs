@@ -32,7 +32,6 @@ static A: System = System;
 use bitcoin::network::constants::Network;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use std::str::FromStr;
 
 mod e;
 use e::{ErrorKind, S5Error};
@@ -50,13 +49,11 @@ use crate::wallet::address;
 use crate::wallet::history;
 use crate::wallet::policy;
 use crate::wallet::psbt;
-use crate::wallet::recover::RecoveryOption;
 use crate::wallet::utxo;
 
 mod network;
 use crate::network::fees;
 use crate::network::height;
-use crate::network::tor;
 
 mod bip392;
 /// Generates a mnemonic phrase of a given length. Defaults to 24 words.
@@ -159,22 +156,6 @@ pub unsafe extern "C" fn import_master(
 
     match seed::import(mnemonic, passphrase, network) {
         Ok(master_key) => master_key.c_stringify(),
-        Err(e) => e.c_stringify(),
-    }
-}
-
-/// Checks if some dump data can recover a wallet
-/// If type is Mnemonic, use import, if type is a descriptor, use wallet functions directly.
-#[no_mangle]
-pub unsafe extern "C" fn recovery_options(dump: *const c_char) -> *mut c_char {
-    let dump_cstr = CStr::from_ptr(dump);
-    let dump: &str = match dump_cstr.to_str() {
-        Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Data could not be parsed.").c_stringify(),
-    };
-
-    match RecoveryOption::from_str(dump) {
-        Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
 }
@@ -421,7 +402,7 @@ pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
         Ok(string) => string,
         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
-    let config = match WalletConfig::new_offline(descriptor_str) {
+    let config = match WalletConfig::new_offline(descriptor_str,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -433,6 +414,50 @@ pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
     }
 }
 
+///
+/// 
+/// 
+// #[no_mangle]
+// pub unsafe extern "C" fn sync_sqlite(
+//     db_path: *const c_char,    
+//     descriptor: *const c_char,
+//     node_address: *const c_char,
+//     socks5: *const c_char
+// ) -> *mut c_char{
+//     let db_path_cstr = CStr::from_ptr(db_path);
+//     let db_path_str: &str = match db_path_cstr.to_str() {
+//         Ok(string) => string,
+//         Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+//     };
+//     let descriptor_cstr = CStr::from_ptr(descriptor);
+//     let descriptor: &str = match descriptor_cstr.to_str() {
+//         Ok(string) => string,
+//         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+//     };
+
+//     let node_address_cstr = CStr::from_ptr(node_address);
+//     let node_address: &str = match node_address_cstr.to_str() {
+//         Ok(string) => {
+//             if string.contains("electrum") || string.contains("http") {
+//                 string
+//             } else {
+//                 DEFAULT
+//             }
+//         }
+//         Err(_) => DEFAULT,
+//     };
+//     let socks5_cstr = CStr::from_ptr(socks5);
+//     let socks5_option = match socks5_cstr.to_str() {
+//         Ok(string) => {
+//             if string.to_lowercase() == "none" || string == "" {
+//                 None
+//             } else {
+//                 Some(string.to_string())
+//             }
+//         }
+//         Err(_) => None,
+//     };
+// }
 /// Syncs to a remote node and fetches balance of a descriptor wallet.
 /// - *OUTPUT*
 /// ```
@@ -478,7 +503,7 @@ pub unsafe extern "C" fn sync_balance(
         Err(_) => None,
     };
 
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -541,7 +566,7 @@ pub unsafe extern "C" fn sync_history(
         Err(_) => None,
     };
 
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -602,7 +627,7 @@ pub unsafe extern "C" fn list_unspent(
         }
         Err(_) => None,
     };
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -634,7 +659,7 @@ pub unsafe extern "C" fn get_address(
         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
-    let config = match WalletConfig::new_offline(descriptor) {
+    let config = match WalletConfig::new_offline(descriptor,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -720,7 +745,7 @@ pub unsafe extern "C" fn estimate_network_fee(
         Err(_) => None,
     };
 
-    let config = match WalletConfig::new("*", node_address, socks5_option) {
+    let config = match WalletConfig::new("*", node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -884,7 +909,7 @@ pub unsafe extern "C" fn build_tx(
         }
         Err(_) => None,
     };
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -974,7 +999,7 @@ pub unsafe extern "C" fn build_fee_bump(
         Err(_) => None,
     };
 
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -1062,7 +1087,7 @@ pub unsafe extern "C" fn sign_tx(
         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
     };
 
-    let config = match WalletConfig::new_offline(descriptor) {
+    let config = match WalletConfig::new_offline(descriptor,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -1124,7 +1149,7 @@ pub unsafe extern "C" fn broadcast_tx(
         }
         Err(_) => None,
     };
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return e.c_stringify(),
     };
@@ -1186,7 +1211,7 @@ pub unsafe extern "C" fn broadcast_hex(
         }
         Err(_) => None,
     };
-    let config = match WalletConfig::new(descriptor, node_address, socks5_option) {
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return e.c_stringify(),
     };
@@ -1280,7 +1305,7 @@ pub unsafe extern "C" fn get_height(
         Err(_) => None,
     };
 
-    let config = match WalletConfig::new("*", node_address, socks5_option) {
+    let config = match WalletConfig::new("*", node_address, socks5_option,None) {
         Ok(conf) => conf,
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
@@ -1290,126 +1315,6 @@ pub unsafe extern "C" fn get_height(
     }
 }
 
-/// Convert days to bitcoin blocks as height. *Does not consider the current block height*. Add to get_height to get the expected block height after the given time in days.
-/// - *OUTPUT*
-/// ```  
-///  BlockHeight {
-///    height: u32,
-///  }
-/// ```
-/// # Safety”
-/// - This function is unsafe because it dereferences and a returns raw pointer.
-/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
-#[no_mangle]
-pub unsafe extern "C" fn days_to_blocks(days: *const c_char) -> *mut c_char {
-    let days_cstr = CStr::from_ptr(days);
-    let days: u32 = match days_cstr.to_str() {
-        Ok(string) => match string.parse::<u32>() {
-            Ok(i) => i,
-            Err(_) => {
-                return S5Error::new(ErrorKind::Input, "Days must be a stringified uint32")
-                    .c_stringify()
-            }
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Days").c_stringify(),
-    };
-
-    height::BlockHeight { height: days * 144 }.c_stringify()
-}
-
-/// Switch on tor daemon.
-/// BETA: Careful with this.
-/// # Safety
-/// - This function is unsafe because it dereferences and a returns raw pointer.
-/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
-#[no_mangle]
-pub unsafe extern "C" fn tor_start(
-    data_dir: *mut c_char,
-    socks5_port: *mut c_char,
-    http_proxy: *mut c_char,
-) -> *mut c_char {
-    let data_dir_cstr = CStr::from_ptr(data_dir);
-    let data_dir: &str = match data_dir_cstr.to_str() {
-        Ok(string) => string,
-        Err(_) => "/tmp",
-    };
-    let socks5_port_cstr = CStr::from_ptr(socks5_port);
-    let socks5_port: u16 = match socks5_port_cstr.to_str() {
-        Ok(string) => match string.parse::<u16>() {
-            Ok(i) => i,
-            Err(_) => return S5Error::new(ErrorKind::Input, "Socks5 Port").c_stringify(),
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Socks5 Port").c_stringify(),
-    };
-    let http_proxy_cstr = CStr::from_ptr(http_proxy);
-    let http_proxy: u16 = match http_proxy_cstr.to_str() {
-        Ok(string) => match string.parse::<u16>() {
-            Ok(i) => i,
-            Err(_) => 80,
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Http Port").c_stringify(),
-    };
-    let control_key = tor::start(data_dir, socks5_port, http_proxy);
-    CString::new(control_key).unwrap().into_raw()
-}
-
-/// Get bootstrap progress from tor daemon. Wait ~1s after calling tor_start() before calling this.
-/// BETA: Careful with this.
-/// # Safety
-/// - This function is unsafe because it dereferences and a returns raw pointer.
-/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
-#[no_mangle]
-pub unsafe extern "C" fn tor_progress(
-    control_port: *mut c_char,
-    control_key: *mut c_char,
-) -> *mut c_char {
-    let control_key_cstr = CStr::from_ptr(control_key);
-    let control_key: &str = match control_key_cstr.to_str() {
-        Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
-    };
-    let control_port_cstr = CStr::from_ptr(control_port);
-    let control_port: u16 = match control_port_cstr.to_str() {
-        Ok(string) => match string.parse::<u16>() {
-            Ok(i) => i,
-            Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
-    };
-    match tor::bootstrap_progress(control_port, control_key) {
-        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
-        Err(e) => e.c_stringify(),
-    }
-}
-
-/// Shutdown tor daemon.
-/// BETA: Careful with this.
-/// # Safety
-/// - This function is unsafe because it dereferences and a returns raw pointer.
-/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
-#[no_mangle]
-pub unsafe extern "C" fn tor_stop(
-    control_port: *mut c_char,
-    control_key: *mut c_char,
-) -> *mut c_char {
-    let control_key_cstr = CStr::from_ptr(control_key);
-    let control_key: &str = match control_key_cstr.to_str() {
-        Ok(string) => string,
-        Err(_) => return S5Error::new(ErrorKind::Input, "Control-Key").c_stringify(),
-    };
-    let control_port_cstr = CStr::from_ptr(control_port);
-    let control_port: u16 = match control_port_cstr.to_str() {
-        Ok(string) => match string.parse::<u16>() {
-            Ok(i) => i,
-            Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
-        },
-        Err(_) => return S5Error::new(ErrorKind::Input, "Control Port").c_stringify(),
-    };
-    match tor::shutdown(control_port, control_key) {
-        Ok(result) => CString::new(result.to_string()).unwrap().into_raw(),
-        Err(e) => e.c_stringify(),
-    }
-}
 
 /// After using any other function, pass the output pointer into cstring_free(ptr: *mut c_char) to clear memory.
 /// ALWAYS use this in combination with any other function.
@@ -1475,37 +1380,7 @@ mod ffi {
     //         xprv: "tprv8ZgxMBicQKsPduTkddZgfGyk4ZJjtEEZQjofpyJg74LizJ469DzoF8nmU1YcvBFskXVKdoYmLoRuZZR1wuTeuAf8rNYR2zb1RvFns2Vs8hY",
     //     }
     //      */
-    #[test]
-    fn test_recovery_options() {
-        unsafe {
-            let mut data_dump = "panel across strong judge economy song loud valid regret fork consider bid rack young avoid soap plate injury snow crater beef alone stay clock";
-            let mut expected = format!("mnemonic:{}", data_dump);
-            let mut data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
-
-            let mut result_ptr = recovery_options(data_dump_cstr);
-            let mut result_cstr = CStr::from_ptr(result_ptr);
-            let mut result: &str = result_cstr.to_str().unwrap();
-            assert_eq!(result, expected);
-
-            data_dump = "eb79e0ff";
-            expected = "None".to_string();
-            data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
-
-            result_ptr = recovery_options(data_dump_cstr);
-            result_cstr = CStr::from_ptr(result_ptr);
-            result = result_cstr.to_str().unwrap();
-            assert_eq!(result, &expected);
-
-            data_dump = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
-            expected = format!("descriptor:{}", data_dump);
-            data_dump_cstr = CString::new(data_dump).unwrap().into_raw();
-
-            result_ptr = recovery_options(data_dump_cstr);
-            result_cstr = CStr::from_ptr(result_ptr);
-            result = result_cstr.to_str().unwrap();
-            assert_eq!(result, expected);
-        }
-    }
+    
     #[test]
 
     fn test_alt_purpose_wallet() {
@@ -1722,38 +1597,6 @@ mod ffi {
             let utxos_str = CStr::from_ptr(utxos_ptr).to_str().unwrap();
             let utxos: utxo::WalletUtxos = serde_json::from_str(utxos_str).unwrap();
             assert_eq!(utxos.utxos.len() > 0, true);
-        }
-    }
-
-    #[test]
-    fn test_days_to_blocks() {
-        unsafe {
-            let one_day = "1";
-            let blocks_ptr = days_to_blocks(CString::new(one_day).unwrap().into_raw());
-            let blocks_str = CStr::from_ptr(blocks_ptr).to_str().unwrap();
-            let blocks: height::BlockHeight = serde_json::from_str(blocks_str).unwrap();
-            assert_eq!(blocks.height, 144);
-            let one_year_as_days = "365";
-            let blocks_ptr = days_to_blocks(CString::new(one_year_as_days).unwrap().into_raw());
-            let blocks_str = CStr::from_ptr(blocks_ptr).to_str().unwrap();
-            let blocks: height::BlockHeight = serde_json::from_str(blocks_str).unwrap();
-            assert_eq!(blocks.height, 52560);
-        }
-    }
-
-    #[test] #[ignore]
-    fn test_tor_ffi() {
-        unsafe {
-            let path = "/tmp";
-            let path_cstr = CString::new(path).unwrap().into_raw();
-            let socks5 = "19050";
-            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
-            let _http_proxy_str = "";
-            let http_proxy_cstr = CString::new(_http_proxy_str).unwrap().into_raw();
-
-            let status = tor_start(path_cstr, socks5_cstr, http_proxy_cstr);
-            println!("{:#?}", status);
-
         }
     }
 }

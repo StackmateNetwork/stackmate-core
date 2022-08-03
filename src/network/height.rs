@@ -43,7 +43,7 @@ mod tests {
   #[test]
   fn test_get_height() {
     let descriptor = "[fingerprint/h/d/path]xprv/*";
-    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None).unwrap();
+    let config = WalletConfig::new(&descriptor, DEFAULT_MAINNET_NODE, None,None).unwrap();
     let height = get_height(config).unwrap();
     assert!(height.height>50000);
   }

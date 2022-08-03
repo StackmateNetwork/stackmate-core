@@ -230,9 +230,9 @@ mod tests {
         assert_eq!(&escrow_result, expected_escrow_wsh);
 
         let raft_config: WalletConfig =
-            WalletConfig::new(&raft_result_bech32, DEFAULT_TESTNET_NODE, None).unwrap();
+            WalletConfig::new(&raft_result_bech32, DEFAULT_TESTNET_NODE, None,None).unwrap();
         let escrow_config: WalletConfig =
-            WalletConfig::new(&escrow_result, DEFAULT_TESTNET_NODE, None).unwrap();
+            WalletConfig::new(&escrow_result, DEFAULT_TESTNET_NODE, None,None).unwrap();
 
         let raft_id = id(raft_config).unwrap();
         let expected_raft_id = "hgl9rs6e";
@@ -252,7 +252,7 @@ mod tests {
         let expected_single_tr = "tr([db7d25b5/86'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*)";
         assert_eq!(&single_result_taproot, expected_single_tr);
         let taproot_config: WalletConfig =
-            WalletConfig::new(&single_result_taproot, DEFAULT_TESTNET_NODE, None).unwrap();
+            WalletConfig::new(&single_result_taproot, DEFAULT_TESTNET_NODE, None,None).unwrap();
         let address0 = generate(taproot_config, 0).unwrap();
         assert_eq!(
             address0.address,

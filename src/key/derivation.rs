@@ -282,7 +282,7 @@ mod tests {
 
         let derived = to_hardened_account(&master_key.xprv, purpose, account).unwrap();
         let descriptor = format!("tr({}/*)", derived.xpub);
-        let config = WalletConfig::new_offline(&descriptor).unwrap();
+        let config = WalletConfig::new_offline(&descriptor,None).unwrap();
         let address0 = address::generate(config, 0).unwrap();
         assert!(address0.address.starts_with("tb1p"));
     }
