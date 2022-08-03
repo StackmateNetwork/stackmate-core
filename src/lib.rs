@@ -1604,7 +1604,8 @@ pub unsafe extern "C" fn cstring_free(ptr: *mut c_char) {
 #[cfg(test)]
 mod ffi {
     use super::*;
-
+    use std::{env,fs, path::Path};
+    use secp256k1::rand::{thread_rng,Rng};
     #[test]
     /// ENSURE that mnemonic does not error for bad input values.
     /// Default to 24 words mnemonic.
@@ -1866,6 +1867,46 @@ mod ffi {
             let utxos_str = CStr::from_ptr(utxos_ptr).to_str().unwrap();
             let utxos: utxo::WalletUtxos = serde_json::from_str(utxos_str).unwrap();
             assert_eq!(utxos.utxos.len() > 0, true);
+        }
+    }
+    #[test]
+    fn test_ffi_sqlite() {
+        unsafe {
+            let descriptor = "wpkh([71b57c5d/84h/1h/0h]tprv8fUHbn7Tng83h8SvS6JLXM2bTViJai8N31obfNxAyXzaPxiyCxFqxeewBbcDu8jvpbquTW3577nRJc1KLChurPs6rQRefWTgUFH1ZnjU2ap/*)";
+            let descriptor_cstr = CString::new(descriptor).unwrap().into_raw();
+            let node_address_cstr = CString::new("default").unwrap().into_raw();
+            let socks5 = "none";
+            let socks5_cstr = CString::new(socks5).unwrap().into_raw();
+            let mut rng = thread_rng();
+            let random: u16 = rng.gen();
+            let db_path: String = env::var("CARGO_MANIFEST_DIR").unwrap() + &random.to_string() + ".db";
+            let db_path_cstr = CString::new(db_path.clone()).unwrap().into_raw();
+
+            let sync_ptr = sqlite_sync(db_path_cstr, descriptor_cstr, node_address_cstr, socks5_cstr);
+            let sync_str = CStr::from_ptr(sync_ptr).to_str().unwrap();
+            assert_eq!(sync_str, "DONE");
+
+            let address_ptr = sqlite_last_unused_address(descriptor_cstr,db_path_cstr);
+            let address_str = CStr::from_ptr(address_ptr).to_str().unwrap();
+            let address: address::WalletAddress = serde_json::from_str(address_str).unwrap();
+            assert_eq!(
+                address.address,
+                "tb1qnvf0r596m3ae4ukfks040dpq34lv0rsugmgd2n"
+            );
+
+            let history_ptr = sqlite_history(descriptor_cstr, db_path_cstr);
+            let history_str = CStr::from_ptr(history_ptr).to_str().unwrap();
+            let history: history::WalletHistory = serde_json::from_str(history_str).unwrap();
+            assert_eq!(history.history.len() > 0, true);
+
+            let balance_ptr = sqlite_balance(descriptor_cstr, db_path_cstr);
+            let balance_str = CStr::from_ptr(balance_ptr).to_str().unwrap();
+            let balance: history::WalletBalance = serde_json::from_str(balance_str).unwrap();
+            let zero = 0;
+            assert!(balance.balance>= zero);
+
+            fs::remove_file(Path::new(&db_path))
+            .expect("File delete failed");
         }
     }
 }

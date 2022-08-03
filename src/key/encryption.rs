@@ -1,12 +1,15 @@
 ///Implementation of BIP392: Methodology for script wallet backups
-use std::str;
+use std::{str};
 use chacha20poly1305::{XChaCha20Poly1305, Key, XNonce};
 use chacha20poly1305::aead::{Aead, NewAead};
+use secp256k1::rand::{thread_rng,Rng};
 
 pub fn _cc20p1305_encrypt(plaintext:&[u8], key: &[u8])->Result<String,String>{
     let encryption_key = Key::from_slice(key); // 32-bytes
     let aead = XChaCha20Poly1305::new(encryption_key);
-    let nonce = XNonce::from_slice(b"extra long unique nonce!"); // 24-bytes; unique
+    let mut rng = thread_rng();
+    let _random: u32 = rng.gen();
+    let nonce = XNonce::from_slice(b"must be a 24 bit nonced "); 
     let ciphertext = aead.encrypt(nonce, plaintext).expect("encryption failure!");
     Ok(format!("{}:{}",base64::encode(nonce),base64::encode(&ciphertext).to_string()))
 }
@@ -23,7 +26,7 @@ pub fn _cc20p1305_decrypt(ciphertext:&str, key: &[u8])->Result<String,String>{
         Err(_)=>Err("Bad Text".to_string())
     }
 }
-// pub fn share(destination: &str, access_token: &str)->Result<String,String>;
+
 
 #[cfg(test)]
 mod tests {
