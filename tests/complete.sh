@@ -2,10 +2,10 @@
 cd ..
 cargo clippy
 
-export CARGO_INCREMENTAL=0
-export RUSTFLAGS="-Zprofile -Zinstrument-coverage -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort"
-export RUSTDOCFLAGS="-Cpanic=abort"
-export LLVM_PROFILE_FILE="libstackmate-%p.profraw"
+# export CARGO_INCREMENTAL=0
+# export RUSTFLAGS="-Zprofile -Zinstrument-coverage -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort"
+# export RUSTDOCFLAGS="-Cpanic=abort"
+# export LLVM_PROFILE_FILE="libstackmate-%p.profraw"
 
 cargo test --tests
 

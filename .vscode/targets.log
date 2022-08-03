@@ -1,85 +1,165 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
+ 
 # Built for x86_64-pc-linux-gnu
+ 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
+ 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ 
 # This is free software: you are free to change and redistribute it.
+ 
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Wed Aug  3 12:35:14 2022
+ 
+# Make data base, printed on Wed Aug  3 17:02:28 2022
+ 
 
 # Variables
+ 
 
+ 
 # environment
+ 
 GDK_BACKEND = x11
+ 
 # environment
+ 
 LC_ALL = C
+ 
 # environment
+ 
 GNOME_SHELL_SESSION_MODE = pop
+ 
 # environment
+ 
 SSH_AGENT_LAUNCHER = gnome-keyring
+ 
 # environment
+ 
 GJS_DEBUG_OUTPUT = stderr
+ 
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-295940a3-9e7c-4206-8402-39f8770e38c7.sock
+ 
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-3e90a4fc-ec84-4359-a188-53f218f09e66.sock
+ 
 # environment
+ 
 MANDATORY_PATH = /usr/share/gconf/pop.mandatory.path
+ 
 # environment
+ 
 VSCODE_CWD = /home/i5hi
+ 
 # environment
+ 
 WINDOWPATH = 2
+ 
 # default
+ 
 MAKE_COMMAND := make
+ 
 # environment
+ 
 QT_ACCESSIBILITY = 1
+ 
 # automatic
+ 
 @D = $(patsubst %/,%,$(dir $@))
+ 
 # environment
+ 
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+ 
 # default
+ 
 .VARIABLES := 
+ 
 # environment
+ 
 PWD = /home/i5hi/StackmateNetwork/stackmate-core
+ 
 # automatic
+ 
 %D = $(patsubst %/,%,$(dir $%))
+ 
 # environment
+ 
 XDG_DATA_DIRS = /usr/share/pop:/usr/share/gnome:/home/i5hi/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/
+ 
 # automatic
+ 
 ^D = $(patsubst %/,%,$(dir $^))
+ 
 # environment
+ 
 VSCODE_LOG_STACK = false
+ 
 # automatic
+ 
 %F = $(notdir $%)
+ 
 # environment
+ 
 VSCODE_CODE_CACHE_PATH = /home/i5hi/.config/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+ 
 # makefile (from 'makefile', line 2)
+ 
 PROJECTNAME = $(shell basename "$(PWD)")
+ 
 # environment
+ 
 LANG = C
+ 
 # environment
+ 
 XAUTHORITY = /run/user/1000/gdm/Xauthority
+ 
 # default
+ 
 .LOADED := 
+ 
 # default
+ 
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
+ 
 # makefile (from 'makefile', line 4)
+ 
 OS_NAME = $(shell uname | tr '[:upper:]' '[:lower:]')
+ 
 # makefile
+ 
 MAKEFLAGS = pqrR
+ 
 # environment
+ 
 ANDROID_NDK_HOME = /home/i5hi/android/ndk/21.4.7075529
+ 
 # makefile
+ 
 CURDIR := /home/i5hi/StackmateNetwork/stackmate-core
+ 
 # environment
+ 
 VSCODE_PIPE_LOGGING = true
+ 
 # environment
+ 
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+ 
 # environment
+ 
 LESSOPEN = | /usr/bin/lesspipe %s
+ 
 # automatic
+ 
 *D = $(patsubst %/,%,$(dir $*))
+ 
 # environment
+ 
 MFLAGS = -pqrR
+ 
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # default
@@ -90,6 +170,7 @@ XDG_CONFIG_DIRS = /etc/xdg/xdg-pop:/etc/xdg
 +D = $(patsubst %/,%,$(dir $+))
 # environment
 XDG_SESSION_DESKTOP = pop
+ 
 # makefile (from 'makefile', line 1)
 MAKEFILE_LIST := makefile
 # automatic
@@ -97,7 +178,7 @@ MAKEFILE_LIST := makefile
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 5781
+VSCODE_PID = 14767
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
@@ -167,6 +248,7 @@ ORIGINAL_XDG_CURRENT_DESKTOP = pop:GNOME
 # 'override' directive
 GNUMAKEFLAGS := 
 # environment
+ 
 LOGNAME = i5hi
 # environment
 GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
@@ -189,7 +271,7 @@ MAKE_VERSION := 4.3
 # environment
 MANAGERPID = 2412
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 5781
+GIO_LAUNCHED_DESKTOP_FILE_PID = 14767
 # environment
 _ = /usr/share/code/code
 # environment
@@ -235,12 +317,12 @@ GDMSESSION = pop
 
 # ./src/key (device 64769, inode 16002535): 8 files, no impossibilities.
 # ./src/bip392 (device 64769, inode 16002530): 4 files, no impossibilities.
-# . (device 64769, inode 15991228): 24 files, no impossibilities.
-# ./src/network (device 64769, inode 16002543): 7 files, no impossibilities.
-# ./src/wallet (device 64769, inode 16002549): 12 files, no impossibilities.
+# . (device 64769, inode 15991228): 22 files, no impossibilities.
+# ./src/network (device 64769, inode 16002543): 6 files, no impossibilities.
+# ./src/wallet (device 64769, inode 16002549): 13 files, no impossibilities.
 # ./src (device 64769, inode 16002529): 9 files, no impossibilities.
 
-# 64 files, no impossibilities in 6 directories.
+# 62 files, no impossibilities in 6 directories.
 
 # Implicit Rules
 
@@ -249,16 +331,17 @@ GDMSESSION = pop
 # Files
 
 # Not a target:
+ 
 src/wallet/policy.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:21:06.854543569
+#  Last modified 2022-08-03 14:46:42.277076715
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 src/wallet/history.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.470301508
+#  Last modified 2022-08-03 14:46:27.015970934
 #  File has been updated.
 #  Successfully updated.
 
@@ -270,17 +353,9 @@ src/wallet/recover.rs:
 #  Successfully updated.
 
 # Not a target:
-src/network/exchange.rs:
-#  Implicit rule search has been done.
-#  Last modified 2022-05-28 20:57:37.66125512
-#  File has been updated.
-#  Successfully updated.
-
-# Not a target:
 src/wallet/coldcard.rs:
- 
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.470301508
+#  Last modified 2022-08-03 14:46:15.115108629
 #  File has been updated.
 #  Successfully updated.
 
@@ -301,11 +376,12 @@ src/e.rs:
 # Not a target:
 src/key/seed.rs:
 #  Implicit rule search has been done.
+ 
 #  Last modified 2022-05-28 20:57:37.657255199
 #  File has been updated.
 #  Successfully updated.
 
-target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+target/universal/release/libstackmate.a: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has been updated.
@@ -336,7 +412,7 @@ src/wallet/mod.rs:
 # Not a target:
 src/network/height.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-08-03 14:45:44.780910696
 #  File has been updated.
 #  Successfully updated.
 
@@ -366,14 +442,15 @@ src/bip392/mod.rs:
 # Not a target:
 src/lib.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:20:59.354731129
+ 
+#  Last modified 2022-08-03 14:47:15.151458707
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
 src/key/derivation.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:21:06.854543569
+#  Last modified 2022-08-03 14:42:23.930357579
 #  File has been updated.
 #  Successfully updated.
 
@@ -387,7 +464,7 @@ src/key/encoding.rs:
 # Not a target:
 src/network/fees.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 05:07:06.466301484
+#  Last modified 2022-08-03 14:45:37.260365777
 #  File has been updated.
 #  Successfully updated.
 
@@ -399,7 +476,7 @@ ios: target/universal/release/libstackmate.a
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/4=0%
 
-target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -410,7 +487,7 @@ target/i686-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.
 # Not a target:
 src/wallet/psbt.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:20:59.354731129
+#  Last modified 2022-08-03 14:46:51.029710909
 #  File has been updated.
 #  Successfully updated.
 
@@ -419,11 +496,12 @@ bindings: target/bindings.h
 #  Modification time never checked.
 #  File has not been updated.
 
-target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+target/x86_64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'makefile', line 64):
+ 
 	cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
 
@@ -453,7 +531,7 @@ init:
 # Not a target:
 src/config.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:25:44.969865181
+#  Last modified 2022-08-03 16:38:41.647477314
 #  File has been updated.
 #  Successfully updated.
 
@@ -501,13 +579,14 @@ makefile:
 #  Successfully updated.
 
 # Not a target:
+ 
 src/wallet/proof_of_payment.rs:
 #  Implicit rule search has been done.
 #  Last modified 2022-06-21 18:21:06.854543569
 #  File has been updated.
 #  Successfully updated.
 
-target/aarch64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+target/aarch64-linux-android/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -547,9 +626,16 @@ ndk-home:
 	fi
 
 # Not a target:
+src/wallet/sync.rs:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-03 16:39:50.295331429
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
 src/wallet/address.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 18:21:06.854543569
+#  Last modified 2022-08-03 14:46:00.942081689
 #  File has been updated.
 #  Successfully updated.
 
@@ -567,9 +653,9 @@ src/key/ec.rs:
 #  File has not been updated.
 
 # Not a target:
+ 
 src/key/mod.rs:
 #  Implicit rule search has been done.
- 
 #  Last modified 2022-05-28 20:57:37.657255199
 #  File has been updated.
 #  Successfully updated.
@@ -579,7 +665,7 @@ src/key/mod.rs:
 #  Modification time never checked.
 #  File has not been updated.
 
-target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs ndk-home
+target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs ndk-home
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -587,7 +673,7 @@ target/armv7-linux-androideabi/release/libstackmate.so: src/bip392/mod.rs src/co
 	cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
 
-target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/exchange.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/utxo.rs
+target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.rs src/key/ec.rs src/key/encoding.rs src/key/encryption.rs src/key/mod.rs src/key/seed.rs src/lib.rs src/network/fees.rs src/network/height.rs src/network/mod.rs src/network/tor.rs src/wallet/address.rs src/wallet/coldcard.rs src/wallet/custom.rs src/wallet/history.rs src/wallet/mod.rs src/wallet/policy.rs src/wallet/proof_of_payment.rs src/wallet/psbt.rs src/wallet/recover.rs src/wallet/sync.rs src/wallet/utxo.rs
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -598,7 +684,7 @@ target/bindings.h: src/bip392/mod.rs src/config.rs src/e.rs src/key/derivation.r
 # Not a target:
 src/wallet/utxo.rs:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-07 22:44:30.853134394
+#  Last modified 2022-08-03 14:46:59.83034858
 #  File has been updated.
 #  Successfully updated.
 
@@ -610,12 +696,12 @@ src/wallet/utxo.rs:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 100 / storage = 1381 B / avg = 13 B
-# current buf: size = 8162 B / used = 1381 B / count = 100 / avg = 13 B
+# strcache buffers: 1 (0) / strings = 98 / storage = 1342 B / avg = 13 B
+# current buf: size = 8162 B / used = 1342 B / count = 98 / avg = 13 B
 
-# strcache performance: lookups = 289 / hit rate = 65%
+# strcache performance: lookups = 287 / hit rate = 65%
 # hash-table stats:
-# Load=100/8192=1%, Rehash=0, Collisions=0/289=0%
-# Finished Make data base on Wed Aug  3 12:35:14 2022
+# Load=98/8192=1%, Rehash=0, Collisions=0/287=0%
+# Finished Make data base on Wed Aug  3 17:02:28 2022
 
  

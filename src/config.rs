@@ -7,7 +7,6 @@ use bdk::electrum_client::Error as ElectrumError;
 use bdk::bitcoin::Network;
 use std::fmt::Debug;
 use std::fmt::Formatter;
-use std::path::Path;
 use bdk::bitcoin::secp256k1::Secp256k1;
 
 use crate::e::{ErrorKind, S5Error};
@@ -65,6 +64,7 @@ impl WalletConfig {
     } else {
       Network::Testnet
     };
+    
     let node_address = if node_address.contains(DEFAULT) {
       match network {
         Network::Bitcoin => DEFAULT_MAINNET_NODE,
@@ -73,7 +73,6 @@ impl WalletConfig {
     } else {
       node_address
     };
-
 
     if node_address.contains("electrum") || node_address.contains("onion") {
       let config = if socks5.is_none() {

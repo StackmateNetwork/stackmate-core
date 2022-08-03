@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use std::ffi::CString;
 use std::os::raw::c_char;
 use std::str::FromStr;
-use bdk::database::MemoryDatabase;
+use bdk::database::{MemoryDatabase, SqliteDatabase};
 use bdk::descriptor::Descriptor;
 use bdk::miniscript::DescriptorTrait;
 use bdk::blockchain::Blockchain;
@@ -180,6 +180,85 @@ pub fn build(
     is_finalized: false,
   })
 }
+
+pub fn sqlite_build(
+  config: WalletConfig,
+  outputs: Vec<TxOutput>,
+  fee_absolute: u64,
+  policy_path: Option<BTreeMap<String, Vec<usize>>>,
+  sweep: bool,
+) -> Result<WalletPSBT, S5Error> {
+  if config.db_path.is_none(){
+    return Err(S5Error::new(ErrorKind::Input, "SQLite Requires a Db Path."));
+  } 
+  let wallet = match Wallet::new(
+    &config.deposit_desc,
+    Some(&config.change_desc),
+    config.network,
+    SqliteDatabase::new(config.db_path.unwrap()),
+  ) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
+  };
+
+  let outputs = match outputs
+    .iter()
+    .map(|output| {
+      let address = match Address::from_str(&output.address) {
+        Ok(result) => result,
+        Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Address")),
+      };
+      let amount = match output.amount {
+        Some(result) => result,
+        None => return Err(S5Error::new(ErrorKind::Input, "Invalid Amount")),
+      };
+      Ok((address, amount))
+    })
+    .collect::<Result<Vec<(Address, u64)>, S5Error>>()
+  {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Input, "Invalid Output Set")),
+  };
+
+  let (psbt, _) = {
+    let mut builder = wallet.build_tx();
+    
+    if sweep {
+      builder
+        .drain_wallet()
+        .drain_to(outputs[0].0.script_pubkey());
+    } else {
+      outputs.iter().for_each(|(address, amount)| {
+        builder.add_recipient(address.script_pubkey(), *amount);
+      });
+    }
+    if policy_path.is_some() {
+      builder.policy_path(policy_path.clone().unwrap(), KeychainKind::External);
+      builder.policy_path(policy_path.unwrap(), KeychainKind::Internal);
+    }
+
+    builder.enable_rbf();
+    builder.fee_absolute(fee_absolute);
+    match builder.finish() {
+      Ok(result) => result,
+      Err(e) => {
+        println!("{:?}", e);
+        return match e {
+          Error::SpendingPolicyRequired(_) => {
+            Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
+          }
+          e=> Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+        };
+      }
+    }
+  };
+
+  Ok(WalletPSBT {
+    psbt: psbt.to_string(),
+    is_finalized: false,
+  })
+}
+
 pub fn build_fee_bump(
   config: WalletConfig,
   txid: &str,
@@ -198,6 +277,55 @@ pub fn build_fee_bump(
   match wallet.sync(&config.client.unwrap(), SyncOptions::default()) {
     Ok(_) => (),
     Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Sync")),
+  };
+
+  let txid = match Txid::from_str(txid){
+    Ok(result)=>result,
+    Err(_)=> return Err(S5Error::new(ErrorKind::Input, "Txid")),
+  };
+
+  let (psbt, _) = {
+    let mut builder = match wallet.build_fee_bump(txid){
+      Ok(result)=>result,
+      Err(e)=>return Err(S5Error::new(ErrorKind::Wallet, &e.to_string())),
+    };
+    builder.fee_absolute(fee_absolute);
+    match builder.finish() {
+      Ok(result) => result,
+      Err(e) => {
+        println!("{:?}", e);
+        return match e {
+          Error::SpendingPolicyRequired(_) => {
+            Err(S5Error::new(ErrorKind::Input, "Spending Policy Required"))
+          }
+          e => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
+        };
+      }
+    }
+  };
+
+  Ok(WalletPSBT {
+    psbt: psbt.to_string(),
+    is_finalized: false,
+  })
+}
+
+pub fn sqlite_build_fee_bump(
+  config: WalletConfig,
+  txid: &str,
+  fee_absolute: u64,
+) -> Result<WalletPSBT, S5Error> {
+  if config.db_path.is_none(){
+    return Err(S5Error::new(ErrorKind::Input, "SQLite Requires a Db Path."));
+  } 
+  let wallet = match Wallet::new(
+    &config.deposit_desc,
+    Some(&config.change_desc),
+    config.network,
+    SqliteDatabase::new(config.db_path.unwrap()),
+  ) {
+    Ok(result) => result,
+    Err(_) => return Err(S5Error::new(ErrorKind::Internal, "Wallet-Initialization")),
   };
 
   let txid = match Txid::from_str(txid){
@@ -424,9 +552,12 @@ pub fn broadcast_hex(config: WalletConfig, tx_hex: &str) -> Result<TxidResponse,
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::config::WalletConfig;
+  use crate::config::{WalletConfig,DEFAULT_TESTNET_NODE};
   use bitcoin::network::constants::Network;
-
+  use std::{env, path::Path};
+  use std::fs;
+  use crate::wallet::sync;
+  use secp256k1::rand::{thread_rng,Rng};
   #[test]
   fn tx_outputs_deserialize(){
     let stringified = "[{\"address\":\"adssd\",\"amount\":1232},{\"address\":\"gaffs\",\"amount\":9232}]";
@@ -470,6 +601,50 @@ mod tests {
 
     // assert!(bumped.clone().unwrap().is_finalized);
 
+  }
+
+  #[test]
+  fn test_sqlite_build() {
+    let xkey = "[db7d25b5/84'/1'/6']tpubDCCh4SuT3pSAQ1qAN86qKEzsLoBeiugoGGQeibmieRUKv8z6fCTTmEXsb9yeueBkUWjGVzJr91bCzeCNShorbBqjZV4WRGjz3CrJsCboXUe";
+    let descriptor = format!("wpkh({}/*)", xkey);
+    let mut rng = thread_rng();
+    let random: u16 = rng.gen();
+    let db_path: String = env::var("CARGO_MANIFEST_DIR").unwrap() + &random.to_string() + ".db";
+    // TEST UNSYNCED
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,Some(db_path.clone())).unwrap();
+    let xkey = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49";
+    let descriptor = format!("wpkh({}/*)", xkey);
+    
+    let _bump_config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,Some(db_path.clone())).unwrap();
+
+    let to = "mkHS9ne12qx9pS9VojpwU5xtRd4T7X7ZUt";
+    let amount = 5_000;
+    let fee_absolute = 420;
+    let output = TxOutput {
+      address: to.to_string(),
+      amount: Some(amount),
+    };
+    let psbt_origin = sqlite_build(config, vec![output.clone()], fee_absolute, None, false);
+    assert!(psbt_origin.is_err());
+
+    // TEST SYNCED
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,Some(db_path.clone())).unwrap();
+    let status = sync::sqlite(config);
+    assert_eq!(
+        (),
+        status.unwrap()
+    );
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,Some(db_path.clone())).unwrap();
+    let psbt_origin = sqlite_build(config, vec![output], fee_absolute, None, false);
+
+    let config = WalletConfig::new(&descriptor, DEFAULT_TESTNET_NODE, None,Some(db_path.clone())).unwrap();
+
+    let signed = sign(config, &psbt_origin.clone().unwrap().psbt);
+    println!("{:#?}", signed.clone().unwrap());
+    assert_eq!(signed.clone().unwrap().is_finalized, true);
+
+    fs::remove_file(Path::new(&db_path))
+    .expect("File delete failed");  
   }
 
   #[test]

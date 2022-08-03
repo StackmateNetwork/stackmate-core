@@ -414,50 +414,96 @@ pub unsafe extern "C" fn policy_id(descriptor: *const c_char) -> *mut c_char {
     }
 }
 
-///
-/// 
-/// 
-// #[no_mangle]
-// pub unsafe extern "C" fn sync_sqlite(
-//     db_path: *const c_char,    
-//     descriptor: *const c_char,
-//     node_address: *const c_char,
-//     socks5: *const c_char
-// ) -> *mut c_char{
-//     let db_path_cstr = CStr::from_ptr(db_path);
-//     let db_path_str: &str = match db_path_cstr.to_str() {
-//         Ok(string) => string,
-//         Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
-//     };
-//     let descriptor_cstr = CStr::from_ptr(descriptor);
-//     let descriptor: &str = match descriptor_cstr.to_str() {
-//         Ok(string) => string,
-//         Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
-//     };
+/// Syncs to a remote node and populates an SQLite db at a given path
+/// Use before other SQLite Wallet functions.
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn sqlite_sync(
+    db_path: *const c_char,    
+    descriptor: *const c_char,
+    node_address: *const c_char,
+    socks5: *const c_char
+) -> *mut c_char{
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
 
-//     let node_address_cstr = CStr::from_ptr(node_address);
-//     let node_address: &str = match node_address_cstr.to_str() {
-//         Ok(string) => {
-//             if string.contains("electrum") || string.contains("http") {
-//                 string
-//             } else {
-//                 DEFAULT
-//             }
-//         }
-//         Err(_) => DEFAULT,
-//     };
-//     let socks5_cstr = CStr::from_ptr(socks5);
-//     let socks5_option = match socks5_cstr.to_str() {
-//         Ok(string) => {
-//             if string.to_lowercase() == "none" || string == "" {
-//                 None
-//             } else {
-//                 Some(string.to_string())
-//             }
-//         }
-//         Err(_) => None,
-//     };
-// }
+    let node_address_cstr = CStr::from_ptr(node_address);
+    let node_address: &str = match node_address_cstr.to_str() {
+        Ok(string) => {
+            if string.contains("electrum") || string.contains("http") {
+                string
+            } else {
+                DEFAULT
+            }
+        }
+        Err(_) => DEFAULT,
+    };
+    let socks5_cstr = CStr::from_ptr(socks5);
+    let socks5_option = match socks5_cstr.to_str() {
+        Ok(string) => {
+            if string.to_lowercase() == "none" || string == "" {
+                None
+            } else {
+                Some(string.to_string())
+            }
+        }
+        Err(_) => None,
+    };
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+    let config = match WalletConfig::new(descriptor, node_address, socks5_option,Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    match wallet::sync::sqlite(config){
+        Ok(_)=> CString::new("DONE").unwrap().into_raw(),
+        Err(e)=>e.c_stringify()
+    }
+}
+
+/// Fetches balance of a descriptor wallet from Sqlite db path.
+/// - *OUTPUT*
+/// ```
+/// WalletBalance {
+///   balance: u64
+/// }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+pub unsafe extern "C" fn sqlite_balance(
+    descriptor: *const c_char,
+    db_path: *const c_char
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+
+    let config = match WalletConfig::new_offline(descriptor, Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    match history::sqlite_balance(config) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 /// Syncs to a remote node and fetches balance of a descriptor wallet.
 /// - *OUTPUT*
 /// ```
@@ -508,6 +554,49 @@ pub unsafe extern "C" fn sync_balance(
         Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
     };
     match history::sync_balance(config) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
+/// Fetches history of a descriptor wallet from a SQLite DB at a specified path.
+/// - *OUTPUT*
+/// ```
+///  WalletHistory{
+///    history: Vec<Transaction {
+///      timestamp: u64,
+///      height: u32,
+///      verified: bool,
+///      txid: String,
+///      received: u64,
+///      sent: u64,
+///      fee: u64,
+///    }>;
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+pub unsafe extern "C" fn sqlite_history(
+    descriptor: *const c_char,
+    db_path: *const c_char
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+
+    let config = match WalletConfig::new_offline(descriptor, Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    match history::sqlite_history(config) {
         Ok(result) => result.c_stringify(),
         Err(e) => e.c_stringify(),
     }
@@ -636,6 +725,45 @@ pub unsafe extern "C" fn list_unspent(
         Err(e) => e.c_stringify(),
     }
 }
+
+/// Gets the last unused address from an SQLite DB at a given path.
+/// - *OUTPUT*
+/// ```
+/// WalletAddress {
+///   address: String,
+/// }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn sqlite_last_unused_address(
+    descriptor: *const c_char,
+    db_path: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+
+    let config = match WalletConfig::new_offline(descriptor, Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+
+    match address::sqlite_generate(config) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 
 /// Gets a new address for a descriptor wallet at a given index.
 /// Client must keep track of address indexes and ENSURE prevention of address reuse.
@@ -847,6 +975,99 @@ pub unsafe extern "C" fn get_weight(descriptor: *const c_char, psbt: *const c_ch
     }
 }
 
+
+/// Builds a transaction for a given descriptor wallet from SQLite DB history.
+/// Supports sending to multiple outputs.
+/// TxOutputs have to be provided as a stringified JSON array.
+/// ```
+/// TxOutput{
+///  address: String,
+///  amount: u64,
+/// }
+///
+/// TxOutputs = Vec<TxOutput>
+/// ```
+///
+/// If sweep is set to true, amount value is ignored and will default to None.
+/// Set amount to 0 for sweep.
+/// - *OUTPUT*
+/// ```
+///  WalletPSBT {
+///    pub psbt: String,
+///    pub is_finalized: bool,
+///  }
+/// ```
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn sqlite_build_tx(
+    descriptor: *const c_char,
+    db_path: *const c_char,
+    tx_outputs: *const c_char,
+    fee_absolute: *const c_char,
+    policy_path: *const c_char,
+    sweep: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+
+    let config = match WalletConfig::new_offline(descriptor, Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+
+    let tx_outputs_cstr = CStr::from_ptr(tx_outputs);
+    let tx_outputs_str: &str = match tx_outputs_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "To-Address").c_stringify(),
+    };
+
+    let tx_outputs = match psbt::TxOutput::vec_from_str(tx_outputs_str) {
+        Ok(result) => result,
+        Err(e) => return S5Error::new(ErrorKind::Input, &e.message).c_stringify(),
+    };
+
+    let policy_path_cstr = CStr::from_ptr(policy_path);
+    let policy_path_str: &str = match policy_path_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Policy-Path").c_stringify(),
+    };
+    let policy_path = match psbt::PolicyPath::from_json_str(policy_path_str) {
+        Ok(result) => Some(result.to_btreemap()),
+        Err(_) => None,
+    };
+
+    let sweep_cstr = CStr::from_ptr(sweep);
+    let sweep: bool = match sweep_cstr.to_str() {
+        Ok(string) => string == "true",
+        Err(_) => false,
+    };
+
+    let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
+    let fee_absolute: u64 = match fee_absolute_cstr.to_str() {
+        Ok(string) => match string.parse::<u64>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "Fee Rate").c_stringify(),
+    };
+
+    match psbt::sqlite_build(config, tx_outputs, fee_absolute, policy_path, sweep) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 /// Builds a transaction for a given descriptor wallet.
 /// Supports sending to multiple outputs.
 /// TxOutputs have to be provided as a stringified JSON array.
@@ -956,6 +1177,53 @@ pub unsafe extern "C" fn build_tx(
     }
 }
 
+/// Builds a fee bump transaction for a given txid belonging to the provided descriptor from SQL.
+/// # Safety
+/// - This function is unsafe because it dereferences and a returns raw pointer.
+/// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
+pub unsafe extern "C" fn sqlite_build_fee_bump(
+    descriptor: *const c_char,
+    db_path: *const c_char,
+    txid: *const c_char,
+    fee_absolute: *const c_char,
+) -> *mut c_char {
+    let descriptor_cstr = CStr::from_ptr(descriptor);
+    let descriptor: &str = match descriptor_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "Descriptor").c_stringify(),
+    };
+    let db_path_cstr = CStr::from_ptr(db_path);
+    let db_path: String = match db_path_cstr.to_str() {
+        Ok(string) => string.to_string(),
+        Err(_) => return S5Error::new(ErrorKind::Input, "DB Path").c_stringify(),
+    };
+
+    let config = match WalletConfig::new_offline(descriptor, Some(db_path)) {
+        Ok(conf) => conf,
+        Err(e) => return S5Error::new(ErrorKind::Internal, &e.message).c_stringify(),
+    };
+    let txid_cstr = CStr::from_ptr(txid);
+    let txid: &str = match txid_cstr.to_str() {
+        Ok(string) => string,
+        Err(_) => return S5Error::new(ErrorKind::Input, "txid").c_stringify(),
+    };
+
+    let fee_absolute_cstr = CStr::from_ptr(fee_absolute);
+    let fee_absolute: u64 = match fee_absolute_cstr.to_str() {
+        Ok(string) => match string.parse::<u64>() {
+            Ok(i) => i,
+            Err(_) => return S5Error::new(ErrorKind::Input, "fee_absolute").c_stringify(),
+        },
+        Err(_) => return S5Error::new(ErrorKind::Input, "fee_absolute").c_stringify(),
+    };
+
+    match psbt::sqlite_build_fee_bump(config, txid, fee_absolute) {
+        Ok(result) => result.c_stringify(),
+        Err(e) => e.c_stringify(),
+    }
+}
+
 /// Builds a fee bump transaction for a given txid belonging to the provided descriptor.
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
@@ -1024,6 +1292,7 @@ pub unsafe extern "C" fn build_fee_bump(
         Err(e) => e.c_stringify(),
     }
 }
+
 
 /// Decodes a PSBT and returns all outputs of the transaction and total size.
 /// "miner" is used in the 'to' field of an output to indicate fee.
