@@ -11,6 +11,7 @@ use std::os::raw::c_char;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WalletAddress {
     pub address: String,
+    pub index: String,
 }
 impl WalletAddress {
     pub fn c_stringify(&self) -> *mut c_char {
@@ -40,6 +41,7 @@ pub fn generate(config: WalletConfig, index: u32) -> Result<WalletAddress, S5Err
     match wallet.get_address(Peek(index)) {
         Ok(address) => Ok(WalletAddress {
             address: address.to_string(),
+            index: index.to_string()
         }),
         Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
     }
@@ -60,6 +62,7 @@ pub fn sqlite_generate(config: WalletConfig) -> Result<WalletAddress, S5Error> {
     match wallet.get_address(bdk::wallet::AddressIndex::LastUnused) {
         Ok(address) => Ok(WalletAddress {
             address: address.to_string(),
+            index: address.index.to_string()
         }),
         Err(e) => Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
     }

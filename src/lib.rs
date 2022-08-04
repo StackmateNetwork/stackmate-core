@@ -733,6 +733,7 @@ pub unsafe extern "C" fn list_unspent(
 /// ```
 /// WalletAddress {
 ///   address: String,
+///   index: String,
 /// }
 /// ```
 /// # Safety
@@ -773,6 +774,7 @@ pub unsafe extern "C" fn sqlite_last_unused_address(
 /// ```
 /// WalletAddress {
 ///   address: String,
+///   index: String,
 /// }
 /// ```
 /// # Safety
