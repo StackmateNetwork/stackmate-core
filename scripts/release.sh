@@ -1,5 +1,5 @@
 #!/bin/bash
-RELEASE_TAG=v0.11.1
+RELEASE_TAG=v0.12.0
 
 if (( $EUID == 0 )); then
     REPO="/stackmate-core"

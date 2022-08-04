@@ -10,14 +10,12 @@ version = "0.12.0"
 [dependencies]
 base32 = "0.4.0"
 base64 = "0.13.0"
-rusqlite = {version= "0.27.0", features=["bundled"]}
 bdk = {version = "0.20.0", features = ["compiler", "rpc", "electrum", "sqlite"]}
 bip39 = "1.0.1"
 bitcoin = {version = "0.28.1", features = ["rand", "base64"]}
 chacha20poly1305 = {version = "0.9.0", features = ["stream"]}
 hex = "0.4.3"
-libtor = {version = "47.7.0+0.4.7.x", features = ["vendored-lzma", "vendored-zstd"]}
-openssl = {version = "0.10", features = ["vendored"]}
+rusqlite = {version= "0.27.0", features=["bundled"]}
 secp256k1 = {version = "0.22.0", features = ["rand", "bitcoin_hashes", "global-context", "rand-std"]}
 serde = "1.0.126"
 serde_derive = "1.0.0"
@@ -33,15 +31,6 @@ codegen-units = 1
 lto = true
 opt-level = "z"
 panic = "abort"
-
-# [target.aarch64-linux-android.dependencies] 
-#  openssl-sys = { version = "*", features = ["vendored"] }
-
-# [target.i686-linux-android.dependencies] 
-# openssl-sys = { version = "*", features = ["vendored"] }
-
-# [target.x84_64-linux-android.dependencies] 
-# openssl-sys = { version = "*", features = ["vendored"] }
 
 [build]
 profiler = true

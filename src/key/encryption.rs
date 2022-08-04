@@ -8,8 +8,13 @@ pub fn _cc20p1305_encrypt(plaintext:&[u8], key: &[u8])->Result<String,String>{
     let encryption_key = Key::from_slice(key); // 32-bytes
     let aead = XChaCha20Poly1305::new(encryption_key);
     let mut rng = thread_rng();
-    let _random: u32 = rng.gen();
-    let nonce = XNonce::from_slice(b"must be a 24 bit nonced "); 
+    let random = rng.gen::<u64>().clone();
+    let mut random_string = random.to_string();
+    random_string.pop();
+    random_string.pop();
+    let random_bytes = random_string.as_bytes();
+    let nonce = &base64::encode(random_bytes); 
+    let nonce = XNonce::from_slice(nonce.as_bytes()); 
     let ciphertext = aead.encrypt(nonce, plaintext).expect("encryption failure!");
     Ok(format!("{}:{}",base64::encode(nonce),base64::encode(&ciphertext).to_string()))
 }
@@ -36,10 +41,16 @@ mod tests {
   #[test]
   fn test_encryption() {
     let message = "thresh(2,wpkh([fingerprint/h/d/path]xpub/*),*,*))";
-    let key = Key::from_slice(b"an example very very secret key."); // 32-bytes
+    let mut rng = thread_rng();
+    let random = rng.gen::<u64>().clone();
+    let random_string = random.to_string();
+    let random_bytes = random_string.as_bytes();
+    let key_str = "ishi".to_string() + &base64::encode(random_bytes); 
+    println!("KEY: {}", key_str);
+    let key = Key::from_slice(&key_str.as_bytes());
     let ciphertext = _cc20p1305_encrypt(message.as_bytes(), &key).unwrap();
     let plaintext = _cc20p1305_decrypt(&ciphertext, key).unwrap();
-    println!("{}",plaintext);
+    println!("{}\n{}",ciphertext,plaintext);
     assert_eq!(&plaintext, message);
   }
 }

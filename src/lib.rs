@@ -479,6 +479,7 @@ pub unsafe extern "C" fn sqlite_sync(
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
 pub unsafe extern "C" fn sqlite_balance(
     descriptor: *const c_char,
     db_path: *const c_char
@@ -577,6 +578,7 @@ pub unsafe extern "C" fn sync_balance(
 /// # Safety
 /// - This function is unsafe because it dereferences and a returns raw pointer.
 /// - ENSURE that result is passed into cstring_free(ptr: *mut c_char) after use.
+#[no_mangle]
 pub unsafe extern "C" fn sqlite_history(
     descriptor: *const c_char,
     db_path: *const c_char
