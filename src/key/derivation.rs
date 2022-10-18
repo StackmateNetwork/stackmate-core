@@ -2,6 +2,7 @@ use crate::e::{ErrorKind, S5Error};
 use bitcoin::network::constants::Network;
 use bitcoin::secp256k1::Secp256k1;
 use bitcoin::util::bip32::{DerivationPath, ExtendedPrivKey, ExtendedPubKey};
+use bitcoin::secp256k1::{KeyPair, PublicKey, SecretKey};
 use serde::{Deserialize, Serialize};
 use std::ffi::CString;
 use std::fmt::Display;
@@ -36,6 +37,7 @@ impl ChildKeys {
         account: u64,
     ) -> Result<ChildKeys, S5Error> {
         let secp = Secp256k1::new();
+
         let root = match ExtendedPrivKey::from_str(master_xprv) {
             Ok(xprv) => xprv,
             Err(_) => return Err(S5Error::new(ErrorKind::Key, "Invalid Master Key.")),
@@ -72,7 +74,19 @@ impl ChildKeys {
                     Err(e) => return Err(S5Error::new(ErrorKind::Key, &e.to_string())),
                 };
                 let keypair = child_xprv.to_keypair(&secp);
-
+                let public_key = PublicKey::from_keypair(&keypair);
+                // ENFORCE EVEN PARITY!
+                let parity = public_key.to_string().remove(1);
+                let keypair = if parity == '3' {
+                  let mut seckey = SecretKey::from_keypair(&keypair);
+                  seckey.negate_assign();
+                  let key_pair = KeyPair::from_secret_key(&secp, seckey); 
+                  key_pair
+                }
+                else{
+                  keypair
+                };
+                
                 let schnorr_xprv = ExtendedPrivKey::decode(&keypair.secret_bytes()).unwrap();
                 let schnorr_xpub =
                     ExtendedPubKey::decode(&keypair.public_key().serialize()).unwrap();

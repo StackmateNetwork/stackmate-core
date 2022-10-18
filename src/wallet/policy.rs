@@ -81,11 +81,11 @@ pub fn compile(policy: &str, script_type: ScriptType) -> Result<String, S5Error>
         Err(e) => return Err(S5Error::new(ErrorKind::Internal, &e.to_string())),
     };
     let descriptor = match script_type {
-        ScriptType::WPKH => policy.replace("pk", "wpkh"),
+        ScriptType::WPKH => policy.replace("pk(", "wpkh("),
         ScriptType::SH => Descriptor::new_sh(legacy_policy).unwrap().to_string(),
         ScriptType::WSH => Descriptor::new_wsh(segwit_policy).unwrap().to_string(),
         ScriptType::SHWSH => Descriptor::new_sh_wsh(segwit_policy).unwrap().to_string(),
-        ScriptType::TR => policy.replace("pk", "tr"),
+        ScriptType::TR => policy.replace("pk(", "tr("),
     };
     Ok(descriptor.split('#').collect::<Vec<&str>>()[0].to_string())
 }

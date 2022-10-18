@@ -7,3 +7,4 @@ releases
 .vscode
 *.tar.gz
 *.tar
+.DS_Store
