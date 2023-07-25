@@ -134,7 +134,7 @@ mod tests {
     let imported_key = import(invalid_mnemonic, "password", Network::Testnet)
       .err()
       .unwrap();
-    let expected_message = "mnemonic has an invalid word count: 9. Word count must be 12, 15, 18, 21, or 24"
+    let expected_emessage = "mnemonic has an invalid word count: 9. Word count must be 12, 15, 18, 21, or 24"
     assert_eq!(expected_emessage, imported_key.message);
 
     let invalid_mnemonic = "beach dog road bed cliff thirty five four nine ten eleven tweleve";
