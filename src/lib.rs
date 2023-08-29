@@ -1913,4 +1913,26 @@ mod ffi {
             .expect("File delete failed");
         }
     }
+
+    #[test]
+    fn test_compile_policy(){
+        unsafe{
+            let alice_xprv = "[db7d25b5/84'/1'/6']tprv8fWev2sCuSkVWYoNUUSEuqLkmmfiZaVtgxosS5jRE9fw5ejL2odsajv1QyiLrPri3ppgyta6dsFaoDVCF4ZdEAR6qqY4tnaosujsPzLxB49/*";
+            let escrow_xpub = "[66a0c105/84'/1'/5']tpubDCKvnVh6U56wTSUEJGamQzdb3ByAc6gTPbjxXQqts5Bf1dBMopknipUUSmAV3UuihKPTddruSZCiqhyiYyhFWhz62SAGuC3PYmtAafUuG6R/*";
+            let bob_xprv = "[a90a3a81/84'/0'/0']tprv8g3FKkLE9gRHDYeedikuNRXMhZyQ6bsgnMxYk8dRPKg15BCsimrbw2zjA97gwu4Brw9XtVVdgyuUSSZd7ckjSbbwpGjAyVjonCXGKg2gE2D/*";
+            let escrow_policy = format!(
+                "thresh(2,pk({}),pk({}),pk({}))",
+                alice_xprv, bob_xprv, escrow_xpub
+            );
+
+            let policy = CString::new(escrow_policy).unwrap().into_raw();
+            let script: *mut i8 = CString::new("wsh").unwrap().into_raw();
+            let compiled = compile(
+                policy,
+                script,
+            );
+            let compiled_string = CStr::from_ptr(compiled).to_str().unwrap();
+            print!("{compiled_string}");
+        }
+    }
 }
