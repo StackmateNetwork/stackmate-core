@@ -264,11 +264,93 @@ In the next part, we will call this C library via Dart on an Android device.
 
 ## Part 3: Build Targets for iOS
 
-Then we will build the same library for iOS target
+This part covers compiling the lib for use on iOS targets
+
+**For now, building for iOS is supported on Mac only.**
+
+### Tooling
+
+- cargo 
+- xcode command line tools
+- cargo lipo
+
+### Install & Setup
+
+#### cargo
+```bash
+# Install rust toolchain
+curl https://sh.rustup.rs -sSf | sh
+cargo --version
+```
+
+#### xcode tools
+```bash
+xcode-select –install
+```
+
+#### cargo lipo
+```bash
+cargo install cargo-lipo
+```
+
+### Build for iOS Target
+
+To build for iOS, we need to add toolchain for iOS targets
+
+```bash
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios 
+```
+
+Now, we will compile binaries for iOS targets.
+```bash
+cd path/to/project
+cargo clean #Optional
+
+cargo install cargo-lipo #for arm64, x86_64 and universal library for iOS
+
+cargo build --target aarch64-apple-ios-sim --release #for arm64 iOS simulator
+```
+
 
 ## Part 4: Using iOS builds with Dart-C FFI
 
-Then we will call this C library via Dart on an iOS device.
+This section covers:
+- generating header files for iOS.
+- iOS specific configurations to be able to call C APIs from shared library.
+
+#### cbindgen
+```bash
+cargo install cbindgen
+```
+
+To generate header file
+
+```bash
+cbindgen -c cbindgen.toml | grep -v \#include | uniq > libstackmate.h
+```
+
+Copy shared library and header file to iOS folder of the flutter app
+```bash
+cp target/universal/release/libstackmate.a <path to flutter app>/ios/
+
+cp libstackmate.h <path to flutter app>/ios/Classes/
+```
+Add following lines to <project-name>.podspec in ios folder of the flutter app. Ignore if already present.
+
+```bash
+    s.public_header_files = 'Classes**/*.h'
+    s.static_framework = true
+    s.vendored_libraries = "**/*.a"
+```
+
+Add a dummy call method to .swift file in <i>ios/Classes</i> folder. Methods from ```.h file``` which are not added here will be dropped on building iOS app.
+
+```
+  public func dummyMethodToEnforceBundling() {
+    ...
+  }
+```
+
 
 ## Part 5: Automating for easier development
 
